@@ -25,13 +25,11 @@ Partial Class Workspace
         pnlDBList = New Panel()
         treeDBList = New TreeView()
         splList = New Splitter()
-        plnTableList = New Panel()
         lstTableList = New ListView()
         plnTableSearch = New TableLayoutPanel()
         txtTableSearch = New TextBox()
         btnTableSearch = New Button()
         pnlDBList.SuspendLayout()
-        plnTableList.SuspendLayout()
         plnTableSearch.SuspendLayout()
         SuspendLayout()
         ' 
@@ -62,20 +60,10 @@ Partial Class Workspace
         splList.TabIndex = 1
         splList.TabStop = False
         ' 
-        ' plnTableList
-        ' 
-        plnTableList.Controls.Add(lstTableList)
-        plnTableList.Controls.Add(plnTableSearch)
-        plnTableList.Dock = DockStyle.Fill
-        plnTableList.Location = New Point(315, 0)
-        plnTableList.Name = "plnTableList"
-        plnTableList.Size = New Size(835, 811)
-        plnTableList.TabIndex = 2
-        ' 
         ' lstTableList
         ' 
         lstTableList.Dock = DockStyle.Fill
-        lstTableList.Location = New Point(0, 37)
+        lstTableList.Location = New Point(315, 37)
         lstTableList.Name = "lstTableList"
         lstTableList.Size = New Size(835, 774)
         lstTableList.TabIndex = 2
@@ -90,7 +78,7 @@ Partial Class Workspace
         plnTableSearch.Controls.Add(txtTableSearch, 1, 0)
         plnTableSearch.Controls.Add(btnTableSearch, 0, 0)
         plnTableSearch.Dock = DockStyle.Top
-        plnTableSearch.Location = New Point(0, 0)
+        plnTableSearch.Location = New Point(315, 0)
         plnTableSearch.Name = "plnTableSearch"
         plnTableSearch.RowCount = 1
         plnTableSearch.RowStyles.Add(New RowStyle(SizeType.Percent, 100F))
@@ -120,14 +108,13 @@ Partial Class Workspace
         AutoScaleDimensions = New SizeF(10F, 25F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(1150, 811)
-        Controls.Add(plnTableList)
+        Controls.Add(lstTableList)
+        Controls.Add(plnTableSearch)
         Controls.Add(splList)
         Controls.Add(pnlDBList)
         Name = "Workspace"
         Text = "Workspace"
         pnlDBList.ResumeLayout(False)
-        plnTableList.ResumeLayout(False)
-        plnTableList.PerformLayout()
         plnTableSearch.ResumeLayout(False)
         plnTableSearch.PerformLayout()
         ResumeLayout(False)
@@ -135,7 +122,6 @@ Partial Class Workspace
 
     Friend WithEvents pnlDBList As Panel
     Friend WithEvents splList As Splitter
-    Friend WithEvents plnTableList As Panel
     Friend WithEvents plnTableSearch As TableLayoutPanel
     Friend WithEvents btnTableSearch As Button
     Friend WithEvents txtTableSearch As TextBox

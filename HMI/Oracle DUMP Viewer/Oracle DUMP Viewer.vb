@@ -3,6 +3,7 @@ Imports System.Text
 
 Public Class Oracle_DUMP_Viewer
 
+#Region "フォームロード・初期化"
     ''' <summary>
     ''' フォームロードイベント
     ''' </summary>
@@ -44,7 +45,9 @@ Public Class Oracle_DUMP_Viewer
         End Try
 
     End Sub
+#End Region
 
+#Region "メニューイベント: ダンプファイル"
     ''' <summary>
     ''' ToolStripMenuItem「ダンプファイル(D)」クリックイベント
     ''' クリックされると、ダンプファイルのパスを取得する
@@ -73,7 +76,9 @@ Public Class Oracle_DUMP_Viewer
         'ステータスラベルのテキストをリセットする
         COMMON.ReSet_StatusLavel()
     End Sub
+#End Region
 
+#Region "メニューイベント: ステータスバー・エクスポート・ライセンス認証"
     ''' <summary>
     ''' ToolStripMenuItem「ステータスバー(S)」クリックイベント
     ''' クリックされると、ステータスバーの表示/非表示を切り替える
@@ -109,7 +114,9 @@ Public Class Oracle_DUMP_Viewer
         MenuStripLogics.ライセンス認証ToolStripMenuItem()
 
     End Sub
+#End Region
 
+#Region "メニューイベント: ウィンドウ操作"
     ''' <summary>
     ''' ToolStripMenuItem「重ねて表示(C)」クリックイベント
     ''' クリックされると、MDI子ウィンドウを重ねて表示する
@@ -142,9 +149,13 @@ Public Class Oracle_DUMP_Viewer
         'MDI子ウィンドウのアイコンを整列する
         Me.LayoutMdi(MdiLayout.ArrangeIcons)
     End Sub
+#End Region
 
+#Region "メニューイベント: 終了"
     Private Sub 終了XToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles 終了XToolStripMenuItem.Click
         'アプリケーションを終了する
         Application.Exit()
     End Sub
+#End Region
+
 End Class

@@ -1,6 +1,7 @@
 ﻿Public Class Workspace
     Inherits Form
 
+#Region "フィールド・コンストラクタ"
     Private DumpFilePath As String
     Private WorkspacePath As String
 
@@ -10,8 +11,9 @@
         DumpFilePath = value1
         WorkspacePath = value2
     End Sub
+#End Region
 
-
+#Region "イベント処理"
     Private Sub Workspace_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         'ダンプファイルの解析を実行する
         AnalyzeLogic.AnalyzeDumpFile(DumpFilePath)
@@ -19,7 +21,9 @@
         'テストデータを追加する
         AddTestDataToTreeDBList()
     End Sub
+#End Region
 
+#Region "テストデータ追加処理"
     Private Sub AddTestDataToTreeDBList()
         'ルートノードを追加
         Dim rootNode As TreeNode = treeDBList.Nodes.Add("Database")
@@ -41,4 +45,6 @@
         'ルートノードを展開
         rootNode.Expand()
     End Sub
+#End Region
+
 End Class

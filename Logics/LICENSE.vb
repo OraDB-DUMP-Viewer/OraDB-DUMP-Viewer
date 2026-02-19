@@ -7,11 +7,15 @@ Imports System.Text.Json
 ''' 公開鍵暗号方式によるライセンス検証ロジック
 ''' </summary>
 Public Class LICENSE
+
+#Region "公開鍵定義"
     ''' <summary>
     ''' 公開鍵（PEM形式 or XML形式）
     ''' </summary>
     Public Const PublicKeyXml As String = "<RSAKeyValue><Modulus>vCjZ1HeSgqUO5oWANZhprgAlPN0YzBF2rCU9pvQ1mgWC61vcEHxZ2nrjxhu5Uptx3Unkeexa7Rt+Dz1Bxs+q+2nNr8dFVvoyDk+j/gzVNfBK1OBOW7lkxrO2tMvXjoBnHda1CQqn2RHeaxHprWsLDBKGnsPvTnVoNBuAyX7AadVF0xt9jQf1ZnTbTPjqNOeaQE8T3QcAfa64girV6ED/u/2cpp3N1CyshWKVwDKsBYYj7w3/JmOeetq4/eC2uuPZJa1SgQj0zNMPZx+az2wKlFMU5tJT63udSl9nmKvmEr57XCScYpL4BWbKV48P+nmXNg/NAbesE9rZZgQrmINGmw==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>"
+#End Region
 
+#Region "ライセンス検証メイン処理"
     ''' <summary>
     ''' ライセンスファイル（JSON+署名）を検証し、情報を抽出
     ''' </summary>
@@ -55,6 +59,9 @@ Public Class LICENSE
             Return False
         End Try
     End Function
+#End Region
+
+#Region "ライセンス情報取得"
     ''' <summary>
     ''' 現在のライセンスファイルからHolder（使用者名）を取得
     ''' </summary>
@@ -75,5 +82,6 @@ Public Class LICENSE
             Return ""
         End Try
     End Function
+#End Region
 
 End Class

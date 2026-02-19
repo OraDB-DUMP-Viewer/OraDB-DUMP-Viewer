@@ -1,4 +1,6 @@
 ﻿Public Class COMMON
+
+#Region "ステータスラベル関連"
     ''' <summary>
     ''' ToolStripStatusLabelにテキストを設定する
     ''' </summary>
@@ -6,7 +8,6 @@
     Public Shared Sub Set_StatusLavel(text As String)
         'ステータスラベルのテキストを更新する
         Oracle_DUMP_Viewer.ToolStripStatusLabel.Text = text
-
         Application.DoEvents() ' UIの更新を強制
     End Sub
 
@@ -21,10 +22,11 @@
         Else
             Oracle_DUMP_Viewer.ToolStripStatusLabel.Text = $"Oracle DUMP Viewer - {holder}"
         End If
-
         Application.DoEvents() ' UIの更新を強制
     End Sub
+#End Region
 
+#Region "プログレスバー関連"
     ''' <summary>
     ''' プログレスバー更新処理
     ''' </summary>
@@ -62,12 +64,27 @@
 
             Oracle_DUMP_Viewer.ToolStripProgressBar.Value = current
 
-
         Catch ex As Exception
             Console.WriteLine($"プログレス更新エラー: {ex.Message}")
         End Try
     End Sub
 
+    Public Shared Sub setProgressBarMax(total As Integer)
+        Oracle_DUMP_Viewer.ToolStripProgressBar.Maximum = total
+        Oracle_DUMP_Viewer.ToolStripProgressBar.Value = 0
+        Oracle_DUMP_Viewer.ToolStripProgressBar.Visible = True
+    End Sub
+
+    ''' <summary>
+    ''' プログレスバーをリセットする
+    ''' </summary>
+    Public Shared Sub ResetProgressBar()
+        Oracle_DUMP_Viewer.ToolStripProgressBar.Value = 0
+        Oracle_DUMP_Viewer.ToolStripProgressBar.Visible = False
+    End Sub
+#End Region
+
+#Region "ステータスメッセージ構築・補助関数"
     ''' <summary>
     ''' ステータスメッセージを構築
     ''' </summary>
@@ -109,19 +126,6 @@
             Return "計算中..."
         End Try
     End Function
-
-
-    Public Shared Sub setProgressBarMax(total As Integer)
-        Oracle_DUMP_Viewer.ToolStripProgressBar.Maximum = total
-        Oracle_DUMP_Viewer.ToolStripProgressBar.Value = 0
-        Oracle_DUMP_Viewer.ToolStripProgressBar.Visible = True
-    End Sub
-    ''' <summary>
-    ''' プログレスバーをリセットする
-    ''' </summary>
-    Public Shared Sub ResetProgressBar()
-        Oracle_DUMP_Viewer.ToolStripProgressBar.Value = 0
-        Oracle_DUMP_Viewer.ToolStripProgressBar.Visible = False
-    End Sub
+#End Region
 
 End Class

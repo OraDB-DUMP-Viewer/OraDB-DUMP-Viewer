@@ -141,12 +141,22 @@ jobs:
                      Manufacturer="YANAI Taketo"
                      UpgradeCode="cd3b541d-5df6-4737-9bcc-16a4329a8a54"
                      Codepage="65001"
-                     Scope="perMachine">
+                     Scope="perMachine"
+                     Language="1041">
 
               <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
               <MediaTemplate EmbedCab="yes" />
 
+              <!-- .NET 10.0 ランタイムの存在チェックと案内 -->
+              <Property Id="DOTNET_INSTALLED">
+                <RegistrySearch Id="CheckDotNet10Runtime" Root="HKLM" Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedhost" Name="Version" Type="raw" />
+              </Property>
+              <Condition Message=".NET 10.0 ランタイムが必要です。インストールしてから再度セットアップを実行してください。\n\nダウンロード: https://dotnet.microsoft.com/ja-jp/download/dotnet/10.0">
+                <![CDATA[DOTNET_INSTALLED AND DOTNET_INSTALLED >= "10.0.0"]]>
+              </Condition>
+
               <ui:WixUI Id="WixUI_InstallDir" />
+              <WixLocalization Culture="ja-jp" />
               <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
 
               <Feature Id="ProductFeature" Title="Oracle DUMP Viewer" Level="1">

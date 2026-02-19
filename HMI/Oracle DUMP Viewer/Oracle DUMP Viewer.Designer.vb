@@ -22,6 +22,7 @@ Partial Class Oracle_DUMP_Viewer
     'コード エディターを使って変更しないでください。
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Oracle_DUMP_Viewer))
         MenuStrip = New MenuStrip()
         ファイルFToolStripMenuItem = New ToolStripMenuItem()
         開くToolStripMenuItem = New ToolStripMenuItem()
@@ -89,8 +90,22 @@ Partial Class Oracle_DUMP_Viewer
         StatusStrip = New StatusStrip()
         ToolStripProgressBar = New ToolStripProgressBar()
         ToolStripStatusLabel = New ToolStripStatusLabel()
+        ToolStrip = New ToolStrip()
+        ToolStripButton2 = New ToolStripButton()
+        ToolStripButton1 = New ToolStripButton()
+        ToolStripSeparator11 = New ToolStripSeparator()
+        ToolStripButton5 = New ToolStripButton()
+        ToolStripButton6 = New ToolStripButton()
+        ToolStripSeparator12 = New ToolStripSeparator()
+        ToolStripButton7 = New ToolStripButton()
+        ToolStripButton8 = New ToolStripButton()
+        ToolStripButton10 = New ToolStripButton()
+        ToolStripButton9 = New ToolStripButton()
+        ToolStripButton3 = New ToolStripButton()
+        ToolStripSeparator13 = New ToolStripSeparator()
         MenuStrip.SuspendLayout()
         StatusStrip.SuspendLayout()
+        ToolStrip.SuspendLayout()
         SuspendLayout()
         ' 
         ' MenuStrip
@@ -285,19 +300,19 @@ Partial Class Oracle_DUMP_Viewer
         ' 標準ToolStripMenuItem
         ' 
         標準ToolStripMenuItem.Name = "標準ToolStripMenuItem"
-        標準ToolStripMenuItem.Size = New Size(195, 34)
+        標準ToolStripMenuItem.Size = New Size(270, 34)
         標準ToolStripMenuItem.Text = "標準"
         ' 
         ' 編集ToolStripMenuItem
         ' 
         編集ToolStripMenuItem.Name = "編集ToolStripMenuItem"
-        編集ToolStripMenuItem.Size = New Size(195, 34)
+        編集ToolStripMenuItem.Size = New Size(270, 34)
         編集ToolStripMenuItem.Text = "編集"
         ' 
         ' エクスポートToolStripMenuItem
         ' 
         エクスポートToolStripMenuItem.Name = "エクスポートToolStripMenuItem"
-        エクスポートToolStripMenuItem.Size = New Size(195, 34)
+        エクスポートToolStripMenuItem.Size = New Size(270, 34)
         エクスポートToolStripMenuItem.Text = "エクスポート"
         ' 
         ' ステータスバーSToolStripMenuItem
@@ -421,29 +436,29 @@ Partial Class Oracle_DUMP_Viewer
         ' ファイルの取り出しFToolStripMenuItem
         ' 
         ファイルの取り出しFToolStripMenuItem.Name = "ファイルの取り出しFToolStripMenuItem"
-        ファイルの取り出しFToolStripMenuItem.Size = New Size(260, 34)
+        ファイルの取り出しFToolStripMenuItem.Size = New Size(270, 34)
         ファイルの取り出しFToolStripMenuItem.Text = "ファイルの取り出し(&F)"
         ' 
         ' ToolStripSeparator8
         ' 
         ToolStripSeparator8.Name = "ToolStripSeparator8"
-        ToolStripSeparator8.Size = New Size(257, 6)
+        ToolStripSeparator8.Size = New Size(267, 6)
         ' 
         ' レポート定義DToolStripMenuItem
         ' 
         レポート定義DToolStripMenuItem.Name = "レポート定義DToolStripMenuItem"
-        レポート定義DToolStripMenuItem.Size = New Size(260, 34)
+        レポート定義DToolStripMenuItem.Size = New Size(270, 34)
         レポート定義DToolStripMenuItem.Text = "レポート定義(&D)"
         ' 
         ' オプションOToolStripMenuItem
         ' 
         オプションOToolStripMenuItem.Name = "オプションOToolStripMenuItem"
-        オプションOToolStripMenuItem.Size = New Size(260, 34)
+        オプションOToolStripMenuItem.Size = New Size(270, 34)
         オプションOToolStripMenuItem.Text = "オプション(&O)"
         ' 
         ' ウィンドウWToolStripMenuItem
         ' 
-        ウィンドウWToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {重ねて表示CToolStripMenuItem, 並べて表示TToolStripMenuItem, アイコンの整列IToolStripMenuItem})
+        ウィンドウWToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {重ねて表示CToolStripMenuItem, 並べて表示TToolStripMenuItem, アイコンの整列IToolStripMenuItem, ToolStripSeparator13})
         ウィンドウWToolStripMenuItem.Name = "ウィンドウWToolStripMenuItem"
         ウィンドウWToolStripMenuItem.Size = New Size(118, 29)
         ウィンドウWToolStripMenuItem.Text = "ウィンドウ(&W)"
@@ -451,19 +466,19 @@ Partial Class Oracle_DUMP_Viewer
         ' 重ねて表示CToolStripMenuItem
         ' 
         重ねて表示CToolStripMenuItem.Name = "重ねて表示CToolStripMenuItem"
-        重ねて表示CToolStripMenuItem.Size = New Size(233, 34)
+        重ねて表示CToolStripMenuItem.Size = New Size(270, 34)
         重ねて表示CToolStripMenuItem.Text = "重ねて表示(&C)"
         ' 
         ' 並べて表示TToolStripMenuItem
         ' 
         並べて表示TToolStripMenuItem.Name = "並べて表示TToolStripMenuItem"
-        並べて表示TToolStripMenuItem.Size = New Size(233, 34)
+        並べて表示TToolStripMenuItem.Size = New Size(270, 34)
         並べて表示TToolStripMenuItem.Text = "並べて表示($T)"
         ' 
         ' アイコンの整列IToolStripMenuItem
         ' 
         アイコンの整列IToolStripMenuItem.Name = "アイコンの整列IToolStripMenuItem"
-        アイコンの整列IToolStripMenuItem.Size = New Size(233, 34)
+        アイコンの整列IToolStripMenuItem.Size = New Size(270, 34)
         アイコンの整列IToolStripMenuItem.Text = "アイコンの整列(&I)"
         ' 
         ' ヘルプHToolStripMenuItem
@@ -528,11 +543,118 @@ Partial Class Oracle_DUMP_Viewer
         ToolStripStatusLabel.Size = New Size(175, 25)
         ToolStripStatusLabel.Text = "Oracle DUMP Viewer"
         ' 
+        ' ToolStrip
+        ' 
+        ToolStrip.ImageScalingSize = New Size(24, 24)
+        ToolStrip.Items.AddRange(New ToolStripItem() {ToolStripButton2, ToolStripButton1, ToolStripSeparator11, ToolStripButton5, ToolStripButton6, ToolStripSeparator12, ToolStripButton7, ToolStripButton8, ToolStripButton10, ToolStripButton9, ToolStripButton3})
+        ToolStrip.Location = New Point(0, 33)
+        ToolStrip.Name = "ToolStrip"
+        ToolStrip.Size = New Size(1607, 33)
+        ToolStrip.TabIndex = 4
+        ToolStrip.Text = "ToolStrip2"
+        ' 
+        ' ToolStripButton2
+        ' 
+        ToolStripButton2.DisplayStyle = ToolStripItemDisplayStyle.Image
+        ToolStripButton2.Image = CType(resources.GetObject("ToolStripButton2.Image"), Image)
+        ToolStripButton2.ImageTransparentColor = Color.Magenta
+        ToolStripButton2.Name = "ToolStripButton2"
+        ToolStripButton2.Size = New Size(34, 28)
+        ToolStripButton2.Text = "プロパティ"
+        ' 
+        ' ToolStripButton1
+        ' 
+        ToolStripButton1.DisplayStyle = ToolStripItemDisplayStyle.Image
+        ToolStripButton1.Image = CType(resources.GetObject("ToolStripButton1.Image"), Image)
+        ToolStripButton1.ImageTransparentColor = Color.Magenta
+        ToolStripButton1.Name = "ToolStripButton1"
+        ToolStripButton1.Size = New Size(34, 28)
+        ToolStripButton1.Text = "削除"
+        ' 
+        ' ToolStripSeparator11
+        ' 
+        ToolStripSeparator11.Name = "ToolStripSeparator11"
+        ToolStripSeparator11.Size = New Size(6, 33)
+        ' 
+        ' ToolStripButton5
+        ' 
+        ToolStripButton5.DisplayStyle = ToolStripItemDisplayStyle.Image
+        ToolStripButton5.Image = CType(resources.GetObject("ToolStripButton5.Image"), Image)
+        ToolStripButton5.ImageTransparentColor = Color.Magenta
+        ToolStripButton5.Name = "ToolStripButton5"
+        ToolStripButton5.Size = New Size(34, 28)
+        ToolStripButton5.Text = "スクリプト出力"
+        ' 
+        ' ToolStripButton6
+        ' 
+        ToolStripButton6.DisplayStyle = ToolStripItemDisplayStyle.Image
+        ToolStripButton6.Image = CType(resources.GetObject("ToolStripButton6.Image"), Image)
+        ToolStripButton6.ImageTransparentColor = Color.Magenta
+        ToolStripButton6.Name = "ToolStripButton6"
+        ToolStripButton6.Size = New Size(34, 28)
+        ToolStripButton6.Text = "データ出力"
+        ' 
+        ' ToolStripSeparator12
+        ' 
+        ToolStripSeparator12.Name = "ToolStripSeparator12"
+        ToolStripSeparator12.Size = New Size(6, 33)
+        ' 
+        ' ToolStripButton7
+        ' 
+        ToolStripButton7.DisplayStyle = ToolStripItemDisplayStyle.Image
+        ToolStripButton7.Image = CType(resources.GetObject("ToolStripButton7.Image"), Image)
+        ToolStripButton7.ImageTransparentColor = Color.Magenta
+        ToolStripButton7.Name = "ToolStripButton7"
+        ToolStripButton7.Size = New Size(34, 28)
+        ToolStripButton7.Text = "Excel形式で出力"
+        ' 
+        ' ToolStripButton8
+        ' 
+        ToolStripButton8.DisplayStyle = ToolStripItemDisplayStyle.Image
+        ToolStripButton8.Image = CType(resources.GetObject("ToolStripButton8.Image"), Image)
+        ToolStripButton8.ImageTransparentColor = Color.Magenta
+        ToolStripButton8.Name = "ToolStripButton8"
+        ToolStripButton8.Size = New Size(34, 28)
+        ToolStripButton8.Text = "Access形式で出力"
+        ' 
+        ' ToolStripButton10
+        ' 
+        ToolStripButton10.DisplayStyle = ToolStripItemDisplayStyle.Image
+        ToolStripButton10.Image = CType(resources.GetObject("ToolStripButton10.Image"), Image)
+        ToolStripButton10.ImageTransparentColor = Color.Magenta
+        ToolStripButton10.Name = "ToolStripButton10"
+        ToolStripButton10.Size = New Size(34, 28)
+        ToolStripButton10.Text = "テキスト形式で出力"
+        ' 
+        ' ToolStripButton9
+        ' 
+        ToolStripButton9.DisplayStyle = ToolStripItemDisplayStyle.Image
+        ToolStripButton9.Image = CType(resources.GetObject("ToolStripButton9.Image"), Image)
+        ToolStripButton9.ImageTransparentColor = Color.Magenta
+        ToolStripButton9.Name = "ToolStripButton9"
+        ToolStripButton9.Size = New Size(34, 28)
+        ToolStripButton9.Text = "SQL Serverへ出力"
+        ' 
+        ' ToolStripButton3
+        ' 
+        ToolStripButton3.DisplayStyle = ToolStripItemDisplayStyle.Image
+        ToolStripButton3.Image = CType(resources.GetObject("ToolStripButton3.Image"), Image)
+        ToolStripButton3.ImageTransparentColor = Color.Magenta
+        ToolStripButton3.Name = "ToolStripButton3"
+        ToolStripButton3.Size = New Size(34, 28)
+        ToolStripButton3.Text = "ODBCで出力"
+        ' 
+        ' ToolStripSeparator13
+        ' 
+        ToolStripSeparator13.Name = "ToolStripSeparator13"
+        ToolStripSeparator13.Size = New Size(267, 6)
+        ' 
         ' Oracle_DUMP_Viewer
         ' 
         AutoScaleDimensions = New SizeF(10F, 25F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(1607, 1059)
+        Controls.Add(ToolStrip)
         Controls.Add(StatusStrip)
         Controls.Add(MenuStrip)
         IsMdiContainer = True
@@ -543,6 +665,8 @@ Partial Class Oracle_DUMP_Viewer
         MenuStrip.PerformLayout()
         StatusStrip.ResumeLayout(False)
         StatusStrip.PerformLayout()
+        ToolStrip.ResumeLayout(False)
+        ToolStrip.PerformLayout()
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -614,4 +738,17 @@ Partial Class Oracle_DUMP_Viewer
     Friend WithEvents ToolStripStatusLabel As ToolStripStatusLabel
     Friend WithEvents ToolStripProgressBar As ToolStripProgressBar
     Friend WithEvents ライセンス認証ToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ToolStrip As ToolStrip
+    Friend WithEvents ToolStripButton5 As ToolStripButton
+    Friend WithEvents ToolStripButton6 As ToolStripButton
+    Friend WithEvents ToolStripSeparator12 As ToolStripSeparator
+    Friend WithEvents ToolStripButton7 As ToolStripButton
+    Friend WithEvents ToolStripButton10 As ToolStripButton
+    Friend WithEvents ToolStripButton8 As ToolStripButton
+    Friend WithEvents ToolStripButton9 As ToolStripButton
+    Friend WithEvents ToolStripButton2 As ToolStripButton
+    Friend WithEvents ToolStripButton1 As ToolStripButton
+    Friend WithEvents ToolStripSeparator11 As ToolStripSeparator
+    Friend WithEvents ToolStripButton3 As ToolStripButton
+    Friend WithEvents ToolStripSeparator13 As ToolStripSeparator
 End Class

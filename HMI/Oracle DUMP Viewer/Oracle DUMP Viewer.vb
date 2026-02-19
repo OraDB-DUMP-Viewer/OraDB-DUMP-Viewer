@@ -97,4 +97,9 @@ Public Class Oracle_DUMP_Viewer
         MenuStripLogics.ライセンス認証ToolStripMenuItem()
 
     End Sub
+
+    Private Sub 終了XToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles 終了XToolStripMenuItem.Click
+        'アプリケーションを終了する
+        Application.Exit()
+    End Sub
 End Class

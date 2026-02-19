@@ -476,35 +476,35 @@ Partial Class Oracle_DUMP_Viewer
         ' MokujiToolStripMenuItem
         ' 
         MokujiToolStripMenuItem.Name = "MokujiToolStripMenuItem"
-        MokujiToolStripMenuItem.Size = New Size(270, 34)
+        MokujiToolStripMenuItem.Size = New Size(238, 34)
         MokujiToolStripMenuItem.Text = "目次(&I)"
         ' 
         ' ToolStripSeparator9
         ' 
         ToolStripSeparator9.Name = "ToolStripSeparator9"
-        ToolStripSeparator9.Size = New Size(267, 6)
+        ToolStripSeparator9.Size = New Size(235, 6)
         ' 
         ' エラー報告RToolStripMenuItem
         ' 
         エラー報告RToolStripMenuItem.Name = "エラー報告RToolStripMenuItem"
-        エラー報告RToolStripMenuItem.Size = New Size(270, 34)
+        エラー報告RToolStripMenuItem.Size = New Size(238, 34)
         エラー報告RToolStripMenuItem.Text = "エラー報告(&R)"
         ' 
         ' ToolStripSeparator10
         ' 
         ToolStripSeparator10.Name = "ToolStripSeparator10"
-        ToolStripSeparator10.Size = New Size(267, 6)
+        ToolStripSeparator10.Size = New Size(235, 6)
         ' 
         ' ライセンス認証ToolStripMenuItem
         ' 
         ライセンス認証ToolStripMenuItem.Name = "ライセンス認証ToolStripMenuItem"
-        ライセンス認証ToolStripMenuItem.Size = New Size(270, 34)
+        ライセンス認証ToolStripMenuItem.Size = New Size(238, 34)
         ライセンス認証ToolStripMenuItem.Text = "ライセンス認証(&L)"
         ' 
         ' バージョン情報AToolStripMenuItem
         ' 
         バージョン情報AToolStripMenuItem.Name = "バージョン情報AToolStripMenuItem"
-        バージョン情報AToolStripMenuItem.Size = New Size(270, 34)
+        バージョン情報AToolStripMenuItem.Size = New Size(238, 34)
         バージョン情報AToolStripMenuItem.Text = "バージョン情報(&A)"
         ' 
         ' StatusStrip

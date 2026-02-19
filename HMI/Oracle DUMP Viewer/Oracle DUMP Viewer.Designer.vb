@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class Oracle_DUMP_Viewer
     Inherits System.Windows.Forms.Form
 
     'フォームがコンポーネントの一覧をクリーンアップするために dispose をオーバーライドします。
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +20,7 @@ Partial Class Oracle_DUMP_Viewer
     'メモ: 以下のプロシージャは Windows フォーム デザイナーで必要です。
     'Windows フォーム デザイナーを使用して変更できます。  
     'コード エディターを使って変更しないでください。
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Oracle_DUMP_Viewer))
         MenuStrip = New MenuStrip()
@@ -50,8 +50,6 @@ Partial Class Oracle_DUMP_Viewer
         すべて選択AToolStripMenuItem1 = New ToolStripMenuItem()
         表示VToolStripMenuItem = New ToolStripMenuItem()
         ツールバーTToolStripMenuItem = New ToolStripMenuItem()
-        標準ToolStripMenuItem = New ToolStripMenuItem()
-        編集ToolStripMenuItem = New ToolStripMenuItem()
         エクスポートToolStripMenuItem = New ToolStripMenuItem()
         ステータスバーSToolStripMenuItem = New ToolStripMenuItem()
         ToolStripSeparator4 = New ToolStripSeparator()
@@ -80,6 +78,7 @@ Partial Class Oracle_DUMP_Viewer
         重ねて表示CToolStripMenuItem = New ToolStripMenuItem()
         並べて表示TToolStripMenuItem = New ToolStripMenuItem()
         アイコンの整列IToolStripMenuItem = New ToolStripMenuItem()
+        ToolStripSeparator13 = New ToolStripSeparator()
         ヘルプHToolStripMenuItem = New ToolStripMenuItem()
         MokujiToolStripMenuItem = New ToolStripMenuItem()
         ToolStripSeparator9 = New ToolStripSeparator()
@@ -90,7 +89,7 @@ Partial Class Oracle_DUMP_Viewer
         StatusStrip = New StatusStrip()
         ToolStripProgressBar = New ToolStripProgressBar()
         ToolStripStatusLabel = New ToolStripStatusLabel()
-        ToolStrip = New ToolStrip()
+        ToolExport = New ToolStrip()
         ToolStripButton2 = New ToolStripButton()
         ToolStripButton1 = New ToolStripButton()
         ToolStripSeparator11 = New ToolStripSeparator()
@@ -102,10 +101,9 @@ Partial Class Oracle_DUMP_Viewer
         ToolStripButton10 = New ToolStripButton()
         ToolStripButton9 = New ToolStripButton()
         ToolStripButton3 = New ToolStripButton()
-        ToolStripSeparator13 = New ToolStripSeparator()
         MenuStrip.SuspendLayout()
         StatusStrip.SuspendLayout()
-        ToolStrip.SuspendLayout()
+        ToolExport.SuspendLayout()
         SuspendLayout()
         ' 
         ' MenuStrip
@@ -293,25 +291,15 @@ Partial Class Oracle_DUMP_Viewer
         ' 
         ' ツールバーTToolStripMenuItem
         ' 
-        ツールバーTToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {標準ToolStripMenuItem, 編集ToolStripMenuItem, エクスポートToolStripMenuItem})
+        ツールバーTToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {エクスポートToolStripMenuItem})
         ツールバーTToolStripMenuItem.Name = "ツールバーTToolStripMenuItem"
         ツールバーTToolStripMenuItem.Size = New Size(303, 34)
         ツールバーTToolStripMenuItem.Text = "ツールバー(&T)"
         ' 
-        ' 標準ToolStripMenuItem
-        ' 
-        標準ToolStripMenuItem.Name = "標準ToolStripMenuItem"
-        標準ToolStripMenuItem.Size = New Size(270, 34)
-        標準ToolStripMenuItem.Text = "標準"
-        ' 
-        ' 編集ToolStripMenuItem
-        ' 
-        編集ToolStripMenuItem.Name = "編集ToolStripMenuItem"
-        編集ToolStripMenuItem.Size = New Size(270, 34)
-        編集ToolStripMenuItem.Text = "編集"
-        ' 
         ' エクスポートToolStripMenuItem
         ' 
+        エクスポートToolStripMenuItem.Checked = True
+        エクスポートToolStripMenuItem.CheckState = CheckState.Checked
         エクスポートToolStripMenuItem.Name = "エクスポートToolStripMenuItem"
         エクスポートToolStripMenuItem.Size = New Size(270, 34)
         エクスポートToolStripMenuItem.Text = "エクスポート"
@@ -437,24 +425,24 @@ Partial Class Oracle_DUMP_Viewer
         ' ファイルの取り出しFToolStripMenuItem
         ' 
         ファイルの取り出しFToolStripMenuItem.Name = "ファイルの取り出しFToolStripMenuItem"
-        ファイルの取り出しFToolStripMenuItem.Size = New Size(270, 34)
+        ファイルの取り出しFToolStripMenuItem.Size = New Size(260, 34)
         ファイルの取り出しFToolStripMenuItem.Text = "ファイルの取り出し(&F)"
         ' 
         ' ToolStripSeparator8
         ' 
         ToolStripSeparator8.Name = "ToolStripSeparator8"
-        ToolStripSeparator8.Size = New Size(267, 6)
+        ToolStripSeparator8.Size = New Size(257, 6)
         ' 
         ' レポート定義DToolStripMenuItem
         ' 
         レポート定義DToolStripMenuItem.Name = "レポート定義DToolStripMenuItem"
-        レポート定義DToolStripMenuItem.Size = New Size(270, 34)
+        レポート定義DToolStripMenuItem.Size = New Size(260, 34)
         レポート定義DToolStripMenuItem.Text = "レポート定義(&D)"
         ' 
         ' オプションOToolStripMenuItem
         ' 
         オプションOToolStripMenuItem.Name = "オプションOToolStripMenuItem"
-        オプションOToolStripMenuItem.Size = New Size(270, 34)
+        オプションOToolStripMenuItem.Size = New Size(260, 34)
         オプションOToolStripMenuItem.Text = "オプション(&O)"
         ' 
         ' ウィンドウWToolStripMenuItem
@@ -467,20 +455,25 @@ Partial Class Oracle_DUMP_Viewer
         ' 重ねて表示CToolStripMenuItem
         ' 
         重ねて表示CToolStripMenuItem.Name = "重ねて表示CToolStripMenuItem"
-        重ねて表示CToolStripMenuItem.Size = New Size(270, 34)
+        重ねて表示CToolStripMenuItem.Size = New Size(233, 34)
         重ねて表示CToolStripMenuItem.Text = "重ねて表示(&C)"
         ' 
         ' 並べて表示TToolStripMenuItem
         ' 
         並べて表示TToolStripMenuItem.Name = "並べて表示TToolStripMenuItem"
-        並べて表示TToolStripMenuItem.Size = New Size(270, 34)
+        並べて表示TToolStripMenuItem.Size = New Size(233, 34)
         並べて表示TToolStripMenuItem.Text = "並べて表示($T)"
         ' 
         ' アイコンの整列IToolStripMenuItem
         ' 
         アイコンの整列IToolStripMenuItem.Name = "アイコンの整列IToolStripMenuItem"
-        アイコンの整列IToolStripMenuItem.Size = New Size(270, 34)
+        アイコンの整列IToolStripMenuItem.Size = New Size(233, 34)
         アイコンの整列IToolStripMenuItem.Text = "アイコンの整列(&I)"
+        ' 
+        ' ToolStripSeparator13
+        ' 
+        ToolStripSeparator13.Name = "ToolStripSeparator13"
+        ToolStripSeparator13.Size = New Size(230, 6)
         ' 
         ' ヘルプHToolStripMenuItem
         ' 
@@ -544,15 +537,15 @@ Partial Class Oracle_DUMP_Viewer
         ToolStripStatusLabel.Size = New Size(175, 25)
         ToolStripStatusLabel.Text = "Oracle DUMP Viewer"
         ' 
-        ' ToolStrip
+        ' ToolExport
         ' 
-        ToolStrip.ImageScalingSize = New Size(24, 24)
-        ToolStrip.Items.AddRange(New ToolStripItem() {ToolStripButton2, ToolStripButton1, ToolStripSeparator11, ToolStripButton5, ToolStripButton6, ToolStripSeparator12, ToolStripButton7, ToolStripButton8, ToolStripButton10, ToolStripButton9, ToolStripButton3})
-        ToolStrip.Location = New Point(0, 33)
-        ToolStrip.Name = "ToolStrip"
-        ToolStrip.Size = New Size(1607, 33)
-        ToolStrip.TabIndex = 4
-        ToolStrip.Text = "ToolStrip2"
+        ToolExport.ImageScalingSize = New Size(24, 24)
+        ToolExport.Items.AddRange(New ToolStripItem() {ToolStripButton2, ToolStripButton1, ToolStripSeparator11, ToolStripButton5, ToolStripButton6, ToolStripSeparator12, ToolStripButton7, ToolStripButton8, ToolStripButton10, ToolStripButton9, ToolStripButton3})
+        ToolExport.Location = New Point(0, 33)
+        ToolExport.Name = "ToolExport"
+        ToolExport.Size = New Size(1607, 33)
+        ToolExport.TabIndex = 4
+        ToolExport.Text = "ToolStrip2"
         ' 
         ' ToolStripButton2
         ' 
@@ -645,17 +638,12 @@ Partial Class Oracle_DUMP_Viewer
         ToolStripButton3.Size = New Size(34, 28)
         ToolStripButton3.Text = "ODBCで出力"
         ' 
-        ' ToolStripSeparator13
-        ' 
-        ToolStripSeparator13.Name = "ToolStripSeparator13"
-        ToolStripSeparator13.Size = New Size(267, 6)
-        ' 
         ' Oracle_DUMP_Viewer
         ' 
-        AutoScaleDimensions = New SizeF(10F, 25F)
+        AutoScaleDimensions = New SizeF(10.0F, 25.0F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(1607, 1059)
-        Controls.Add(ToolStrip)
+        Controls.Add(ToolExport)
         Controls.Add(StatusStrip)
         Controls.Add(MenuStrip)
         IsMdiContainer = True
@@ -666,8 +654,8 @@ Partial Class Oracle_DUMP_Viewer
         MenuStrip.PerformLayout()
         StatusStrip.ResumeLayout(False)
         StatusStrip.PerformLayout()
-        ToolStrip.ResumeLayout(False)
-        ToolStrip.PerformLayout()
+        ToolExport.ResumeLayout(False)
+        ToolExport.PerformLayout()
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -698,8 +686,6 @@ Partial Class Oracle_DUMP_Viewer
     Friend WithEvents すべて選択AToolStripMenuItem1 As ToolStripMenuItem
     Friend WithEvents 表示VToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ツールバーTToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents 標準ToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents 編集ToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents エクスポートToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ステータスバーSToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ToolStripSeparator4 As ToolStripSeparator
@@ -739,7 +725,8 @@ Partial Class Oracle_DUMP_Viewer
     Friend WithEvents ToolStripStatusLabel As ToolStripStatusLabel
     Friend WithEvents ToolStripProgressBar As ToolStripProgressBar
     Friend WithEvents ライセンス認証ToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents ToolStrip As ToolStrip
+    Friend WithEvents ToolEdit As ToolStrip
+    Friend WithEvents ToolExport As ToolStrip
     Friend WithEvents ToolStripButton5 As ToolStripButton
     Friend WithEvents ToolStripButton6 As ToolStripButton
     Friend WithEvents ToolStripSeparator12 As ToolStripSeparator

@@ -86,6 +86,18 @@ Public Class Oracle_DUMP_Viewer
     End Sub
 
     ''' <summary>
+    ''' ToolStripMenuItem「エクスポート」クリックイベント
+    ''' クリックされると、エクスポートツールバーの表示/非表示を切り替える
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub エクスポートToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles エクスポートToolStripMenuItem.Click
+        'エクスポートツールバーの表示/非表示を切り替える
+        ToolExport.Visible = Not ToolExport.Visible
+        エクスポートToolStripMenuItem.Checked = ToolExport.Visible
+    End Sub
+
+    ''' <summary>
     ''' ToolStripMenuItem「ライセンス認証(L)」クリックイベント
     ''' クリックされると、ヘルプを表示する
     ''' </summary>

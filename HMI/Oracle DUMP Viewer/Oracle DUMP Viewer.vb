@@ -98,6 +98,39 @@ Public Class Oracle_DUMP_Viewer
 
     End Sub
 
+    ''' <summary>
+    ''' ToolStripMenuItem「重ねて表示(C)」クリックイベント
+    ''' クリックされると、MDI子ウィンドウを重ねて表示する
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub 重ねて表示CToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles 重ねて表示CToolStripMenuItem.Click
+        'MDI子ウィンドウを重ねて表示する
+        Me.LayoutMdi(MdiLayout.Cascade)
+    End Sub
+
+    ''' <summary>
+    ''' ToolStripMenuItem「並べて表示(T)」クリックイベント
+    ''' クリックされると、MDI子ウィンドウを並べて表示する
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub 並べて表示TToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles 並べて表示TToolStripMenuItem.Click
+        'MDI子ウィンドウを並べて表示する
+        Me.LayoutMdi(MdiLayout.TileVertical)
+    End Sub
+
+    ''' <summary>
+    ''' ToolStripMenuItem「アイコンの整列(I)」クリックイベント
+    ''' クリックされると、最小化されたMDI子ウィンドウのアイコンを整列する
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
+    Private Sub アイコンの整列IToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles アイコンの整列IToolStripMenuItem.Click
+        'MDI子ウィンドウのアイコンを整列する
+        Me.LayoutMdi(MdiLayout.ArrangeIcons)
+    End Sub
+
     Private Sub 終了XToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles 終了XToolStripMenuItem.Click
         'アプリケーションを終了する
         Application.Exit()

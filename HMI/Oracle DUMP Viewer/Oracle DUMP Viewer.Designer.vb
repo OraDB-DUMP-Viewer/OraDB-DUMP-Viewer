@@ -113,6 +113,7 @@ Partial Class Oracle_DUMP_Viewer
         MenuStrip.ImageScalingSize = New Size(24, 24)
         MenuStrip.Items.AddRange(New ToolStripItem() {ファイルFToolStripMenuItem, 編集EToolStripMenuItem, 表示VToolStripMenuItem, オブジェクトOToolStripMenuItem, ツールTToolStripMenuItem, ウィンドウWToolStripMenuItem, ヘルプHToolStripMenuItem})
         MenuStrip.Location = New Point(0, 0)
+        MenuStrip.MdiWindowListItem = ウィンドウWToolStripMenuItem
         MenuStrip.Name = "MenuStrip"
         MenuStrip.Size = New Size(1607, 33)
         MenuStrip.TabIndex = 0

@@ -1,0 +1,239 @@
+name: Build and Release
+
+# ───────────────────────────────────────────
+# トリガー: release ブランチへの push 時に実行
+# ───────────────────────────────────────────
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  build:
+    name: Build & Release
+    runs-on: windows-latest
+
+    permissions:
+      contents: write  # GitHub Release の作成に必要
+
+    steps:
+      # ─────────────────────────────────────
+      # 1. ソースコードをチェックアウト
+      # ─────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ─────────────────────────────────────
+      # 2. .NET SDK のセットアップ (.NET 10)
+      # ─────────────────────────────────────
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # ─────────────────────────────────────
+      # 3. バージョン番号を .vbproj から取得
+      # ─────────────────────────────────────
+      - name: Get version from .vbproj
+        id: get_version
+        shell: pwsh
+        run: |
+          [xml]$xml = Get-Content "Oracle DUMP Viewer.vbproj"
+          $version = $xml.Project.PropertyGroup `
+            | Where-Object { $_.Version } `
+            | Select-Object -ExpandProperty Version -First 1
+          if (-not $version) { $version = "1.0.0" }
+          Write-Host "Version: $version"
+          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          echo "TAG=v$version" >> $env:GITHUB_OUTPUT
+
+      # ─────────────────────────────────────
+      # 4. CHANGELOG.md から該当バージョンの
+      #    リリースノートを抽出
+      # ─────────────────────────────────────
+      - name: Extract release notes from CHANGELOG.md
+        id: changelog
+        shell: pwsh
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}"
+
+          if (-not (Test-Path "CHANGELOG.md")) {
+            Write-Host "CHANGELOG.md が見つかりません。空のリリースノートを使用します。"
+            $notes = "No release notes."
+          } else {
+            $content = Get-Content "CHANGELOG.md" -Raw
+            # ## [0.1.2] または ## 0.1.2 の形式に対応
+            $escaped = [regex]::Escape($version)
+            $pattern = "(?ms)^## \[?${escaped}\]?[^\n]*\n(.*?)(?=\n## |\Z)"
+            $match = [regex]::Match($content, $pattern)
+            if ($match.Success) {
+              $notes = $match.Groups[1].Value.Trim()
+              Write-Host "リリースノートを取得しました"
+            } else {
+              $notes = "No release notes for v${version}."
+              Write-Host "該当バージョンのセクションが見つかりませんでした"
+            }
+          }
+
+          # 複数行を GITHUB_OUTPUT に書き込む
+          $delimiter = "EOF_CHANGELOG"
+          "NOTES<<$delimiter" | Out-File -Append -Encoding utf8 $env:GITHUB_OUTPUT
+          $notes | Out-File -Append -Encoding utf8 $env:GITHUB_OUTPUT
+          $delimiter | Out-File -Append -Encoding utf8 $env:GITHUB_OUTPUT
+
+      # ─────────────────────────────────────
+      # 5. NuGet パッケージの復元
+      # ─────────────────────────────────────
+      - name: Restore dependencies
+        run: dotnet restore "Oracle DUMP Viewer.vbproj"
+
+      # ─────────────────────────────────────
+      # 6. Release ビルド (実行ファイル生成)
+      #    出力先: ./publish/exe/
+      # ─────────────────────────────────────
+      - name: Build (Release)
+        run: |
+          dotnet publish "Oracle DUMP Viewer.vbproj" `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained false `
+            --output ./publish/exe
+
+      # ─────────────────────────────────────
+      # 7. 実行ファイルを ZIP に圧縮
+      # ─────────────────────────────────────
+      - name: Zip executable
+        shell: pwsh
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}"
+          Compress-Archive `
+            -Path "./publish/exe/*" `
+            -DestinationPath "./publish/OracleDumpViewer_v${version}_portable.zip"
+
+      # ─────────────────────────────────────
+      # 8. WiX Toolset v5.0.2 のインストール
+      # ─────────────────────────────────────
+      - name: Install WiX Toolset
+        run: dotnet tool install --global wix --version 5.0.2
+
+      # ─────────────────────────────────────
+      # 9. WiX UI 拡張を追加
+      # ─────────────────────────────────────
+      - name: Add WiX UI extension
+        run: wix extension add WixToolset.UI.wixext/5.0.2
+
+      # ─────────────────────────────────────
+      # 10. WiX ソースファイルの生成
+      # ─────────────────────────────────────
+      - name: Generate WiX source file
+        shell: pwsh
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}"
+          $exeDir = "$env:GITHUB_WORKSPACE\publish\exe"
+
+          $wxs = @"
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+               xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+            <Package Name="Oracle DUMP Viewer"
+                     Version="${version}"
+                     Manufacturer="YANAI Taketo"
+                     UpgradeCode="cd3b541d-5df6-4737-9bcc-16a4329a8a54"
+                     Codepage="65001"
+                     Scope="perMachine">
+
+              <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
+              <MediaTemplate EmbedCab="yes" />
+
+              <ui:WixUI Id="WixUI_InstallDir" />
+              <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+              <Feature Id="ProductFeature" Title="Oracle DUMP Viewer" Level="1">
+                <ComponentGroupRef Id="ProductComponents" />
+                <ComponentRef Id="DesktopShortcut" />
+                <ComponentRef Id="StartMenuShortcut" />
+              </Feature>
+
+              <!-- インストール先フォルダ -->
+              <StandardDirectory Id="ProgramFiles64Folder">
+                <Directory Id="INSTALLFOLDER" Name="Oracle DUMP Viewer" />
+              </StandardDirectory>
+
+              <!-- デスクトップ -->
+              <StandardDirectory Id="DesktopFolder">
+                <Component Id="DesktopShortcut" Guid="*">
+                  <Shortcut Id="DesktopShortcutLink"
+                            Name="Oracle DUMP Viewer"
+                            Description="Oracle DUMP Viewer"
+                            Target="[INSTALLFOLDER]Oracle DUMP Viewer.exe"
+                            WorkingDirectory="INSTALLFOLDER" />
+                  <RegistryValue Root="HKCU"
+                                 Key="Software\YANAI Taketo\Oracle DUMP Viewer"
+                                 Name="DesktopShortcut"
+                                 Type="integer"
+                                 Value="1"
+                                 KeyPath="yes" />
+                </Component>
+              </StandardDirectory>
+
+              <!-- スタートメニュー -->
+              <StandardDirectory Id="ProgramMenuFolder">
+                <Directory Id="AppStartMenuFolder" Name="Oracle DUMP Viewer">
+                  <Component Id="StartMenuShortcut" Guid="*">
+                    <Shortcut Id="StartMenuShortcutLink"
+                              Name="Oracle DUMP Viewer"
+                              Description="Oracle DUMP Viewer"
+                              Target="[INSTALLFOLDER]Oracle DUMP Viewer.exe"
+                              WorkingDirectory="INSTALLFOLDER" />
+                    <RemoveFolder Id="RemoveStartMenuFolder"
+                                  Directory="AppStartMenuFolder"
+                                  On="uninstall" />
+                    <RegistryValue Root="HKCU"
+                                   Key="Software\YANAI Taketo\Oracle DUMP Viewer"
+                                   Name="StartMenuShortcut"
+                                   Type="integer"
+                                   Value="1"
+                                   KeyPath="yes" />
+                  </Component>
+                </Directory>
+              </StandardDirectory>
+
+              <!-- アプリ本体ファイル -->
+              <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+                <Files Include="${exeDir}\**" />
+              </ComponentGroup>
+
+            </Package>
+          </Wix>
+          "@
+          $wxs | Set-Content -Path installer.wxs -Encoding UTF8
+
+      # ─────────────────────────────────────
+      # 11. .msi インストーラーのビルド
+      # ─────────────────────────────────────
+      - name: Build MSI installer
+        shell: pwsh
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}"
+          wix build installer.wxs `
+            -ext WixToolset.UI.wixext `
+            -o "./publish/OracleDumpViewer_v${version}_installer.msi"
+
+      # ─────────────────────────────────────
+      # 12. GitHub Release の作成 & アップロード
+      #     body に CHANGELOG.md の内容を使用
+      # ─────────────────────────────────────
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_version.outputs.TAG }}
+          name: Release ${{ steps.get_version.outputs.TAG }}
+          body: ${{ steps.changelog.outputs.NOTES }}
+          draft: false
+          prerelease: false
+          files: |
+            ./publish/OracleDumpViewer_v${{ steps.get_version.outputs.VERSION }}_portable.zip
+            ./publish/OracleDumpViewer_v${{ steps.get_version.outputs.VERSION }}_installer.msi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

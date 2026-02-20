@@ -62,12 +62,19 @@ Partial Class Workspace
         ' 
         ' lstTableList
         ' 
+        lstTableList.Columns.Add("名前", 250)
+        lstTableList.Columns.Add("所有者", 100)
+        lstTableList.Columns.Add("種類", 80)
+        lstTableList.Columns.Add("行数", 80)
         lstTableList.Dock = DockStyle.Fill
+        lstTableList.FullRowSelect = True
+        lstTableList.GridLines = True
         lstTableList.Location = New Point(315, 37)
         lstTableList.Name = "lstTableList"
         lstTableList.Size = New Size(835, 774)
         lstTableList.TabIndex = 2
         lstTableList.UseCompatibleStateImageBehavior = False
+        lstTableList.View = View.Details
         ' 
         ' plnTableSearch
         ' 

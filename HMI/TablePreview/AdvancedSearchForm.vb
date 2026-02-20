@@ -1,11 +1,50 @@
 Imports System.Collections.Generic
 
+''' <summary>
+''' 高度な検索フォーム
+''' 
+''' 複数の検索条件を AND/OR ロジックで組み合わせて検索できるダイアログフォーム。
+''' TablePreview フォームから呼び出され、複合検索条件を構築して返す。
+''' 
+''' 主な機能:
+''' - 動的に検索条件行を追加・削除可能
+''' - 各条件で AND/OR を選択可能
+''' - 前回の検索条件を復元可能
+''' - 入力検証機能
+''' 
+''' UI コンポーネント（デザイナーで定義):
+''' - flowLayoutPanel: 検索条件行を表示するコンテナ
+''' - buttonAdd: 条件を追加するボタン
+''' - buttonClear: 条件をクリアするボタン
+''' - buttonSearch: 検索を実行するボタン
+''' - buttonCancel: ダイアログをキャンセルするボタン
+''' - templateConditionRow: SearchConditionRow のテンプレート（Hidden）
+''' - templateLogicalPanel: AND/OR パネルのテンプレート（Hidden）
+''' 
+''' 使用例:
+''' Dim form As New AdvancedSearchForm(columnNames)
+''' If form.ShowDialog() = DialogResult.OK Then
+'''     Dim condition = form.SearchConditionResult
+'''     ' フィルタリング処理
+''' End If
+''' </summary>
 Public Class AdvancedSearchForm
 
+    ''' <summary>検索可能な列名のリスト</summary>
     Private _columnNames As List(Of String)
+
+    ''' <summary>構築された複合検索条件</summary>
     Private _searchCondition As SearchCondition.ComplexSearchCondition
+
+    ''' <summary>現在追加されている検索条件行のリスト</summary>
     Private _conditionRows As New List(Of SearchConditionRow)()
 
+    ''' <summary>
+    ''' 検索結果の複合条件を取得/設定するプロパティ
+    ''' 
+    ''' SearchButton クリック時に構築され、親フォーム（TablePreview）から参照される。
+    ''' Designer 非表示属性により、デザイナーでのシリアライズをスキップ。
+    ''' </summary>
     <System.ComponentModel.Browsable(False)>
     <System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)>
     Public Property SearchConditionResult As SearchCondition.ComplexSearchCondition
@@ -17,150 +56,423 @@ Public Class AdvancedSearchForm
         End Set
     End Property
 
+    ''' <summary>
+    ''' コンストラクタ
+    ''' 
+    ''' デザイナーで定義されたコンポーネントを初期化し、
+    ''' テンプレートコンポーネント（templateConditionRow, templateLogicalPanel）
+    ''' をコントロール階層から削除する。
+    ''' テンプレートは後で CloneConditionRow / CloneLogicalPanel で使用される。
+    ''' </summary>
+    ''' <param name="columnNames">検索可能な列名のリスト</param>
     Public Sub New(columnNames As List(Of String))
+        ' デザイナーで定義されたコンポーネントを初期化
         InitializeComponent()
+
+        ' パラメータを保存
         _columnNames = New List(Of String)(columnNames)
         _searchCondition = New SearchCondition.ComplexSearchCondition()
 
-        ' テンプレートをコントロールから削除
+        ' テンプレートコンポーネントをコントロール階層から削除
+        ' これにより、デザイナーの定義を保持しながら、フォーム上には表示されない
         Me.Controls.Remove(templateConditionRow)
         Me.Controls.Remove(templateLogicalPanel)
     End Sub
 
+    ''' <summary>
+    ''' フォーム読み込み時のイベントハンドラー
+    ''' 
+    ''' - ボタンのイベントハンドラーを登録
+    ''' - 初期条件行を1行追加
+    ''' </summary>
+    ''' <summary>
+    ''' 前回の検索条件を設定する
+    ''' 
+    ''' TablePreview フォームから呼び出され、前回の検索条件を受け取る。
+    ''' フォーム読み込み時に RestoreSearchCondition() で UI に復元される。
+    ''' </summary>
+    ''' <param name="condition">復元する検索条件（前回の検索結果）</param>
+    Public Sub SetSearchCondition(condition As SearchCondition.ComplexSearchCondition)
+        _previousCondition = condition
+    End Sub
+
+    ''' <summary>
+    ''' 前回の検索条件を復元する
+    ''' 
+    ''' _previousCondition から各検索条件を取得し、UI コンポーネントに設定する。
+    ''' 
+    ''' フロー:
+    ''' 1. _previousCondition の条件数分ループ
+    ''' 2. 各条件について:
+    '''    - AddSearchConditionRow() で行を追加
+    '''    - 列名をコンボボックスに設定
+    '''    - 演算子をコンボボックスに設定
+    '''    - 検索値をテキストボックスに設定
+    '''    - 大文字小文字区別をチェックボックスに設定
+    '''    - 2行目以降: AND/OR をコンボボックスに設定
+    ''' </summary>
+    Private Sub RestoreSearchCondition(condition As SearchCondition.ComplexSearchCondition)
+        ' 条件がない場合は処理を中止
+        If condition Is Nothing OrElse condition.Conditions.Count = 0 Then
+            Return
+        End If
+
+        ' 各条件をループして復元
+        For i = 0 To condition.Conditions.Count - 1
+            ' 新しい条件行を追加
+            AddSearchConditionRow()
+
+            ' 現在の条件行と条件オブジェクトを取得
+            Dim condRow = _conditionRows(i)
+            Dim searchCond = condition.Conditions(i)
+
+            ' 列名をコンボボックスに設定
+            Dim columnIndex = condRow.GetColumnIndex(searchCond.ColumnName)
+            If columnIndex >= 0 Then
+                condRow.SetColumnIndex(columnIndex)
+            End If
+
+            ' 演算子をコンボボックスに設定
+            Dim operatorIndex = GetOperatorIndex(searchCond.OperatorType)
+            condRow.SetOperatorIndex(operatorIndex)
+
+            ' 検索値をテキストボックスに設定
+            condRow.SetValue(If(searchCond.Value IsNot Nothing, searchCond.Value.ToString(), ""))
+
+            ' 大文字小文字区別をチェックボックスに設定
+            condRow.SetCaseSensitive(searchCond.CaseSensitive)
+
+            ' 2行目以降: AND/OR を設定
+            If i > 0 Then
+                Dim logicalCombo = condRow.LogicalComboBox
+                If logicalCombo IsNot Nothing Then
+                    ' LogicalOperators は Conditions より1つ少ないので、インデックスは i-1
+                    Dim logicalOp = condition.LogicalOperators(i - 1)
+                    If logicalOp = SearchCondition.LogicalOperatorType.And Then
+                        logicalCombo.SelectedIndex = 0  ' AND
+                    Else
+                        logicalCombo.SelectedIndex = 1  ' OR
+                    End If
+                End If
+            End If
+        Next
+    End Sub
+
+    ''' <summary>
+    ''' 演算子タイプをコンボボックスのインデックスに変換する
+    ''' 
+    ''' SearchCondition.OperatorType から対応するコンボボックスのインデックスを取得。
+    ''' RestoreSearchCondition() で使用される。
+    ''' 
+    ''' マッピング:
+    ''' Contains → 0
+    ''' NotContains → 1
+    ''' Equals → 2
+    ''' NotEquals → 3
+    ''' StartsWith → 4
+    ''' EndsWith → 5
+    ''' GreaterThan → 6
+    ''' LessThan → 7
+    ''' GreaterThanOrEqual → 8
+    ''' LessThanOrEqual → 9
+    ''' IsNull → 10
+    ''' IsNotNull → 11
+    ''' </summary>
+    ''' <param name="operatorType">変換する演算子タイプ</param>
+    ''' <returns>対応するコンボボックスのインデックス</returns>
+    Private Function GetOperatorIndex(operatorType As SearchCondition.OperatorType) As Integer
+        Select Case operatorType
+            Case SearchCondition.OperatorType.Contains
+                Return 0
+            Case SearchCondition.OperatorType.NotContains
+                Return 1
+            Case SearchCondition.OperatorType.Equals
+                Return 2
+            Case SearchCondition.OperatorType.NotEquals
+                Return 3
+            Case SearchCondition.OperatorType.StartsWith
+                Return 4
+            Case SearchCondition.OperatorType.EndsWith
+                Return 5
+            Case SearchCondition.OperatorType.GreaterThan
+                Return 6
+            Case SearchCondition.OperatorType.LessThan
+                Return 7
+            Case SearchCondition.OperatorType.GreaterThanOrEqual
+                Return 8
+            Case SearchCondition.OperatorType.LessThanOrEqual
+                Return 9
+            Case SearchCondition.OperatorType.IsNull
+                Return 10
+            Case SearchCondition.OperatorType.IsNotNull
+                Return 11
+            Case Else
+                Return 0  ' デフォルト: Contains
+        End Select
+    End Function
+
     Private Sub AdvancedSearchForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ' ボタンクリックイベントをハンドラーに関連付け
         AddHandler buttonAdd.Click, AddressOf ButtonAdd_Click
         AddHandler buttonClear.Click, AddressOf ButtonClear_Click
         AddHandler buttonSearch.Click, AddressOf ButtonSearch_Click
         AddHandler MyBase.FormClosing, AddressOf AdvancedSearchForm_FormClosing
 
-        ' 初期条件を1つ追加
+        ' デフォルトで条件行を1つ追加
+        ' これにより、ユーザーは即座に条件を入力できる状態になる
         AddSearchConditionRow()
     End Sub
 
+    ''' <summary>
+    ''' 検索条件行を1行追加する
+    ''' 
+    ''' フロー:
+    ''' 1. 行のインデックスを取得（_conditionRows.Count）
+    ''' 2. 最初の行（インデックス 0）か、それ以降か判定
+    ''' 3. 最初の行: CreateConditionRowFromTemplate() で新規作成
+    ''' 4. 2行目以降: CloneConditionRow() で新規作成
+    ''' 5. 2行目以降: AND/OR パネルを追加
+    ''' 6. 削除ボタンの表示制御（2行目以降のみ表示）
+    ''' 7. flowLayoutPanel に追加
+    ''' 8. _conditionRows リストに追加
+    ''' </summary>
     Private Sub AddSearchConditionRow()
         Dim row As SearchConditionRow
         Dim rowIndex = _conditionRows.Count
 
+        ' 最初の行か、それ以降かで処理を分岐
         If rowIndex = 0 Then
-            ' 最初の行はテンプレートから作成
+            ' 最初の行はテンプレートから新規作成
             row = CreateConditionRowFromTemplate()
         Else
-            ' 2番目以降はコピーで作成
+            ' 2番目以降は新規作成
             row = CloneConditionRow(templateConditionRow)
         End If
 
+        ' 2行目以降は AND/OR パネルを追加
         If rowIndex > 0 Then
-            ' AND/OR選択用パネルを追加
+            ' AND/OR 選択用パネルをクローン
             Dim logicalPanel = CloneLogicalPanel()
+            ' コンボボックスを row に関連付け
+            ' コンボボックスはコントロール配列の2番目（インデックス 1）
             row.LogicalComboBox = CType(logicalPanel.Controls(1), ComboBox)
+            ' UI に追加
             flowLayoutPanel.Controls.Add(logicalPanel)
         End If
 
-        ' 削除ボタンを表示
+        ' 削除ボタンの表示制御
+        ' 最初の行は削除不可（最低1つの条件は必要）、2行目以降は削除可能
         row.ShowDeleteButton = rowIndex > 0
+        ' 削除ボタンのクリックイベントハンドラーを登録
         AddHandler row.DeleteButton.Click, Sub(s, e) RemoveSearchConditionRow(row)
 
+        ' UI に追加
         flowLayoutPanel.Controls.Add(row)
+        ' 内部リストに追加
         _conditionRows.Add(row)
     End Sub
 
+    ''' <summary>
+    ''' SearchConditionRow を新規作成する（最初の行用）
+    ''' 
+    ''' テンプレート（templateConditionRow）を使用せず、
+    ''' 直接 new SearchConditionRow() で新規インスタンスを生成する。
+    ''' </summary>
+    ''' <returns>新規作成された SearchConditionRow インスタンス</returns>
     Private Function CreateConditionRowFromTemplate() As SearchConditionRow
-        ' テンプレートから新しい行を作成
+        ' 列名リストを渡して新規作成
         Dim row As New SearchConditionRow(_columnNames)
         Return row
     End Function
 
+    ''' <summary>
+    ''' SearchConditionRow をクローン作成する（2行目以降用）
+    ''' 
+    ''' テンプレート（original）の状態を複製して新規インスタンスを生成する。
+    ''' 現在の実装では、テンプレートの状態はコピーせず、デフォルト状態で新規作成されている。
+    ''' 将来的に必要に応じて、コントロールの状態をコピーする処理を追加可能。
+    ''' </summary>
+    ''' <param name="original">クローン元の SearchConditionRow（使用されていない）</param>
+    ''' <returns>新規作成された SearchConditionRow インスタンス</returns>
     Private Function CloneConditionRow(original As SearchConditionRow) As SearchConditionRow
-        ' 新しい行を作成
+        ' 新規作成
         Dim row As New SearchConditionRow(_columnNames)
-        ' 各コントロールの状態をコピー（必要に応じて）
+        ' 必要に応じて original の状態をコピー
+        ' 現在は未実装（全て同じデフォルト状態）
         Return row
     End Function
 
+    ''' <summary>
+    ''' AND/OR 選択パネルをクローン作成する
+    ''' 
+    ''' 動的にパネルを作成し、ラベルと AND/OR コンボボックスを配置。
+    ''' 複数の検索条件行の間に挿入される。
+    ''' 
+    ''' UI 構成:
+    ''' - Panel
+    '''   ├─ Label（"条件:"）：位置 (10, 8)、幅 60
+    '''   └─ ComboBox（AND/OR 選択）：位置 (70, 5)、幅 100
+    ''' </summary>
+    ''' <returns>新規作成された AND/OR パネル</returns>
     Private Function CloneLogicalPanel() As Panel
+        ' パネルを作成
         Dim logicalPanel As New Panel()
         logicalPanel.Height = 40
         logicalPanel.AutoSize = True
         logicalPanel.BackColor = SystemColors.Control
 
+        ' ラベルを作成（"条件:"）
         Dim logicalLabel As New Label()
         logicalLabel.Text = "条件:"
         logicalLabel.Location = New Point(10, 8)
         logicalLabel.Width = 60
 
+        ' AND/OR コンボボックスを作成
         Dim logicalCombo As New ComboBox()
         logicalCombo.Items.Add("AND")
         logicalCombo.Items.Add("OR")
-        logicalCombo.SelectedIndex = 0
+        logicalCombo.SelectedIndex = 0  ' デフォルトは AND
         logicalCombo.Location = New Point(70, 5)
         logicalCombo.Width = 100
-        logicalCombo.DropDownStyle = ComboBoxStyle.DropDownList
+        logicalCombo.DropDownStyle = ComboBoxStyle.DropDownList  ' ドロップダウンのみ
 
+        ' パネルにコントロールを追加
         logicalPanel.Controls.Add(logicalLabel)
         logicalPanel.Controls.Add(logicalCombo)
 
         Return logicalPanel
     End Function
 
+    ''' <summary>
+    ''' 検索条件行を削除する
+    ''' 
+    ''' フロー:
+    ''' 1. 条件数が1以下の場合は警告を表示して中止
+    ''' 2. 削除対象行のインデックスを取得
+    ''' 3. _conditionRows リストから削除
+    ''' 4. flowLayoutPanel から UI を削除
+    ''' 5. 対応する AND/OR パネルも削除
+    ''' 
+    ''' 注意: 最初の行は削除不可（最低1つの条件は必要）
+    ''' </summary>
+    ''' <param name="row">削除する検索条件行</param>
     Private Sub RemoveSearchConditionRow(row As SearchConditionRow)
+        ' 最低1つの条件は必要なため、条件数が1以下の場合は中止
         If _conditionRows.Count <= 1 Then
             MessageBox.Show("最低1つの条件は必要です。", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
+        ' 削除対象行のインデックスを取得
         Dim index = _conditionRows.IndexOf(row)
+        ' リストから削除
         _conditionRows.Remove(row)
 
-        ' UIから削除
+        ' UI から削除
         flowLayoutPanel.Controls.Remove(row)
 
-        ' AND/ORパネルも削除
+        ' AND/OR パネルも削除
+        ' 削除対象行の直前の AND/OR パネルが対象
         If index < flowLayoutPanel.Controls.Count Then
             Dim controlToRemove = flowLayoutPanel.Controls(index)
+            ' Panel 型かどうかをチェック（AND/OR パネルは Panel 型）
             If controlToRemove.GetType() = GetType(Panel) Then
                 flowLayoutPanel.Controls.Remove(controlToRemove)
             End If
         End If
     End Sub
 
+    ''' <summary>
+    ''' 「条件を追加」ボタンのクリックイベントハンドラー
+    ''' 
+    ''' 新しい検索条件行を追加する
+    ''' </summary>
     Private Sub ButtonAdd_Click(sender As Object, e As EventArgs)
         AddSearchConditionRow()
     End Sub
 
+    ''' <summary>
+    ''' 「クリア」ボタンのクリックイベントハンドラー
+    ''' 
+    ''' すべての検索条件をクリアし、デフォルト状態（条件1行）に戻す
+    ''' </summary>
     Private Sub ButtonClear_Click(sender As Object, e As EventArgs)
+        ' 既存の条件行をすべてクリア
         _conditionRows.Clear()
         flowLayoutPanel.Controls.Clear()
+
+        ' 検索条件をリセット
         _searchCondition = New SearchCondition.ComplexSearchCondition()
+
+        ' デフォルト状態に戻す（条件1行を追加）
         AddSearchConditionRow()
     End Sub
 
+    ''' <summary>
+    ''' 「検索」ボタンのクリックイベントハンドラー
+    ''' 
+    ''' フロー:
+    ''' 1. すべての条件行の入力を検証（IsValid()）
+    ''' 2. 無効な条件がある場合はエラーメッセージを表示して中止
+    ''' 3. 複合検索条件を構築
+    ''' 4. _searchCondition に設定
+    ''' 5. DialogResult を OK にして、親フォームに返す
+    ''' 
+    ''' パフォーマンス: 条件行の数が多くても高速に実行される
+    ''' </summary>
     Private Sub ButtonSearch_Click(sender As Object, e As EventArgs)
-        ' 入力を検証
+        ' Step 1: 入力検証
         For Each row In _conditionRows
             If Not row.IsValid() Then
+                ' 無効な条件がある場合はエラーメッセージを表示
                 MessageBox.Show("すべての条件を正しく入力してください。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 Return
             End If
         Next
 
-        ' 複合検索条件を構築
+        ' Step 2-3: 複合検索条件を構築
         _searchCondition = New SearchCondition.ComplexSearchCondition()
 
+        ' すべての条件行を走査
         For i = 0 To _conditionRows.Count - 1
+            ' 各行から SearchConditionItem を取得
             Dim condition = _conditionRows(i).GetCondition()
+            ' Conditions リストに追加
             _searchCondition.Conditions.Add(condition)
 
+            ' 2行目以降は AND/OR 演算子を追加
+            ' LogicalOperators は Conditions より1つ少ない（最初の行には演算子がない）
             If i > 0 Then
                 Dim logicalOp = _conditionRows(i).GetLogicalOperator()
                 _searchCondition.LogicalOperators.Add(logicalOp)
             End If
         Next
+
+        ' Step 4: DialogResult を OK に設定して、親フォームに返す
+        ' Dialog が OK で閉じられたことは、AdvancedSearchForm_FormClosing で処理される
     End Sub
 
+    ''' <summary>
+    ''' フォームクローズ時のイベントハンドラー
+    ''' 
+    ''' DialogResult が OK の場合は ButtonSearch_Click を実行して
+    ''' 検索条件を構築する。
+    ''' 
+    ''' 呼び出しフロー:
+    ''' ユーザーが検索ボタンクリック
+    ''' → ButtonSearch_Click 実行
+    ''' → DialogResult = OK に設定
+    ''' → Form クローズ処理開始
+    ''' → AdvancedSearchForm_FormClosing 呼び出し（DialogResult = OK）
+    ''' → 必要に応じて追加処理を実行可能
+    ''' </summary>
     Private Sub AdvancedSearchForm_FormClosing(sender As Object, e As FormClosingEventArgs)
+        ' OK ボタン（検索ボタン）でクローズされた場合
         If Me.DialogResult = DialogResult.OK Then
+            ' 検索条件の構築（念のため再実行）
             ButtonSearch_Click(Nothing, Nothing)
         End If
+        ' キャンセルボタンの場合は何もしない
     End Sub
 
 End Class

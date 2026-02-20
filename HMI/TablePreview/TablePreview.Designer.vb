@@ -32,6 +32,7 @@ Partial Class TablePreview
         labelColumns = New Label()
         labelRowCount = New Label()
         buttonReset = New Button()
+        buttonAdvancedSearch = New Button()
         panelPaging = New Panel()
         labelPageInfo = New Label()
         buttonNext = New Button()
@@ -59,6 +60,7 @@ Partial Class TablePreview
         panelSearch.Controls.Add(comboBoxColumns)
         panelSearch.Controls.Add(buttonSearch)
         panelSearch.Controls.Add(buttonReset)
+        panelSearch.Controls.Add(buttonAdvancedSearch)
         panelSearch.Controls.Add(labelRowCount)
         panelSearch.Location = New Point(12, 12)
         panelSearch.Name = "panelSearch"
@@ -98,11 +100,17 @@ Partial Class TablePreview
         buttonReset.TabIndex = 5
         buttonReset.Text = "リセット"
         buttonReset.UseVisualStyleBackColor = True
+        buttonAdvancedSearch.Location = New Point(317, 12)
+        buttonAdvancedSearch.Name = "buttonAdvancedSearch"
+        buttonAdvancedSearch.Size = New Size(100, 23)
+        buttonAdvancedSearch.TabIndex = 6
+        buttonAdvancedSearch.Text = "高度な検索"
+        buttonAdvancedSearch.UseVisualStyleBackColor = True
         labelRowCount.AutoSize = True
-        labelRowCount.Location = New Point(320, 15)
+        labelRowCount.Location = New Point(425, 15)
         labelRowCount.Name = "labelRowCount"
         labelRowCount.Size = New Size(143, 12)
-        labelRowCount.TabIndex = 6
+        labelRowCount.TabIndex = 7
         labelRowCount.Text = "合計行数: 0 (表示行数: 0)"
         panelPaging.Anchor = AnchorStyles.Bottom Or AnchorStyles.Left Or AnchorStyles.Right
         panelPaging.Controls.Add(labelPageSize)
@@ -172,6 +180,7 @@ Partial Class TablePreview
     Friend WithEvents labelColumns As System.Windows.Forms.Label
     Friend WithEvents labelRowCount As System.Windows.Forms.Label
     Friend WithEvents buttonReset As System.Windows.Forms.Button
+    Friend WithEvents buttonAdvancedSearch As System.Windows.Forms.Button
     Friend WithEvents panelPaging As System.Windows.Forms.Panel
     Friend WithEvents labelPageInfo As System.Windows.Forms.Label
     Friend WithEvents buttonNext As System.Windows.Forms.Button

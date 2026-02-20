@@ -11,6 +11,7 @@ Public Class TablePreview
     Private _pageSize As Integer = 100
     Private _totalRows As Integer = 0
     Private _isInitializing As Boolean = True
+    Private _currentSearchCondition As SearchCondition.ComplexSearchCondition
 
     Public Sub New(tableData As List(Of Dictionary(Of String, Object)), columnNames As List(Of String), tableName As String)
         InitializeComponent()
@@ -19,6 +20,7 @@ Public Class TablePreview
         _filteredData = New List(Of Dictionary(Of String, Object))(_tableData)
         _totalRows = _tableData.Count
         Me.Text = $"テーブルデータプレビュー - {tableName}"
+        _currentSearchCondition = Nothing
     End Sub
 #End Region
 
@@ -37,6 +39,9 @@ Public Class TablePreview
         ' ページサイズの初期値を設定
         numericUpDownPageSize.Value = _pageSize
 
+        ' イベントハンドラーを設定
+        AddHandler buttonAdvancedSearch.Click, AddressOf ButtonAdvancedSearch_Click
+
         ' DataGridViewをセットアップ
         SetupDataGridView()
 
@@ -48,8 +53,20 @@ Public Class TablePreview
 
     Private Sub buttonSearch_Click(sender As Object, e As EventArgs) Handles buttonSearch.Click
         _currentPage = 1
+        _currentSearchCondition = Nothing
         FilterData()
         UpdateDataDisplay()
+    End Sub
+
+    Private Sub ButtonAdvancedSearch_Click(sender As Object, e As EventArgs)
+        Dim advancedForm As New AdvancedSearchForm(_columnNames)
+        If advancedForm.ShowDialog(Me) = DialogResult.OK Then
+            _currentPage = 1
+            _currentSearchCondition = advancedForm.SearchConditionResult
+            textBoxSearchValue.Clear()
+            FilterData()
+            UpdateDataDisplay()
+        End If
     End Sub
 
     Private Sub buttonReset_Click(sender As Object, e As EventArgs) Handles buttonReset.Click
@@ -57,6 +74,7 @@ Public Class TablePreview
         _filteredData = New List(Of Dictionary(Of String, Object))(_tableData)
         textBoxSearchValue.Clear()
         comboBoxColumns.SelectedIndex = 0
+        _currentSearchCondition = Nothing
         UpdateDataDisplay()
     End Sub
 
@@ -107,6 +125,15 @@ Public Class TablePreview
     End Sub
 
     Private Sub FilterData()
+        ' 高度な検索が有効な場合
+        If _currentSearchCondition IsNot Nothing Then
+            _filteredData = _tableData.Where(Function(row)
+                                               Return _currentSearchCondition.Evaluate(row)
+                                           End Function).ToList()
+            Return
+        End If
+
+        ' シンプル検索
         Dim columnName As String = comboBoxColumns.SelectedItem?.ToString()
         Dim searchValue As String = textBoxSearchValue.Text.Trim()
 

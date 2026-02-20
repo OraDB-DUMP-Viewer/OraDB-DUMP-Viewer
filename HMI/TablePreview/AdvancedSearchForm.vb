@@ -80,137 +80,26 @@ Public Class AdvancedSearchForm
     End Sub
 
     ''' <summary>
+    ''' 前回の検索条件を設定する
+    ''' 
+    ''' TablePreview から前回の検索条件を受け取り、
+    ''' フォーム読み込み時に UI に復元するために使用。
+    ''' </summary>
+    ''' <param name="condition">復元する検索条件</param>
+    Public Sub SetSearchCondition(condition As SearchCondition.ComplexSearchCondition)
+        If condition IsNot Nothing AndAlso condition.Conditions.Count > 0 Then
+            ' フォーム読み込み後に復元する
+            ' ここでは記憶するのみ
+            _searchCondition = condition
+        End If
+    End Sub
+
+    ''' <summary>
     ''' フォーム読み込み時のイベントハンドラー
     ''' 
     ''' - ボタンのイベントハンドラーを登録
-    ''' - 初期条件行を1行追加
+    ''' - 前回の検索条件があれば復元、なければ初期条件行を1行追加
     ''' </summary>
-    ''' <summary>
-    ''' 前回の検索条件を設定する
-    ''' 
-    ''' TablePreview フォームから呼び出され、前回の検索条件を受け取る。
-    ''' フォーム読み込み時に RestoreSearchCondition() で UI に復元される。
-    ''' </summary>
-    ''' <param name="condition">復元する検索条件（前回の検索結果）</param>
-    Public Sub SetSearchCondition(condition As SearchCondition.ComplexSearchCondition)
-        _previousCondition = condition
-    End Sub
-
-    ''' <summary>
-    ''' 前回の検索条件を復元する
-    ''' 
-    ''' _previousCondition から各検索条件を取得し、UI コンポーネントに設定する。
-    ''' 
-    ''' フロー:
-    ''' 1. _previousCondition の条件数分ループ
-    ''' 2. 各条件について:
-    '''    - AddSearchConditionRow() で行を追加
-    '''    - 列名をコンボボックスに設定
-    '''    - 演算子をコンボボックスに設定
-    '''    - 検索値をテキストボックスに設定
-    '''    - 大文字小文字区別をチェックボックスに設定
-    '''    - 2行目以降: AND/OR をコンボボックスに設定
-    ''' </summary>
-    Private Sub RestoreSearchCondition(condition As SearchCondition.ComplexSearchCondition)
-        ' 条件がない場合は処理を中止
-        If condition Is Nothing OrElse condition.Conditions.Count = 0 Then
-            Return
-        End If
-
-        ' 各条件をループして復元
-        For i = 0 To condition.Conditions.Count - 1
-            ' 新しい条件行を追加
-            AddSearchConditionRow()
-
-            ' 現在の条件行と条件オブジェクトを取得
-            Dim condRow = _conditionRows(i)
-            Dim searchCond = condition.Conditions(i)
-
-            ' 列名をコンボボックスに設定
-            Dim columnIndex = condRow.GetColumnIndex(searchCond.ColumnName)
-            If columnIndex >= 0 Then
-                condRow.SetColumnIndex(columnIndex)
-            End If
-
-            ' 演算子をコンボボックスに設定
-            Dim operatorIndex = GetOperatorIndex(searchCond.OperatorType)
-            condRow.SetOperatorIndex(operatorIndex)
-
-            ' 検索値をテキストボックスに設定
-            condRow.SetValue(If(searchCond.Value IsNot Nothing, searchCond.Value.ToString(), ""))
-
-            ' 大文字小文字区別をチェックボックスに設定
-            condRow.SetCaseSensitive(searchCond.CaseSensitive)
-
-            ' 2行目以降: AND/OR を設定
-            If i > 0 Then
-                Dim logicalCombo = condRow.LogicalComboBox
-                If logicalCombo IsNot Nothing Then
-                    ' LogicalOperators は Conditions より1つ少ないので、インデックスは i-1
-                    Dim logicalOp = condition.LogicalOperators(i - 1)
-                    If logicalOp = SearchCondition.LogicalOperatorType.And Then
-                        logicalCombo.SelectedIndex = 0  ' AND
-                    Else
-                        logicalCombo.SelectedIndex = 1  ' OR
-                    End If
-                End If
-            End If
-        Next
-    End Sub
-
-    ''' <summary>
-    ''' 演算子タイプをコンボボックスのインデックスに変換する
-    ''' 
-    ''' SearchCondition.OperatorType から対応するコンボボックスのインデックスを取得。
-    ''' RestoreSearchCondition() で使用される。
-    ''' 
-    ''' マッピング:
-    ''' Contains → 0
-    ''' NotContains → 1
-    ''' Equals → 2
-    ''' NotEquals → 3
-    ''' StartsWith → 4
-    ''' EndsWith → 5
-    ''' GreaterThan → 6
-    ''' LessThan → 7
-    ''' GreaterThanOrEqual → 8
-    ''' LessThanOrEqual → 9
-    ''' IsNull → 10
-    ''' IsNotNull → 11
-    ''' </summary>
-    ''' <param name="operatorType">変換する演算子タイプ</param>
-    ''' <returns>対応するコンボボックスのインデックス</returns>
-    Private Function GetOperatorIndex(operatorType As SearchCondition.OperatorType) As Integer
-        Select Case operatorType
-            Case SearchCondition.OperatorType.Contains
-                Return 0
-            Case SearchCondition.OperatorType.NotContains
-                Return 1
-            Case SearchCondition.OperatorType.Equals
-                Return 2
-            Case SearchCondition.OperatorType.NotEquals
-                Return 3
-            Case SearchCondition.OperatorType.StartsWith
-                Return 4
-            Case SearchCondition.OperatorType.EndsWith
-                Return 5
-            Case SearchCondition.OperatorType.GreaterThan
-                Return 6
-            Case SearchCondition.OperatorType.LessThan
-                Return 7
-            Case SearchCondition.OperatorType.GreaterThanOrEqual
-                Return 8
-            Case SearchCondition.OperatorType.LessThanOrEqual
-                Return 9
-            Case SearchCondition.OperatorType.IsNull
-                Return 10
-            Case SearchCondition.OperatorType.IsNotNull
-                Return 11
-            Case Else
-                Return 0  ' デフォルト: Contains
-        End Select
-    End Function
-
     Private Sub AdvancedSearchForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ' ボタンクリックイベントをハンドラーに関連付け
         AddHandler buttonAdd.Click, AddressOf ButtonAdd_Click
@@ -218,9 +107,15 @@ Public Class AdvancedSearchForm
         AddHandler buttonSearch.Click, AddressOf ButtonSearch_Click
         AddHandler MyBase.FormClosing, AddressOf AdvancedSearchForm_FormClosing
 
-        ' デフォルトで条件行を1つ追加
-        ' これにより、ユーザーは即座に条件を入力できる状態になる
-        AddSearchConditionRow()
+        ' 前回の検索条件がある場合は復元、なければデフォルト状態を初期化
+        If _searchCondition IsNot Nothing AndAlso _searchCondition.Conditions.Count > 0 Then
+            ' 前回の検索条件を復元
+            RestoreSearchCondition(_searchCondition)
+        Else
+            ' デフォルトで条件行を1つ追加
+            ' これにより、ユーザーは即座に条件を入力できる状態になる
+            AddSearchConditionRow()
+        End If
     End Sub
 
     ''' <summary>
@@ -474,5 +369,116 @@ Public Class AdvancedSearchForm
         End If
         ' キャンセルボタンの場合は何もしない
     End Sub
+
+#Region "検索条件復元用メソッド"
+
+    ''' <summary>
+    ''' 前回の検索条件を UI に復元する
+    ''' 
+    ''' 保存されていた複合検索条件から、各条件行を再構築し、
+    ''' フォーム上に復元する。
+    ''' 
+    ''' 処理フロー:
+    ''' 1. 保存条件の数だけループ
+    ''' 2. 各条件ごとに AddSearchConditionRow() で行を追加
+    ''' 3. 列、演算子、値、大文字小文字区別を復元
+    ''' 4. 2行目以降は AND/OR を復元
+    ''' </summary>
+    ''' <param name="condition">復元する複合検索条件</param>
+    Private Sub RestoreSearchCondition(condition As SearchCondition.ComplexSearchCondition)
+        ' 保存されている条件の数だけループ
+        For i = 0 To condition.Conditions.Count - 1
+            ' 条件行を追加
+            AddSearchConditionRow()
+
+            ' 追加した条件行を取得
+            Dim condRow = _conditionRows(i)
+            ' 復元する検索条件を取得
+            Dim searchCond = condition.Conditions(i)
+
+            ' 列を復元
+            Dim columnIndex = condRow.GetColumnIndex(searchCond.ColumnName)
+            If columnIndex >= 0 Then
+                condRow.SetColumnIndex(columnIndex)
+            End If
+
+            ' 演算子を復元
+            Dim operatorIndex = GetOperatorIndex(searchCond.OperatorType)
+            condRow.SetOperatorIndex(operatorIndex)
+
+            ' 値を復元
+            condRow.SetValue(If(searchCond.Value IsNot Nothing, searchCond.Value.ToString(), ""))
+
+            ' 大文字小文字区別を復元
+            condRow.SetCaseSensitive(searchCond.CaseSensitive)
+
+            ' 2行目以降は AND/OR 論理演算子を復元
+            If i > 0 Then
+                Dim logicalCombo = condRow.LogicalComboBox
+                If logicalCombo IsNot Nothing Then
+                    ' LogicalOperators は Conditions より1つ少ないため、i-1 でアクセス
+                    Dim logicalOp = condition.LogicalOperators(i - 1)
+                    If logicalOp = SearchCondition.LogicalOperatorType.And Then
+                        logicalCombo.SelectedIndex = 0  ' AND
+                    Else
+                        logicalCombo.SelectedIndex = 1  ' OR
+                    End If
+                End If
+            End If
+        Next
+    End Sub
+
+    ''' <summary>
+    ''' 演算子タイプをコンボボックスのインデックスに変換する
+    ''' 
+    ''' SearchCondition.OperatorType から operatorCombo の SelectedIndex に変換。
+    ''' マッピング:
+    ''' 0 = Contains (含む)
+    ''' 1 = NotContains (含まない)
+    ''' 2 = Equals (等しい)
+    ''' 3 = NotEquals (等しくない)
+    ''' 4 = StartsWith (で始まる)
+    ''' 5 = EndsWith (で終わる)
+    ''' 6 = GreaterThan (>)
+    ''' 7 = LessThan (<)
+    ''' 8 = GreaterThanOrEqual (>=)
+    ''' 9 = LessThanOrEqual (<=)
+    ''' 10 = IsNull (Null)
+    ''' 11 = IsNotNull (Not Null)
+    ''' </summary>
+    ''' <param name="operatorType">変換対象の演算子タイプ</param>
+    ''' <returns>対応するコンボボックスのインデックス</returns>
+    Private Function GetOperatorIndex(operatorType As SearchCondition.OperatorType) As Integer
+        Select Case operatorType
+            Case SearchCondition.OperatorType.Contains
+                Return 0
+            Case SearchCondition.OperatorType.NotContains
+                Return 1
+            Case SearchCondition.OperatorType.Equals
+                Return 2
+            Case SearchCondition.OperatorType.NotEquals
+                Return 3
+            Case SearchCondition.OperatorType.StartsWith
+                Return 4
+            Case SearchCondition.OperatorType.EndsWith
+                Return 5
+            Case SearchCondition.OperatorType.GreaterThan
+                Return 6
+            Case SearchCondition.OperatorType.LessThan
+                Return 7
+            Case SearchCondition.OperatorType.GreaterThanOrEqual
+                Return 8
+            Case SearchCondition.OperatorType.LessThanOrEqual
+                Return 9
+            Case SearchCondition.OperatorType.IsNull
+                Return 10
+            Case SearchCondition.OperatorType.IsNotNull
+                Return 11
+            Case Else
+                Return 0  ' デフォルトは Contains
+        End Select
+    End Function
+
+#End Region
 
 End Class

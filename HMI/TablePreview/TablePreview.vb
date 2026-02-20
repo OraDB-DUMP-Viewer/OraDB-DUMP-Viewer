@@ -12,6 +12,7 @@ Public Class TablePreview
     Private _totalRows As Integer = 0
     Private _isInitializing As Boolean = True
     Private _currentSearchCondition As SearchCondition.ComplexSearchCondition
+    Private _lastSearchCondition As SearchCondition.ComplexSearchCondition
 
     Public Sub New(tableData As List(Of Dictionary(Of String, Object)), columnNames As List(Of String), tableName As String)
         InitializeComponent()
@@ -21,6 +22,7 @@ Public Class TablePreview
         _totalRows = _tableData.Count
         Me.Text = $"テーブルデータプレビュー - {tableName}"
         _currentSearchCondition = Nothing
+        _lastSearchCondition = Nothing
     End Sub
 #End Region
 
@@ -59,15 +61,55 @@ Public Class TablePreview
     End Sub
 
     Private Sub ButtonAdvancedSearch_Click(sender As Object, e As EventArgs)
+        OpenAdvancedSearchForm()
+    End Sub
+
+    Private Sub OpenAdvancedSearchForm()
         Dim advancedForm As New AdvancedSearchForm(_columnNames)
+
+        ' 前回の検索条件があれば復元
+        If _lastSearchCondition IsNot Nothing Then
+            advancedForm.SetSearchCondition(_lastSearchCondition)
+        End If
+
         If advancedForm.ShowDialog(Me) = DialogResult.OK Then
             _currentPage = 1
             _currentSearchCondition = advancedForm.SearchConditionResult
-            textBoxSearchValue.Clear()
+
+            ' 検索条件を保持
+            _lastSearchCondition = CopySearchCondition(_currentSearchCondition)
+
             FilterData()
             UpdateDataDisplay()
         End If
     End Sub
+
+    ''' <summary>
+    ''' 検索条件をディープコピーする
+    ''' </summary>
+    Private Function CopySearchCondition(original As SearchCondition.ComplexSearchCondition) As SearchCondition.ComplexSearchCondition
+        If original Is Nothing Then
+            Return Nothing
+        End If
+
+        Dim copied As New SearchCondition.ComplexSearchCondition()
+
+        For Each condition In original.Conditions
+            Dim newCondition As New SearchCondition.SearchConditionItem(
+                condition.ColumnName,
+                condition.OperatorType,
+                condition.Value,
+                condition.CaseSensitive
+            )
+            copied.Conditions.Add(newCondition)
+        Next
+
+        For Each logicalOp In original.LogicalOperators
+            copied.LogicalOperators.Add(logicalOp)
+        Next
+
+        Return copied
+    End Function
 
     Private Sub buttonReset_Click(sender As Object, e As EventArgs) Handles buttonReset.Click
         _currentPage = 1

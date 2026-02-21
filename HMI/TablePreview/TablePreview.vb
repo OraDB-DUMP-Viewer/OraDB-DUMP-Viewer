@@ -94,15 +94,24 @@ Public Class TablePreview
     ''' 
     ''' フロー:
     ''' 1. ページサイズの初期値を設定
-    ''' 2. イベントハンドラーを設定
-    ''' 3. DataGridView をセットアップ
-    ''' 4. 初期データを表示
+    ''' 2. 列名をコンボボックスに設定
+    ''' 3. イベントハンドラーを設定
+    ''' 4. DataGridView をセットアップ
+    ''' 5. 初期データを表示
     ''' </summary>
     Private Sub TablePreview_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         _isInitializing = True
 
         ' ページサイズの初期値を設定
         numericUpDownPageSize.Value = _pageSize
+
+        ' 列名をコンボボックスに設定
+        For Each colName In _columnNames
+            comboBoxColumns.Items.Add(colName)
+        Next
+        If comboBoxColumns.Items.Count > 0 Then
+            comboBoxColumns.SelectedIndex = 0
+        End If
 
         ' イベントハンドラーを設定
         AddHandler buttonAdvancedSearch.Click, AddressOf ButtonAdvancedSearch_Click

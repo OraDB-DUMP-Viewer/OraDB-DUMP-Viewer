@@ -32,8 +32,8 @@ Public Class SearchConditionRow
     ''' 削除ボタンの表示/非表示を制御するプロパティ
     ''' 最初の条件行（1行目）では非表示、2行目以降は表示
     ''' </summary>
-    <System.ComponentModel.Browsable(False)> _
-    <System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)> _
+    <System.ComponentModel.Browsable(False)>
+    <System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)>
     Public Property ShowDeleteButton As Boolean
         Get
             Return btnDelete.Visible

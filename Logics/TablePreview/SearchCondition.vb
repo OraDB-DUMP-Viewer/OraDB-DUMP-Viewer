@@ -1,11 +1,11 @@
 ''' <summary>
 ''' 検索条件に関するすべてのクラスを含むモジュール
 ''' </summary>
-''' <summary>
-''' 検索条件に関するすべてのクラスを含むモジュール
-''' </summary>
 Public Class SearchCondition
 
+    ''' <summary>
+    ''' 検索演算子の種類（12種類）
+    ''' </summary>
     Public Enum OperatorType
         Contains
         NotContains
@@ -21,61 +21,43 @@ Public Class SearchCondition
         IsNotNull
     End Enum
 
+    ''' <summary>
+    ''' 複合条件の論理演算子（AND/OR）
+    ''' </summary>
     Public Enum LogicalOperatorType
         [And]
         [Or]
-    ''' <summary>
-    ''' 検索演算子の種類（12種類）
-    ''' </summary>
+    End Enum
 
     ''' <summary>
     ''' 単一の検索条件を表現するクラス
     ''' </summary>
     Public Class SearchConditionItem
-        Public Property ColumnName As String
-        Public Property OperatorType As SearchCondition.OperatorType
-        Public Property Value As Object
-        Public Property CaseSensitive As Boolean = False
-
-        Public Sub New()
-        End Sub
-
-        Public Sub New(columnName As String, operatorType As SearchCondition.OperatorType, value As Object, Optional caseSensitive As Boolean = False)
-            Me.ColumnName = columnName
-    ''' <summary>
-    ''' 複合条件の論理演算子（AND/OR）
-    ''' </summary>
-            Me.Value = value
-            Me.CaseSensitive = caseSensitive
-        End Sub
-
-        ''' <summary>
-        ''' 条件を評価する
-        ''' </summary>
-        Public Function Evaluate(cellValue As Object) As Boolean
-            ' Null値のチェック
         ''' <summary>
         ''' 検索対象の列名
         ''' </summary>
-            If OperatorType = SearchCondition.OperatorType.IsNull Then
+        Public Property ColumnName As String
+
         ''' <summary>
         ''' 演算子タイプ
         ''' </summary>
-                Return cellValue Is Nothing OrElse String.IsNullOrEmpty(cellValue.ToString())
+        Public Property OperatorType As SearchCondition.OperatorType
+
         ''' <summary>
         ''' 検索値
         ''' </summary>
-            End If
+        Public Property Value As Object
+
         ''' <summary>
         ''' 大文字小文字区別
         ''' </summary>
+        Public Property CaseSensitive As Boolean = False
 
-            If OperatorType = SearchCondition.OperatorType.IsNotNull Then
         ''' <summary>
         ''' デフォルトコンストラクタ
         ''' </summary>
         Public Sub New()
-            End If
+        End Sub
 
         ''' <summary>
         ''' パラメータ付きコンストラクタ
@@ -85,7 +67,25 @@ Public Class SearchCondition
         ''' <param name="value">検索値</param>
         ''' <param name="caseSensitive">大文字小文字区別</param>
         Public Sub New(columnName As String, operatorType As SearchCondition.OperatorType, value As Object, Optional caseSensitive As Boolean = False)
-                Return False
+            Me.ColumnName = columnName
+            Me.OperatorType = operatorType
+            Me.Value = value
+            Me.CaseSensitive = caseSensitive
+        End Sub
+
+        ''' <summary>
+        ''' 条件を評価する
+        ''' </summary>
+        ''' <param name="cellValue">セル値</param>
+        ''' <returns>条件成立ならTrue</returns>
+        Public Function Evaluate(cellValue As Object) As Boolean
+            ' Null値のチェック
+            If OperatorType = SearchCondition.OperatorType.IsNull Then
+                Return cellValue Is Nothing OrElse String.IsNullOrEmpty(cellValue.ToString())
+            End If
+
+            If OperatorType = SearchCondition.OperatorType.IsNotNull Then
+                Return cellValue IsNot Nothing AndAlso Not String.IsNullOrEmpty(cellValue.ToString())
             End If
 
             Dim cellStr = cellValue.ToString()
@@ -94,9 +94,7 @@ Public Class SearchCondition
             If Not CaseSensitive Then
                 cellStr = cellStr.ToLower()
                 searchStr = searchStr.ToLower()
-        ''' <param name="cellValue">セル値</param>
-        ''' <returns>条件成立ならTrue</returns>
-        Public Function Evaluate(cellValue As Object) As Boolean
+            End If
 
             Select Case OperatorType
                 ' 部分一致判定
@@ -167,9 +165,19 @@ Public Class SearchCondition
     ''' 複数の検索条件を組み合わせるクラス
     ''' </summary>
     Public Class ComplexSearchCondition
+        ''' <summary>
+        ''' 検索条件リスト
+        ''' </summary>
         Public Property Conditions As List(Of SearchCondition.SearchConditionItem)
+
+        ''' <summary>
+        ''' 条件間の論理演算子リスト（AND/OR）
+        ''' </summary>
         Public Property LogicalOperators As List(Of SearchCondition.LogicalOperatorType)
 
+        ''' <summary>
+        ''' デフォルトコンストラクタ
+        ''' </summary>
         Public Sub New()
             Conditions = New List(Of SearchCondition.SearchConditionItem)()
             LogicalOperators = New List(Of SearchCondition.LogicalOperatorType)()
@@ -180,6 +188,8 @@ Public Class SearchCondition
         ''' 条件数が1の場合はその条件だけ評価
         ''' 複数の場合はLogicalOperatorsに従って評価（最初の条件はスキップ）
         ''' </summary>
+        ''' <param name="row">行データ（列名→値）</param>
+        ''' <returns>条件成立ならTrue</returns>
         Public Function Evaluate(row As Dictionary(Of String, Object)) As Boolean
             If Conditions.Count = 0 Then
                 Return True
@@ -187,18 +197,10 @@ Public Class SearchCondition
 
             If Conditions.Count = 1 Then
                 Dim condition = Conditions(0)
-        ''' <summary>
-        ''' 検索条件リスト
-        ''' </summary>
                 If row.ContainsKey(condition.ColumnName) Then
-        ''' <summary>
-        ''' 条件間の論理演算子リスト（AND/OR）
-        ''' </summary>
                     Return condition.Evaluate(row(condition.ColumnName))
                 End If
-        ''' <summary>
-        ''' デフォルトコンストラクタ
-        ''' </summary>
+                Return False
             End If
 
             ' 最初の条件を評価
@@ -209,9 +211,7 @@ Public Class SearchCondition
             End If
 
             ' 残りの条件をLogicalOperatorsに従って評価
-        ''' <param name="row">行データ（列名→値）</param>
-        ''' <returns>条件成立ならTrue</returns>
-        Public Function Evaluate(row As Dictionary(Of String, Object)) As Boolean
+            For i = 1 To Conditions.Count - 1
                 Dim condition = Conditions(i)
                 Dim cellValue = If(row.ContainsKey(condition.ColumnName), row(condition.ColumnName), Nothing)
                 Dim conditionResult = condition.Evaluate(cellValue)

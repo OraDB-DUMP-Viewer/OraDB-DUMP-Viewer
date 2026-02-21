@@ -21,26 +21,6 @@ Public Class MenuStripLogics
                 If OpenFileDialog.ShowDialog() = DialogResult.OK Then
                     Dim dumpFilePath As String = OpenFileDialog.FileName
 
-                    ''ファイルサイズをチェック
-                    'Dim fileInfo As New FileInfo(dumpFilePath)
-                    'If fileInfo.Length > 100 * 1024 * 1024 Then
-                    '    '100MBを超える場合、警告を表示
-                    '    Dim result As DialogResult = MessageBox.Show("選択されたファイルは大きなサイズ(" & (fileInfo.Length / 1024 / 1024) & "MB)です。" & vbCrLf &
-                    '                                                 "処理に時間がかかる場合があります。続行しますか？",
-                    '                                               "確認",
-                    '                                               MessageBoxButtons.YesNo,
-                    '                                               MessageBoxIcon.Warning)
-
-                    '    If result = DialogResult.No Then
-                    '        'NOを選択した場合、処理を中止
-                    '        MessageBox.Show("ファイル選択がキャンセルされました。",
-                    '                        "キャンセル",
-                    '                        MessageBoxButtons.OK,
-                    '                        MessageBoxIcon.Information)
-                    '        Return String.Empty
-                    '    End If
-                    'End If
-
                     'ファイルパスを返す
                     Return dumpFilePath
 

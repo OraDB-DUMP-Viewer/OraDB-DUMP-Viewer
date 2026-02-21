@@ -28,7 +28,10 @@ Imports System.Collections.Generic
 '''     ' フィルタリング処理
 ''' End If
 ''' </summary>
+
 Public Class AdvancedSearchForm
+
+#Region "フィールド・プロパティ"
 
     ''' <summary>検索可能な列名のリスト</summary>
     Private _columnNames As List(Of String)
@@ -39,6 +42,9 @@ Public Class AdvancedSearchForm
     ''' <summary>現在追加されている検索条件行のリスト</summary>
     Private _conditionRows As New List(Of SearchConditionRow)()
 
+#End Region
+
+#Region "検索条件プロパティ"
     ''' <summary>
     ''' 検索結果の複合条件を取得/設定するプロパティ
     ''' 
@@ -49,13 +55,17 @@ Public Class AdvancedSearchForm
     <System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)>
     Public Property SearchConditionResult As SearchCondition.ComplexSearchCondition
         Get
+            ' 現在の複合検索条件を返す（TablePreview側で参照される）
             Return _searchCondition
         End Get
         Set(value As SearchCondition.ComplexSearchCondition)
+            ' 外部から複合検索条件をセット
             _searchCondition = value
         End Set
     End Property
+#End Region
 
+#Region "コンストラクタ"
     ''' <summary>
     ''' コンストラクタ
     ''' 
@@ -78,7 +88,9 @@ Public Class AdvancedSearchForm
         Me.Controls.Remove(templateConditionRow)
         Me.Controls.Remove(templateLogicalPanel)
     End Sub
+#End Region
 
+#Region "検索条件セット・復元"
     ''' <summary>
     ''' 前回の検索条件を設定する
     ''' 
@@ -93,7 +105,9 @@ Public Class AdvancedSearchForm
             _searchCondition = condition
         End If
     End Sub
+#End Region
 
+#Region "フォームイベント・UI初期化"
     ''' <summary>
     ''' フォーム読み込み時のイベントハンドラー
     ''' 
@@ -117,7 +131,9 @@ Public Class AdvancedSearchForm
             AddSearchConditionRow()
         End If
     End Sub
+#End Region
 
+#Region "検索条件行の追加・削除・UI操作"
     ''' <summary>
     ''' 検索条件行を1行追加する
     ''' 
@@ -169,9 +185,6 @@ Public Class AdvancedSearchForm
 
     ''' <summary>
     ''' SearchConditionRow を新規作成する（最初の行用）
-    ''' 
-    ''' テンプレート（templateConditionRow）を使用せず、
-    ''' 直接 new SearchConditionRow() で新規インスタンスを生成する。
     ''' </summary>
     ''' <returns>新規作成された SearchConditionRow インスタンス</returns>
     Private Function CreateConditionRowFromTemplate() As SearchConditionRow
@@ -182,10 +195,6 @@ Public Class AdvancedSearchForm
 
     ''' <summary>
     ''' SearchConditionRow をクローン作成する（2行目以降用）
-    ''' 
-    ''' テンプレート（original）の状態を複製して新規インスタンスを生成する。
-    ''' 現在の実装では、テンプレートの状態はコピーせず、デフォルト状態で新規作成されている。
-    ''' 将来的に必要に応じて、コントロールの状態をコピーする処理を追加可能。
     ''' </summary>
     ''' <param name="original">クローン元の SearchConditionRow（使用されていない）</param>
     ''' <returns>新規作成された SearchConditionRow インスタンス</returns>
@@ -199,14 +208,6 @@ Public Class AdvancedSearchForm
 
     ''' <summary>
     ''' AND/OR 選択パネルをクローン作成する
-    ''' 
-    ''' 動的にパネルを作成し、ラベルと AND/OR コンボボックスを配置。
-    ''' 複数の検索条件行の間に挿入される。
-    ''' 
-    ''' UI 構成:
-    ''' - Panel
-    '''   ├─ Label（"条件:"）：位置 (10, 8)、幅 60
-    '''   └─ ComboBox（AND/OR 選択）：位置 (70, 5)、幅 100
     ''' </summary>
     ''' <returns>新規作成された AND/OR パネル</returns>
     Private Function CloneLogicalPanel() As Panel
@@ -240,15 +241,6 @@ Public Class AdvancedSearchForm
 
     ''' <summary>
     ''' 検索条件行を削除する
-    ''' 
-    ''' フロー:
-    ''' 1. 条件数が1以下の場合は警告を表示して中止
-    ''' 2. 削除対象行のインデックスを取得
-    ''' 3. _conditionRows リストから削除
-    ''' 4. flowLayoutPanel から UI を削除
-    ''' 5. 対応する AND/OR パネルも削除
-    ''' 
-    ''' 注意: 最初の行は削除不可（最低1つの条件は必要）
     ''' </summary>
     ''' <param name="row">削除する検索条件行</param>
     Private Sub RemoveSearchConditionRow(row As SearchConditionRow)
@@ -277,10 +269,10 @@ Public Class AdvancedSearchForm
         End If
     End Sub
 
+
+    '-------------------- UI操作イベント --------------------
     ''' <summary>
     ''' 「条件を追加」ボタンのクリックイベントハンドラー
-    ''' 
-    ''' 新しい検索条件行を追加する
     ''' </summary>
     Private Sub ButtonAdd_Click(sender As Object, e As EventArgs)
         AddSearchConditionRow()
@@ -288,8 +280,6 @@ Public Class AdvancedSearchForm
 
     ''' <summary>
     ''' 「クリア」ボタンのクリックイベントハンドラー
-    ''' 
-    ''' すべての検索条件をクリアし、デフォルト状態（条件1行）に戻す
     ''' </summary>
     Private Sub ButtonClear_Click(sender As Object, e As EventArgs)
         ' 既存の条件行をすべてクリア
@@ -305,15 +295,6 @@ Public Class AdvancedSearchForm
 
     ''' <summary>
     ''' 「検索」ボタンのクリックイベントハンドラー
-    ''' 
-    ''' フロー:
-    ''' 1. すべての条件行の入力を検証（IsValid()）
-    ''' 2. 無効な条件がある場合はエラーメッセージを表示して中止
-    ''' 3. 複合検索条件を構築
-    ''' 4. _searchCondition に設定
-    ''' 5. DialogResult を OK にして、親フォームに返す
-    ''' 
-    ''' パフォーマンス: 条件行の数が多くても高速に実行される
     ''' </summary>
     Private Sub ButtonSearch_Click(sender As Object, e As EventArgs)
         ' Step 1: 入力検証
@@ -346,20 +327,12 @@ Public Class AdvancedSearchForm
         ' Step 4: DialogResult を OK に設定して、親フォームに返す
         ' Dialog が OK で閉じられたことは、AdvancedSearchForm_FormClosing で処理される
     End Sub
+    '------------------------------------------------------
+#End Region
 
+#Region "フォームクローズ処理"
     ''' <summary>
     ''' フォームクローズ時のイベントハンドラー
-    ''' 
-    ''' DialogResult が OK の場合は ButtonSearch_Click を実行して
-    ''' 検索条件を構築する。
-    ''' 
-    ''' 呼び出しフロー:
-    ''' ユーザーが検索ボタンクリック
-    ''' → ButtonSearch_Click 実行
-    ''' → DialogResult = OK に設定
-    ''' → Form クローズ処理開始
-    ''' → AdvancedSearchForm_FormClosing 呼び出し（DialogResult = OK）
-    ''' → 必要に応じて追加処理を実行可能
     ''' </summary>
     Private Sub AdvancedSearchForm_FormClosing(sender As Object, e As FormClosingEventArgs)
         ' OK ボタン（検索ボタン）でクローズされた場合
@@ -369,6 +342,7 @@ Public Class AdvancedSearchForm
         End If
         ' キャンセルボタンの場合は何もしない
     End Sub
+#End Region
 
 #Region "検索条件復元用メソッド"
 

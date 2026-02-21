@@ -45,7 +45,7 @@ Public Class TablePreview
     Private _currentPage As Integer = 1
 
     ''' <summary>1ページあたりの行数（デフォルト100、ユーザーが変更可能）</summary>
-    Private _pageSize As Integer = 100
+    Private _pageCount As Integer = 100
 
     ''' <summary>元データの総行数</summary>
     Private _totalRows As Integer = 0
@@ -102,8 +102,8 @@ Public Class TablePreview
     Private Sub TablePreview_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         _isInitializing = True
 
-        ' ページサイズの初期値を設定
-        numericUpDownPageSize.Value = _pageSize
+        ' １ページあたりの行数の初期値を設定
+        numericUpDownPageCount.Value = _pageCount
 
         ' 列名をコンボボックスに設定
         For Each colName In _columnNames
@@ -258,7 +258,7 @@ Public Class TablePreview
     ''' 次のページに移動（最終ページでない場合のみ）
     ''' </summary>
     Private Sub buttonNext_Click(sender As Object, e As EventArgs) Handles buttonNext.Click
-        Dim totalPages As Integer = Math.Ceiling(If(_filteredData.Count = 0, 1, _filteredData.Count / _pageSize))
+        Dim totalPages As Integer = Math.Ceiling(If(_filteredData.Count = 0, 1, _filteredData.Count / _pageCount))
         If _currentPage < totalPages Then
             _currentPage += 1
             UpdateDataDisplay()
@@ -266,16 +266,16 @@ Public Class TablePreview
     End Sub
 
     ''' <summary>
-    ''' ページサイズが変更された時のイベントハンドラー
+    ''' １ページあたりの行数が変更された時のイベントハンドラー
     ''' 
     ''' ユーザーが "1ページ:" スピンボックスでページサイズを変更した場合、
     ''' ページ表示を更新
     ''' 
     ''' 注意: フォーム初期化中は処理をスキップ（重複イベント防止）
     ''' </summary>
-    Private Sub numericUpDownPageSize_ValueChanged(sender As Object, e As EventArgs) Handles numericUpDownPageSize.ValueChanged
+    Private Sub numericUpDownPageSize_ValueChanged(sender As Object, e As EventArgs) Handles numericUpDownPageCount.ValueChanged
         If Not _isInitializing Then
-            _pageSize = CInt(numericUpDownPageSize.Value)
+            _pageCount = CInt(numericUpDownPageCount.Value)
             _currentPage = 1
             UpdateDataDisplay()
         End If
@@ -385,11 +385,11 @@ Public Class TablePreview
     ''' </summary>
     Private Sub UpdateDataDisplay()
         ' 総ページ数を計算（データが0件の場合は1を使用）
-        Dim totalPages As Integer = Math.Ceiling(If(_filteredData.Count = 0, 1, _filteredData.Count / _pageSize))
+        Dim totalPages As Integer = Math.Ceiling(If(_filteredData.Count = 0, 1, _filteredData.Count / _pageCount))
 
         ' 現在のページの開始行と終了行を計算
-        Dim startRow As Integer = (_currentPage - 1) * _pageSize
-        Dim endRow As Integer = Math.Min(startRow + _pageSize, _filteredData.Count)
+        Dim startRow As Integer = (_currentPage - 1) * _pageCount
+        Dim endRow As Integer = Math.Min(startRow + _pageCount, _filteredData.Count)
 
         ' DataGridView をクリア
         dataGridViewData.Rows.Clear()

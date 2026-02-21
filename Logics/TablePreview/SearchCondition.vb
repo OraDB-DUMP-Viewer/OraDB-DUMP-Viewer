@@ -79,18 +79,22 @@ Public Class SearchCondition
         ''' <param name="cellValue">セル値</param>
         ''' <returns>条件成立ならTrue</returns>
         Public Function Evaluate(cellValue As Object) As Boolean
-            ' Null値のチェック
+            '--- Null値判定（IsNull/IsNotNull演算子）---
             If OperatorType = SearchCondition.OperatorType.IsNull Then
+                ' セル値がNothingまたは空文字の場合True
                 Return cellValue Is Nothing OrElse String.IsNullOrEmpty(cellValue.ToString())
             End If
 
             If OperatorType = SearchCondition.OperatorType.IsNotNull Then
+                ' セル値がNothingでも空文字でもない場合True
                 Return cellValue IsNot Nothing AndAlso Not String.IsNullOrEmpty(cellValue.ToString())
             End If
 
-            Dim cellStr = cellValue.ToString()
-            Dim searchStr = If(Value Is Nothing, "", Value.ToString())
+            '--- 文字列変換（数値比較や部分一致のため）---
+            Dim cellStr = cellValue.ToString() ' セル値を文字列化
+            Dim searchStr = If(Value Is Nothing, "", Value.ToString()) ' 検索値を文字列化（Null安全）
 
+            '--- 大文字小文字区別なしの場合は小文字化 ---
             If Not CaseSensitive Then
                 cellStr = cellStr.ToLower()
                 searchStr = searchStr.ToLower()

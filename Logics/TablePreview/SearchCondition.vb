@@ -1,6 +1,9 @@
 ''' <summary>
 ''' 検索条件に関するすべてのクラスを含むモジュール
 ''' </summary>
+''' <summary>
+''' 検索条件に関するすべてのクラスを含むモジュール
+''' </summary>
 Public Class SearchCondition
 
     Public Enum OperatorType
@@ -21,7 +24,9 @@ Public Class SearchCondition
     Public Enum LogicalOperatorType
         [And]
         [Or]
-    End Enum
+    ''' <summary>
+    ''' 検索演算子の種類（12種類）
+    ''' </summary>
 
     ''' <summary>
     ''' 単一の検索条件を表現するクラス
@@ -37,7 +42,9 @@ Public Class SearchCondition
 
         Public Sub New(columnName As String, operatorType As SearchCondition.OperatorType, value As Object, Optional caseSensitive As Boolean = False)
             Me.ColumnName = columnName
-            Me.OperatorType = operatorType
+    ''' <summary>
+    ''' 複合条件の論理演算子（AND/OR）
+    ''' </summary>
             Me.Value = value
             Me.CaseSensitive = caseSensitive
         End Sub
@@ -47,15 +54,37 @@ Public Class SearchCondition
         ''' </summary>
         Public Function Evaluate(cellValue As Object) As Boolean
             ' Null値のチェック
+        ''' <summary>
+        ''' 検索対象の列名
+        ''' </summary>
             If OperatorType = SearchCondition.OperatorType.IsNull Then
+        ''' <summary>
+        ''' 演算子タイプ
+        ''' </summary>
                 Return cellValue Is Nothing OrElse String.IsNullOrEmpty(cellValue.ToString())
+        ''' <summary>
+        ''' 検索値
+        ''' </summary>
             End If
+        ''' <summary>
+        ''' 大文字小文字区別
+        ''' </summary>
 
             If OperatorType = SearchCondition.OperatorType.IsNotNull Then
-                Return cellValue IsNot Nothing AndAlso Not String.IsNullOrEmpty(cellValue.ToString())
+        ''' <summary>
+        ''' デフォルトコンストラクタ
+        ''' </summary>
+        Public Sub New()
             End If
 
-            If cellValue Is Nothing Then
+        ''' <summary>
+        ''' パラメータ付きコンストラクタ
+        ''' </summary>
+        ''' <param name="columnName">列名</param>
+        ''' <param name="operatorType">演算子</param>
+        ''' <param name="value">検索値</param>
+        ''' <param name="caseSensitive">大文字小文字区別</param>
+        Public Sub New(columnName As String, operatorType As SearchCondition.OperatorType, value As Object, Optional caseSensitive As Boolean = False)
                 Return False
             End If
 
@@ -65,41 +94,69 @@ Public Class SearchCondition
             If Not CaseSensitive Then
                 cellStr = cellStr.ToLower()
                 searchStr = searchStr.ToLower()
-            End If
+        ''' <param name="cellValue">セル値</param>
+        ''' <returns>条件成立ならTrue</returns>
+        Public Function Evaluate(cellValue As Object) As Boolean
 
             Select Case OperatorType
+                ' 部分一致判定
                 Case SearchCondition.OperatorType.Contains
+                    ' cellStrがsearchStrを含む場合
                     Return cellStr.Contains(searchStr)
+                ' 部分一致否定
                 Case SearchCondition.OperatorType.NotContains
+                    ' cellStrがsearchStrを含まない場合
                     Return Not cellStr.Contains(searchStr)
+                ' 完全一致判定
                 Case SearchCondition.OperatorType.Equals
+                    ' cellStrとsearchStrが等しい場合
                     Return cellStr = searchStr
+                ' 完全一致否定
                 Case SearchCondition.OperatorType.NotEquals
+                    ' cellStrとsearchStrが異なる場合
                     Return cellStr <> searchStr
+                ' 前方一致判定
                 Case SearchCondition.OperatorType.StartsWith
+                    ' cellStrがsearchStrで始まる場合
                     Return cellStr.StartsWith(searchStr)
+                ' 後方一致判定
                 Case SearchCondition.OperatorType.EndsWith
+                    ' cellStrがsearchStrで終わる場合
                     Return cellStr.EndsWith(searchStr)
+                ' 数値比較: より大きい
                 Case SearchCondition.OperatorType.GreaterThan
-                    If Decimal.TryParse(cellStr, Nothing) AndAlso Decimal.TryParse(searchStr, Nothing) Then
-                        Return Decimal.Parse(cellStr) > Decimal.Parse(searchStr)
+                    ' cellStr > searchStr
+                    Dim cellNum As Decimal, searchNum As Decimal
+                    If Decimal.TryParse(cellStr, cellNum) AndAlso Decimal.TryParse(searchStr, searchNum) Then
+                        Return cellNum > searchNum
                     End If
+                    ' 数値変換失敗時はFalse
                     Return False
+                ' 数値比較: より小さい
                 Case SearchCondition.OperatorType.LessThan
-                    If Decimal.TryParse(cellStr, Nothing) AndAlso Decimal.TryParse(searchStr, Nothing) Then
-                        Return Decimal.Parse(cellStr) < Decimal.Parse(searchStr)
+                    ' cellStr < searchStr
+                    Dim cellNum As Decimal, searchNum As Decimal
+                    If Decimal.TryParse(cellStr, cellNum) AndAlso Decimal.TryParse(searchStr, searchNum) Then
+                        Return cellNum < searchNum
                     End If
                     Return False
+                ' 数値比較: 以上
                 Case SearchCondition.OperatorType.GreaterThanOrEqual
-                    If Decimal.TryParse(cellStr, Nothing) AndAlso Decimal.TryParse(searchStr, Nothing) Then
-                        Return Decimal.Parse(cellStr) >= Decimal.Parse(searchStr)
+                    ' cellStr >= searchStr
+                    Dim cellNum As Decimal, searchNum As Decimal
+                    If Decimal.TryParse(cellStr, cellNum) AndAlso Decimal.TryParse(searchStr, searchNum) Then
+                        Return cellNum >= searchNum
                     End If
                     Return False
+                ' 数値比較: 以下
                 Case SearchCondition.OperatorType.LessThanOrEqual
-                    If Decimal.TryParse(cellStr, Nothing) AndAlso Decimal.TryParse(searchStr, Nothing) Then
-                        Return Decimal.Parse(cellStr) <= Decimal.Parse(searchStr)
+                    ' cellStr <= searchStr
+                    Dim cellNum As Decimal, searchNum As Decimal
+                    If Decimal.TryParse(cellStr, cellNum) AndAlso Decimal.TryParse(searchStr, searchNum) Then
+                        Return cellNum <= searchNum
                     End If
                     Return False
+                ' 未定義演算子
                 Case Else
                     Return False
             End Select
@@ -130,10 +187,18 @@ Public Class SearchCondition
 
             If Conditions.Count = 1 Then
                 Dim condition = Conditions(0)
+        ''' <summary>
+        ''' 検索条件リスト
+        ''' </summary>
                 If row.ContainsKey(condition.ColumnName) Then
+        ''' <summary>
+        ''' 条件間の論理演算子リスト（AND/OR）
+        ''' </summary>
                     Return condition.Evaluate(row(condition.ColumnName))
                 End If
-                Return False
+        ''' <summary>
+        ''' デフォルトコンストラクタ
+        ''' </summary>
             End If
 
             ' 最初の条件を評価
@@ -144,7 +209,9 @@ Public Class SearchCondition
             End If
 
             ' 残りの条件をLogicalOperatorsに従って評価
-            For i As Integer = 1 To Conditions.Count - 1
+        ''' <param name="row">行データ（列名→値）</param>
+        ''' <returns>条件成立ならTrue</returns>
+        Public Function Evaluate(row As Dictionary(Of String, Object)) As Boolean
                 Dim condition = Conditions(i)
                 Dim cellValue = If(row.ContainsKey(condition.ColumnName), row(condition.ColumnName), Nothing)
                 Dim conditionResult = condition.Evaluate(cellValue)

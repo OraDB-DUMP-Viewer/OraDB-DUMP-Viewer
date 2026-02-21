@@ -13,22 +13,25 @@ Public Class TablePreviewLogic
     Public Shared Sub DisplayTableData(parentForm As Form, tableData As List(Of Dictionary(Of String, Object)), 
                                        columnNames As List(Of String), tableName As String)
         Try
+            ' データが空の場合は情報ダイアログを表示して終了
             If tableData Is Nothing OrElse tableData.Count = 0 Then
                 MessageBox.Show("表示するデータがありません。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Return
             End If
 
+            ' 列名リストが空の場合はエラーダイアログを表示して終了
             If columnNames Is Nothing OrElse columnNames.Count = 0 Then
                 MessageBox.Show("列情報がありません。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Return
             End If
 
-            ' TablePreviewフォームを作成
+            ' TablePreviewフォームを作成し、MDI親フォームに表示
             Dim previewForm As New TablePreview(tableData, columnNames, tableName)
             previewForm.MdiParent = parentForm
             previewForm.Show()
 
         Catch ex As Exception
+            ' 例外発生時はエラーダイアログを表示
             MessageBox.Show("データ表示中にエラーが発生しました: " & ex.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub

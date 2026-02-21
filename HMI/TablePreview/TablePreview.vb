@@ -93,18 +93,13 @@ Public Class TablePreview
     ''' フォーム読み込み時のイベントハンドラー
     ''' 
     ''' フロー:
-    ''' 1. シンプル検索パネルを非表示
-    ''' 2. 列名をコンボボックスに設定
-    ''' 3. ページサイズの初期値を設定
-    ''' 4. DataGridView をセットアップ
-    ''' 5. 初期データを表示
-    ''' 6. 高度な検索フォームを自動表示
+    ''' 1. ページサイズの初期値を設定
+    ''' 2. イベントハンドラーを設定
+    ''' 3. DataGridView をセットアップ
+    ''' 4. 初期データを表示
     ''' </summary>
     Private Sub TablePreview_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         _isInitializing = True
-
-        ' シンプル検索パネルを非表示（高度な検索がデフォルト）
-        panelSearch.Visible = False
 
         ' ページサイズの初期値を設定
         numericUpDownPageSize.Value = _pageSize
@@ -117,9 +112,6 @@ Public Class TablePreview
 
         ' 初期データを表示
         UpdateDataDisplay()
-
-        ' 高度な検索フォームを自動で開く
-        OpenAdvancedSearchForm()
 
         _isInitializing = False
     End Sub

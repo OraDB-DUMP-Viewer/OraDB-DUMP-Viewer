@@ -30,6 +30,7 @@ Partial Class AdvancedSearchForm
         buttonClear = New Button()
         buttonSearch = New Button()
         buttonCancel = New Button()
+        templateConditionRow = New SearchConditionRow(New List(Of String)())
         templateLogicalPanel = New Panel()
         mainPanel.SuspendLayout()
         scrollPanel.SuspendLayout()

@@ -12,7 +12,7 @@ Public Class LICENSE
     ''' <summary>
     ''' 公開鍵（PEM形式 or XML形式）
     ''' </summary>
-    Public Const PublicKeyXml As String = "<RSAKeyValue><Modulus>vCjZ1HeSgqUO5oWANZhprgAlPN0YzBF2rCU9pvQ1mgWC61vcEHxZ2nrjxhu5Uptx3Unkeexa7Rt+Dz1Bxs+q+2nNr8dFVvoyDk+j/gzVNfBK1OBOW7lkxrO2tMvXjoBnHda1CQqn2RHeaxHprWsLDBKGnsPvTnVoNBuAyX7AadVF0xt9jQf1ZnTbTPjqNOeaQE8T3QcAfa64girV6ED/u/2cpp3N1CyshWKVwDKsBYYj7w3/JmOeetq4/eC2uuPZJa1SgQj0zNMPZx+az2wKlFMU5tJT63udSl9nmKvmEr57XCScYpL4BWbKV48P+nmXNg/NAbesE9rZZgQrmINGmw==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>"
+    Public Const PublicKeyXml As String = "<RSAKeyValue><Modulus>u7Phr86EDhhUuKAqZnOL/W4lkby6NIHhaOhCuqBAmEjm0Esna3GpEYIup1guwm69UWHEAf5wJSGgDfSrOYuP3agUKXl/uQFOXbg23aDidLaH9gf6uuqhBDtDozHlJaT0uc1YAfQEiD+7RKshqCZd8lwK6Z9fLZ9Ae+pFZsBavACI39UC8Kgc7bJthZbDBQlMbCTQP9XI0CBXo+X6D3D71DWNuLyD0V90IVG01lch19QSmjKCwWWwgy96D+0+5pV22FIcZwCljTyuI9DNpW9ZhMqXsSz3T73YIZxhEl7CQodgeIqstGYR4yZTqOD9hn29ACuX2Tp+N/pIZBgW+M5m5Q==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue> "
 #End Region
 
 #Region "ライセンス検証メイン処理"

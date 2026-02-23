@@ -30,11 +30,11 @@ Public Class Oracle_DUMP_Viewer
                 Return
             End If
 
-            Dim product As String = String.Empty
+            Dim licenseKey As String = String.Empty
             Dim expiryDate As DateTime
             Dim holder As String = String.Empty
             Dim errMsg As String = String.Empty
-            If Not LICENSE.VerifyLicenseFile(statusPath, product, expiryDate, holder, errMsg) Then
+            If Not LICENSE.VerifyLicenseFile(statusPath, licenseKey, expiryDate, holder, errMsg) Then
                 MessageBox.Show("ライセンス検証に失敗しました: " & errMsg & vbCrLf & "今すぐライセンス認証しますか？", "ライセンス無効", MessageBoxButtons.YesNo, MessageBoxIcon.Error)
                 MenuStripLogics.ライセンス認証ToolStripMenuItem()
             End If

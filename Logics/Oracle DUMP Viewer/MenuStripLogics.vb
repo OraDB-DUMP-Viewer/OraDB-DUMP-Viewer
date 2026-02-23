@@ -66,11 +66,11 @@ Public Class MenuStripLogics
 
                 If OpenFileDialog.ShowDialog() = DialogResult.OK Then
                     Dim licPath As String = OpenFileDialog.FileName
-                    Dim product As String = String.Empty
+                    Dim licenseKey As String = String.Empty
                     Dim expiryDate As DateTime
                     Dim holder As String = String.Empty
                     Dim errMsg As String = String.Empty
-                    If Not LICENSE.VerifyLicenseFile(licPath, product, expiryDate, holder, errMsg) Then
+                    If Not LICENSE.VerifyLicenseFile(licPath, licenseKey, expiryDate, holder, errMsg) Then
                         MessageBox.Show(errMsg, "認証失敗", MessageBoxButtons.OK, MessageBoxIcon.Error)
                         Return
                     End If
@@ -80,6 +80,8 @@ Public Class MenuStripLogics
                     Dim statusPath = Path.Combine(appData, "license.status")
                     File.Copy(licPath, statusPath, True)
                     MessageBox.Show("ライセンス認証に成功しました。", "認証成功", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    ' ステータスバーにHolder名を反映
+                    COMMON.ReSet_StatusLavel()
                 End If
 
             End Using

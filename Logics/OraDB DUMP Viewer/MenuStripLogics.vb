@@ -1,4 +1,4 @@
-﻿Imports System.IO
+Imports System.IO
 Imports System.Security.Cryptography
 Imports System.Text
 
@@ -40,18 +40,18 @@ Public Class MenuStripLogics
 
     Public Shared Sub ステータスバーSToolStripMenuItem()
         'ステータスバーの表示・非表示を切り替える
-        If Oracle_DUMP_Viewer.ToolStripStatusLabel.Visible = True Then
-            Oracle_DUMP_Viewer.ToolStripStatusLabel.Visible = False
-            Oracle_DUMP_Viewer.ステータスバーSToolStripMenuItem.Checked = False
+        If OraDB_DUMP_Viewer.ToolStripStatusLabel.Visible = True Then
+            OraDB_DUMP_Viewer.ToolStripStatusLabel.Visible = False
+            OraDB_DUMP_Viewer.ステータスバーSToolStripMenuItem.Checked = False
         Else
-            Oracle_DUMP_Viewer.ToolStripStatusLabel.Visible = True
-            Oracle_DUMP_Viewer.ステータスバーSToolStripMenuItem.Checked = True
+            OraDB_DUMP_Viewer.ToolStripStatusLabel.Visible = True
+            OraDB_DUMP_Viewer.ステータスバーSToolStripMenuItem.Checked = True
         End If
     End Sub
 
     ' Use COMMON for shared license logic
 
-    
+
 
     Public Shared Sub ライセンス認証ToolStripMenuItem()
         Try

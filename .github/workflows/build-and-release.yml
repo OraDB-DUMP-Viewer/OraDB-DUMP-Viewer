@@ -38,7 +38,7 @@ jobs:
         id: get_version
         shell: pwsh
         run: |
-          [xml]$xml = Get-Content "Oracle DUMP Viewer.vbproj"
+          [xml]$xml = Get-Content "OraDB DUMP Viewer.vbproj"
           $version = $xml.Project.PropertyGroup `
             | Where-Object { $_.Version } `
             | Select-Object -ExpandProperty Version -First 1
@@ -85,7 +85,7 @@ jobs:
       # 5. NuGet パッケージの復元
       # ─────────────────────────────────────
       - name: Restore dependencies
-        run: dotnet restore "Oracle DUMP Viewer.vbproj"
+        run: dotnet restore "OraDB DUMP Viewer.vbproj"
 
       # ─────────────────────────────────────
       # 6. Release ビルド (実行ファイル生成)
@@ -93,7 +93,7 @@ jobs:
       # ─────────────────────────────────────
       - name: Build (Release)
         run: |
-          dotnet publish "Oracle DUMP Viewer.vbproj" `
+          dotnet publish "OraDB DUMP Viewer.vbproj" `
             --configuration Release `
             --runtime win-x64 `
             --self-contained false `
@@ -108,7 +108,7 @@ jobs:
           $version = "${{ steps.get_version.outputs.VERSION }}"
           Compress-Archive `
             -Path "./publish/exe/*" `
-            -DestinationPath "./publish/OracleDumpViewer_v${version}_portable.zip"
+            -DestinationPath "./publish/OraDBDumpViewer_v${version}_portable.zip"
 
       # ─────────────────────────────────────
       # 8. WiX Toolset v5.0.2 のインストール
@@ -136,7 +136,7 @@ jobs:
           <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
                xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
-            <Package Name="Oracle DUMP Viewer"
+            <Package Name="OraDB DUMP Viewer"
                      Version="${version}"
                      Manufacturer="YANAI Taketo"
                      UpgradeCode="cd3b541d-5df6-4737-9bcc-16a4329a8a54"
@@ -159,7 +159,7 @@ jobs:
               <WixLocalization Culture="ja-jp" />
               <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
 
-              <Feature Id="ProductFeature" Title="Oracle DUMP Viewer" Level="1">
+              <Feature Id="ProductFeature" Title="OraDB DUMP Viewer" Level="1">
                 <ComponentGroupRef Id="ProductComponents" />
                 <ComponentRef Id="DesktopShortcut" />
                 <ComponentRef Id="StartMenuShortcut" />
@@ -167,19 +167,19 @@ jobs:
 
               <!-- インストール先フォルダ -->
               <StandardDirectory Id="ProgramFiles64Folder">
-                <Directory Id="INSTALLFOLDER" Name="Oracle DUMP Viewer" />
+                <Directory Id="INSTALLFOLDER" Name="OraDB DUMP Viewer" />
               </StandardDirectory>
 
               <!-- デスクトップ -->
               <StandardDirectory Id="DesktopFolder">
                 <Component Id="DesktopShortcut" Guid="*">
                   <Shortcut Id="DesktopShortcutLink"
-                            Name="Oracle DUMP Viewer"
-                            Description="Oracle DUMP Viewer"
-                            Target="[INSTALLFOLDER]Oracle DUMP Viewer.exe"
+                            Name="OraDB DUMP Viewer"
+                            Description="OraDB DUMP Viewer"
+                            Target="[INSTALLFOLDER]OraDB DUMP Viewer.exe"
                             WorkingDirectory="INSTALLFOLDER" />
                   <RegistryValue Root="HKCU"
-                                 Key="Software\YANAI Taketo\Oracle DUMP Viewer"
+                                 Key="Software\YANAI Taketo\OraDB DUMP Viewer"
                                  Name="DesktopShortcut"
                                  Type="integer"
                                  Value="1"
@@ -189,18 +189,18 @@ jobs:
 
               <!-- スタートメニュー -->
               <StandardDirectory Id="ProgramMenuFolder">
-                <Directory Id="AppStartMenuFolder" Name="Oracle DUMP Viewer">
+                <Directory Id="AppStartMenuFolder" Name="OraDB DUMP Viewer">
                   <Component Id="StartMenuShortcut" Guid="*">
                     <Shortcut Id="StartMenuShortcutLink"
-                              Name="Oracle DUMP Viewer"
-                              Description="Oracle DUMP Viewer"
-                              Target="[INSTALLFOLDER]Oracle DUMP Viewer.exe"
+                              Name="OraDB DUMP Viewer"
+                              Description="OraDB DUMP Viewer"
+                              Target="[INSTALLFOLDER]OraDB DUMP Viewer.exe"
                               WorkingDirectory="INSTALLFOLDER" />
                     <RemoveFolder Id="RemoveStartMenuFolder"
                                   Directory="AppStartMenuFolder"
                                   On="uninstall" />
                     <RegistryValue Root="HKCU"
-                                   Key="Software\YANAI Taketo\Oracle DUMP Viewer"
+                                   Key="Software\YANAI Taketo\OraDB DUMP Viewer"
                                    Name="StartMenuShortcut"
                                    Type="integer"
                                    Value="1"
@@ -228,7 +228,7 @@ jobs:
           $version = "${{ steps.get_version.outputs.VERSION }}"
           wix build installer.wxs `
             -ext WixToolset.UI.wixext `
-            -o "./publish/OracleDumpViewer_v${version}_installer.msi"
+            -o "./publish/OraDBDumpViewer_v${version}_installer.msi"
 
       # ─────────────────────────────────────
       # 12. GitHub Release の作成 & アップロード
@@ -243,7 +243,7 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            ./publish/OracleDumpViewer_v${{ steps.get_version.outputs.VERSION }}_portable.zip
-            ./publish/OracleDumpViewer_v${{ steps.get_version.outputs.VERSION }}_installer.msi
+            ./publish/OraDBDumpViewer_v${{ steps.get_version.outputs.VERSION }}_portable.zip
+            ./publish/OraDBDumpViewer_v${{ steps.get_version.outputs.VERSION }}_installer.msi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

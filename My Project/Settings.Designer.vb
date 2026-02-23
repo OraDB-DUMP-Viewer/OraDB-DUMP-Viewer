@@ -64,9 +64,9 @@ Namespace My
     Friend Module MySettingsProperty
         
         <Global.System.ComponentModel.Design.HelpKeywordAttribute("My.Settings")>  _
-        Friend ReadOnly Property Settings() As Global.Oracle_DUMP_Viewer.My.MySettings
+        Friend ReadOnly Property Settings() As Global.OraDB_DUMP_Viewer.My.MySettings
             Get
-                Return Global.Oracle_DUMP_Viewer.My.MySettings.Default
+                Return Global.OraDB_DUMP_Viewer.My.MySettings.Default
             End Get
         End Property
     End Module

@@ -1,11 +1,11 @@
-# AGENTS.md - Oracle DUMP Viewer
+# AGENTS.md - OraDB DUMP Viewer
 
 ## Project Overview
 
-Oracle DUMP Viewer は、Oracle データベースのEXPORT形式（DUMPファイル）を解析し、スキーマ・テーブル・データを視覚的に確認できるWinFormsアプリケーションです。
+OraDB DUMP Viewer は、Oracle データベースのEXPORT形式（DUMPファイル）を解析し、スキーマ・テーブル・データを視覚的に確認できるWinFormsアプリケーションです。
 
 **主な特徴:**
-- Oracle DUMPファイルの解析と表示
+   - OraDB DUMPファイルの解析と表示
 - ライセンス認証機能（RSA署名検証）
 - 大量データへの対応（メモリ効率的なページング表示）
 - 列名による高速検索機能
@@ -53,11 +53,11 @@ Dictionary(Of String, Dictionary(Of String, List(Of Dictionary(Of String, Object
 ## Project Structure
 
 ```
-Oracle DUMP Viewer/
+OraDB DUMP Viewer/
 ├─ HMI/
-│  ├─ Oracle DUMP Viewer/
-│  │  ├─ Oracle_DUMP_Viewer.vb          # メインフォーム
-│  │  └─ Oracle_DUMP_Viewer.Designer.vb
+│  ├─ OraDB DUMP Viewer/
+│  │  ├─ OraDB_DUMP_Viewer.vb          # メインフォーム
+│  │  └─ OraDB_DUMP_Viewer.Designer.vb
 │  ├─ Workspace/
 │  │  ├─ Workspace.vb                   # DBスキーマ表示フォーム
 │  │  └─ Workspace.Designer.vb
@@ -71,7 +71,7 @@ Oracle DUMP Viewer/
 ├─ Logics/
 │  ├─ COMMON.vb                         # 共通ユーティリティ
 │  ├─ LICENSE.vb                        # ライセンス検証
-│  ├─ Oracle DUMP Viewer/
+│  ├─ OraDB DUMP Viewer/
 │  │  └─ MenuStripLogics.vb             # メニュー処理
 │  ├─ Workspace/
 │  │  └─ AnalyzeLogic.vb                # DUMPファイル解析（本番用）
@@ -431,10 +431,10 @@ End Try
 
 ```powershell
 # デバッグビルド（テストデータ使用）
-msbuild "Oracle DUMP Viewer.csproj" /p:Configuration=Debug
+msbuild "OraDB DUMP Viewer.csproj" /p:Configuration=Debug
 
 # リリースビルド（本番ロジック使用）
-msbuild "Oracle DUMP Viewer.csproj" /p:Configuration=Release
+msbuild "OraDB DUMP Viewer.csproj" /p:Configuration=Release
 ```
 
 ### 対象フレームワーク
@@ -466,7 +466,7 @@ msbuild "Oracle DUMP Viewer.csproj" /p:Configuration=Release
 ### DUMPファイル解析実装
 
 1. **AnalyzeLogic.vb の実装**
-   - Oracle EXPORTフォーマットのパース
+   - OraDB EXPORTフォーマットのパース
    - テーブル構造の自動抽出
    - スキーマ・テーブル・データの階層構造化
 

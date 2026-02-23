@@ -7,7 +7,7 @@
     ''' <param name="text"></param>
     Public Shared Sub Set_StatusLavel(text As String)
         'ステータスラベルのテキストを更新する
-        Oracle_DUMP_Viewer.ToolStripStatusLabel.Text = text
+        OraDB_DUMP_Viewer.ToolStripStatusLabel.Text = text
         Application.DoEvents() ' UIの更新を強制
     End Sub
 
@@ -18,9 +18,9 @@
         'ライセンス認証状態に応じてステータスラベルを更新
         Dim holder As String = LICENSE.GetLicenseHolder()
         If String.IsNullOrEmpty(holder) Then
-            Oracle_DUMP_Viewer.ToolStripStatusLabel.Text = "Oracle DUMP Viewer - ライセンス未認証"
+            OraDB_DUMP_Viewer.ToolStripStatusLabel.Text = "OraDB DUMP Viewer - ライセンス未認証"
         Else
-            Oracle_DUMP_Viewer.ToolStripStatusLabel.Text = $"Oracle DUMP Viewer - {holder}"
+            OraDB_DUMP_Viewer.ToolStripStatusLabel.Text = $"OraDB DUMP Viewer - {holder}"
         End If
         Application.DoEvents() ' UIの更新を強制
     End Sub
@@ -62,7 +62,7 @@
 
             COMMON.Set_StatusLavel(statusMessage)
 
-            Oracle_DUMP_Viewer.ToolStripProgressBar.Value = current
+            OraDB_DUMP_Viewer.ToolStripProgressBar.Value = current
 
         Catch ex As Exception
             Console.WriteLine($"プログレス更新エラー: {ex.Message}")
@@ -70,17 +70,17 @@
     End Sub
 
     Public Shared Sub setProgressBarMax(total As Integer)
-        Oracle_DUMP_Viewer.ToolStripProgressBar.Maximum = total
-        Oracle_DUMP_Viewer.ToolStripProgressBar.Value = 0
-        Oracle_DUMP_Viewer.ToolStripProgressBar.Visible = True
+        OraDB_DUMP_Viewer.ToolStripProgressBar.Maximum = total
+        OraDB_DUMP_Viewer.ToolStripProgressBar.Value = 0
+        OraDB_DUMP_Viewer.ToolStripProgressBar.Visible = True
     End Sub
 
     ''' <summary>
     ''' プログレスバーをリセットする
     ''' </summary>
     Public Shared Sub ResetProgressBar()
-        Oracle_DUMP_Viewer.ToolStripProgressBar.Value = 0
-        Oracle_DUMP_Viewer.ToolStripProgressBar.Visible = False
+        OraDB_DUMP_Viewer.ToolStripProgressBar.Value = 0
+        OraDB_DUMP_Viewer.ToolStripProgressBar.Visible = False
     End Sub
 #End Region
 

@@ -28,7 +28,7 @@ Namespace My
 
         <Global.System.Diagnostics.DebuggerStepThroughAttribute()>
         Protected Overrides Sub OnCreateMainForm()
-            Me.MainForm = Oracle_DUMP_Viewer
+            Me.MainForm = OraDB_DUMP_Viewer
         End Sub
     End Class
 End Namespace

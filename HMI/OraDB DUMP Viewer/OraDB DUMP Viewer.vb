@@ -1,7 +1,7 @@
-﻿Imports System.IO
+Imports System.IO
 Imports System.Text
 
-Public Class Oracle_DUMP_Viewer
+Public Class OraDB_DUMP_Viewer
 
 #Region "フォームロード・初期化"
     ''' <summary>
@@ -9,7 +9,7 @@ Public Class Oracle_DUMP_Viewer
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
-    Private Sub Oracle_DUMP_Viewer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub OraDB_DUMP_Viewer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         '初期化処理をここに記述
 
         'ステータスラベルのテキストをリセットする
@@ -19,7 +19,7 @@ Public Class Oracle_DUMP_Viewer
 
         '起動時ライセンスチェック（RSA署名方式）
         Try
-            Dim appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OracleDUMPViewer")
+            Dim appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OraDBDUMPViewer")
             Dim statusPath = Path.Combine(appData, "license.status")
 
             If Not File.Exists(statusPath) Then

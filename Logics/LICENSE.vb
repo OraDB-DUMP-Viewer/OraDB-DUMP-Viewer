@@ -131,7 +131,7 @@ Public Class LICENSE
     ''' </summary>
     Public Shared Function GetLicenseHolder() As String
         Try
-            Dim appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OracleDUMPViewer")
+            Dim appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OraDBDUMPViewer")
             Dim statusPath = Path.Combine(appData, "license.status")
             If Not File.Exists(statusPath) Then Return ""
             Dim licenseKey As String = ""

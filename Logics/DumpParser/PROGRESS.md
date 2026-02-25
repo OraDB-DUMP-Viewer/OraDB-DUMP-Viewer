@@ -41,7 +41,20 @@
   - Skips SYS_NC*****$ hidden columns
 - [x] BUILD VERIFIED: All 11 .c files compile, DLL generated
 
-## Phase 4: Data Type Conversion - PENDING
+## Phase 4: Data Type Conversion - COMPLETED
+- [x] odv_number.c - Oracle NUMBER binary decoding
+  - Positive numbers: exponent >= 0xC0, digit = (byte - 1), base-100 pairs
+  - Negative numbers: exponent <= 0x3F, digit = (101 - byte), terminator 0x66
+  - Small decimals: leading zero pairs via exponent offset
+  - Zero: single byte 0x80
+  - Trailing zero trimming for fractional part
+- [x] odv_datetime.c - Oracle DATE/TIMESTAMP/BINARY_FLOAT/BINARY_DOUBLE decoding
+  - DATE (7 bytes): century/year offset 100, month/day direct, H/M/S offset 1
+  - TIMESTAMP (7-11 bytes): DATE + big-endian 32-bit nanoseconds, trailing zero trim
+  - BINARY_FLOAT (4 bytes): Oracle-modified IEEE 754, sign bit transform + byte reversal
+  - BINARY_DOUBLE (8 bytes): Same transform for 8-byte double precision
+  - Format options: SLASH ("YYYY/MM/DD HH:MI:SS"), COMPACT, FULL
+- [x] BUILD VERIFIED: Zero warnings, zero errors
 
 ## Phase 5: Record Parsing - PENDING
 

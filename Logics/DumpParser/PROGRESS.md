@@ -86,6 +86,18 @@
   - Direct export mode detection ("D\\n" marker)
 - [x] BUILD VERIFIED: Zero warnings, zero errors
 
-## Phase 7: Output (CSV/SQL) - PENDING
+## Phase 7: Output (CSV/SQL) - COMPLETED
+- [x] odv_csv.c - CSV file export
+  - RFC 4180 compliant escaping (double-quote enclosure)
+  - Header row with column names
+  - Stream-based: re-parses dump using row callback → file
+  - Table name filter support
+- [x] odv_sql.c - SQL INSERT statement export
+  - Multi-DBMS support: Oracle, PostgreSQL, MySQL, SQL Server
+  - DBMS-specific identifier quoting (double-quote, backtick, brackets)
+  - Numeric value detection (no quoting for numbers)
+  - Single-quote escaping for string values
+  - Cached INSERT prefix for performance
+- [x] BUILD VERIFIED: Zero warnings, zero errors
 
 ## Phase 8: VB.NET Integration - PENDING

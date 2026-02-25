@@ -20,13 +20,7 @@ Public Class Workspace
 #Region "イベント処理"
     Private Sub Workspace_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         'ダンプファイルの解析を実行する
-#If DEBUG Then
-        ' デバッグモード：テスト用データを使用
-        _allTableData = TestDataGenerator.GenerateTestData()
-#Else
-        ' リリースモード：本番用ロジックを使用
         _allTableData = AnalyzeLogic.AnalyzeDumpFile(DumpFilePath)
-#End If
 
         'TreeViewにスキーマ一覧を追加
         PopulateSchemaTree()

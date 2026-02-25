@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OraDB DUMP Viewer": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

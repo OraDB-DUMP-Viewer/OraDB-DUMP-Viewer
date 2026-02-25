@@ -1,4 +1,4 @@
 <Solution>
+  <Project Path="Logics/DumpParser/OraDB_DumpParser.vcxproj" Id="c7d3e5f1-a2b4-4c6d-8e9f-0a1b2c3d4e5f" />
   <Project Path="OraDB DUMP Viewer.vbproj" />
-  <Project Path="Logics/DumpParser/OraDB_DumpParser.vcxproj" />
 </Solution>

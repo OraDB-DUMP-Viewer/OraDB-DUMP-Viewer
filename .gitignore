@@ -416,3 +416,8 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# C/C++ DLL build outputs (DumpParser)
+Logics/DumpParser/*.dll
+Logics/DumpParser/*.lib
+Logics/DumpParser/*.exp

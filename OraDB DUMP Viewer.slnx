@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="OraDB DUMP Viewer.vbproj" />
+  <Project Path="Logics/DumpParser/OraDB_DumpParser.vcxproj" />
 </Solution>

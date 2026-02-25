@@ -16,6 +16,15 @@
     <Compile Remove="ApplicationEvents.vb" />
   </ItemGroup>
 
+  <!-- ネイティブDLLをビルド出力にコピー -->
+  <!-- C++ DLLは build_dll.bat / _build.cmd で別途ビルドする -->
+  <ItemGroup>
+    <None Include="Logics\DumpParser\OraDB_DumpParser.dll" Condition="Exists('Logics\DumpParser\OraDB_DumpParser.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>OraDB_DumpParser.dll</Link>
+    </None>
+  </ItemGroup>
+
   <ItemGroup>
     <Import Include="System.Data" />
     <Import Include="System.Drawing" />

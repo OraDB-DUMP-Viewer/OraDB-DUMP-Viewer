@@ -69,6 +69,14 @@
         End Try
     End Sub
 
+    ''' <summary>
+    ''' プログレスバーをマーキースタイルに設定する（総行数不明時用）
+    ''' </summary>
+    Public Shared Sub setProgressBarMarquee()
+        OraDB_DUMP_Viewer.ToolStripProgressBar.Style = ProgressBarStyle.Marquee
+        OraDB_DUMP_Viewer.ToolStripProgressBar.Visible = True
+    End Sub
+
     Public Shared Sub setProgressBarMax(total As Integer)
         OraDB_DUMP_Viewer.ToolStripProgressBar.Maximum = total
         OraDB_DUMP_Viewer.ToolStripProgressBar.Value = 0
@@ -79,6 +87,7 @@
     ''' プログレスバーをリセットする
     ''' </summary>
     Public Shared Sub ResetProgressBar()
+        OraDB_DUMP_Viewer.ToolStripProgressBar.Style = ProgressBarStyle.Blocks
         OraDB_DUMP_Viewer.ToolStripProgressBar.Value = 0
         OraDB_DUMP_Viewer.ToolStripProgressBar.Visible = False
     End Sub

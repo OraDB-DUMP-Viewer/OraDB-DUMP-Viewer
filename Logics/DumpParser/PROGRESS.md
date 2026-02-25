@@ -100,4 +100,27 @@
   - Cached INSERT prefix for performance
 - [x] BUILD VERIFIED: Zero warnings, zero errors
 
-## Phase 8: VB.NET Integration - PENDING
+## Phase 8: VB.NET Integration - COMPLETED
+- [x] Logics/Workspace/OraDB_NativeParser.vb - P/Invoke ラッパー (新規)
+  - DllImport 宣言 (13関数)
+  - コールバックデリゲート (RowCallback, ProgressCallback, TableCallback)
+  - GCHandle 経由で ParseContext を user_data として渡す
+  - ParseDump(): 全テーブルデータ取得 → Dictionary(Of String, Dictionary(Of String, List(Of Dictionary(Of String, Object))))
+  - ListTables(): テーブル一覧のみ取得
+  - ExportCsv(): CSVエクスポート
+  - CheckDumpKind(): ダンプ形式判定
+  - GetVersion(): DLLバージョン取得
+- [x] Logics/Workspace/AnalyzeLogic.vb - DLL呼出しに改修
+  - プレースホルダー → OraDB_NativeParser.ParseDump() 呼出し
+  - 進捗コールバック: マーキースタイル + "N行処理済み | テーブル名 | 経過: Xs"
+  - 完了メッセージ: "解析完了: Nテーブル, N行 (X秒)"
+  - DllNotFoundException の専用エラーハンドリング
+- [x] Logics/COMMON.vb - setProgressBarMarquee() 追加, ResetProgressBar() でスタイルリセット
+- [x] OraDB DUMP Viewer.slnx - C++プロジェクト追加
+- [x] OraDB DUMP Viewer.vbproj - DLLコピー設定 (None + CopyToOutputDirectory)
+- [x] BUILD VERIFIED: VB.NET 0 warnings 0 errors, DLL copied to output
+
+---
+
+## ALL PHASES COMPLETE
+C DLL (11 source files, ~2,800 lines) + VB.NET integration ready.

@@ -133,6 +133,72 @@ int set_value_string(ODV_VALUE *v, const char *str, int len)
 }
 
 /*---------------------------------------------------------------------------
+    Charset-converted metadata cache
+    Converted once per table (when table name changes), reused for all rows.
+ ---------------------------------------------------------------------------*/
+
+static struct {
+    char schema[ODV_OBJNAME_LEN * 4 + 1];
+    char name[ODV_OBJNAME_LEN * 4 + 1];
+    char col_names[ODV_MAX_COLUMNS][ODV_OBJNAME_LEN * 4 + 1];
+    char src_schema[ODV_OBJNAME_LEN + 1];   /* detect change */
+    char src_name[ODV_OBJNAME_LEN + 1];     /* detect change */
+    int  col_count;
+    int  valid;
+} meta_cache;
+
+static void convert_meta_string(const char *src, int src_cs, int dst_cs,
+                                char *dst, int dst_size)
+{
+    if (src_cs != dst_cs && src_cs != CHARSET_UNKNOWN) {
+        int out_len = 0;
+        if (convert_charset(src, (int)strlen(src), src_cs,
+                            dst, dst_size, dst_cs, &out_len) == ODV_OK) {
+            dst[out_len] = '\0';
+            return;
+        }
+    }
+    /* Fallback: copy as-is */
+    odv_strcpy(dst, src, dst_size - 1);
+}
+
+static void update_meta_cache(ODV_SESSION *s)
+{
+    int i;
+
+    /* Check if cache is already valid for this table */
+    if (meta_cache.valid &&
+        meta_cache.col_count == s->table.col_count &&
+        strcmp(meta_cache.src_schema, s->table.schema) == 0 &&
+        strcmp(meta_cache.src_name, s->table.name) == 0) {
+        return;  /* Already cached */
+    }
+
+    /* Convert schema and table name */
+    convert_meta_string(s->table.schema, s->dump_charset, s->out_charset,
+                        meta_cache.schema, sizeof(meta_cache.schema));
+    convert_meta_string(s->table.name, s->dump_charset, s->out_charset,
+                        meta_cache.name, sizeof(meta_cache.name));
+
+    /* Convert column names */
+    for (i = 0; i < s->table.col_count && i < ODV_MAX_COLUMNS; i++) {
+        convert_meta_string(s->table.columns[i].name, s->dump_charset, s->out_charset,
+                            meta_cache.col_names[i], sizeof(meta_cache.col_names[i]));
+    }
+
+    /* Remember source for change detection */
+    odv_strcpy(meta_cache.src_schema, s->table.schema, ODV_OBJNAME_LEN);
+    odv_strcpy(meta_cache.src_name, s->table.name, ODV_OBJNAME_LEN);
+    meta_cache.col_count = s->table.col_count;
+    meta_cache.valid = 1;
+}
+
+void invalidate_meta_cache(void)
+{
+    meta_cache.valid = 0;
+}
+
+/*---------------------------------------------------------------------------
     Row delivery to VB.NET callback
  ---------------------------------------------------------------------------*/
 
@@ -145,8 +211,11 @@ int deliver_row(ODV_SESSION *s)
 
     if (!s || !s->row_cb) return ODV_OK;
 
+    /* Ensure metadata is charset-converted for this table */
+    update_meta_cache(s);
+
     for (i = 0; i < s->table.col_count && i < ODV_MAX_COLUMNS; i++) {
-        col_names[i] = s->table.columns[i].name;
+        col_names[i] = meta_cache.col_names[i];
 
         if (s->record.values[i].is_null || !s->record.values[i].data) {
             col_values[i] = empty_str;
@@ -156,8 +225,8 @@ int deliver_row(ODV_SESSION *s)
     }
 
     s->row_cb(
-        s->table.schema,
-        s->table.name,
+        meta_cache.schema,
+        meta_cache.name,
         s->table.col_count,
         col_names,
         col_values,
@@ -166,10 +235,28 @@ int deliver_row(ODV_SESSION *s)
 
     s->total_rows++;
 
-    /* Progress callback every 500 rows */
-    if (s->progress_cb && (s->total_rows % 500) == 0) {
-        s->progress_cb(s->total_rows, s->table.name, s->progress_ud);
-    }
-
     return ODV_OK;
+}
+
+/*---------------------------------------------------------------------------
+    File-position-based progress reporting with hysteresis.
+    Only fires the callback when the percentage changes (0-100),
+    reducing UI thread overhead from per-row to at most 101 calls.
+ ---------------------------------------------------------------------------*/
+void odv_report_progress(ODV_SESSION *s, FILE *fp)
+{
+    int pct;
+
+    if (!s || !s->progress_cb || s->dump_size <= 0) return;
+
+    pct = (int)(odv_ftell(fp) * 100 / s->dump_size);
+    if (pct > 100) pct = 100;
+
+    /* Hysteresis: only fire when percentage actually changes */
+    if (pct != s->last_progress_pct) {
+        s->last_progress_pct = pct;
+        /* Use charset-converted table name if cache is valid */
+        update_meta_cache(s);
+        s->progress_cb(s->total_rows, meta_cache.name, s->progress_ud);
+    }
 }

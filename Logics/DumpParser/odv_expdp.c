@@ -249,28 +249,54 @@ static int is_dictionary_table(ODV_TABLE *t)
 /*---------------------------------------------------------------------------
     Notify table_callback with current table info
  ---------------------------------------------------------------------------*/
+static void convert_name(const char *src, int src_cs, int dst_cs,
+                         char *dst, int dst_size)
+{
+    if (src_cs != dst_cs && src_cs != CHARSET_UNKNOWN) {
+        int out_len = 0;
+        if (convert_charset(src, (int)strlen(src), src_cs,
+                            dst, dst_size, dst_cs, &out_len) == ODV_OK) {
+            dst[out_len] = '\0';
+            return;
+        }
+    }
+    odv_strcpy(dst, src, dst_size - 1);
+}
+
 static void notify_table(ODV_SESSION *s, int64_t row_count)
 {
+    char conv_schema[ODV_OBJNAME_LEN * 4 + 1];
+    char conv_name[ODV_OBJNAME_LEN * 4 + 1];
+    char conv_col_names_buf[ODV_MAX_COLUMNS][ODV_OBJNAME_LEN * 4 + 1];
+
+    /* Convert schema/table/column names to output charset */
+    convert_name(s->table.schema, s->dump_charset, s->out_charset,
+                 conv_schema, sizeof(conv_schema));
+    convert_name(s->table.name, s->dump_charset, s->out_charset,
+                 conv_name, sizeof(conv_name));
+
     if (s->table_cb && s->table.name[0] != '\0') {
         const char *col_names[ODV_MAX_COLUMNS];
         const char *col_types[ODV_MAX_COLUMNS];
         int i;
 
         for (i = 0; i < s->table.col_count && i < ODV_MAX_COLUMNS; i++) {
-            col_names[i] = s->table.columns[i].name;
+            convert_name(s->table.columns[i].name, s->dump_charset, s->out_charset,
+                         conv_col_names_buf[i], sizeof(conv_col_names_buf[i]));
+            col_names[i] = conv_col_names_buf[i];
             col_types[i] = s->table.columns[i].type_str;
         }
 
-        s->table_cb(s->table.schema, s->table.name,
+        s->table_cb(conv_schema, conv_name,
                      s->table.col_count, col_names, col_types,
                      row_count, s->table_ud);
     }
 
-    /* Add to internal table list */
+    /* Add to internal table list (store converted names) */
     if (s->table_count < ODV_MAX_TABLES && s->table.name[0] != '\0') {
         ODV_TABLE_ENTRY *e = &s->table_list[s->table_count];
-        odv_strcpy(e->schema, s->table.schema, ODV_OBJNAME_LEN);
-        odv_strcpy(e->name, s->table.name, ODV_OBJNAME_LEN);
+        odv_strcpy(e->schema, conv_schema, ODV_OBJNAME_LEN);
+        odv_strcpy(e->name, conv_name, ODV_OBJNAME_LEN);
         e->col_count = s->table.col_count;
         e->row_count = row_count;
         s->table_count++;
@@ -448,6 +474,7 @@ static int parse_expdp_records(ODV_SESSION *s, FILE *fp, int64_t *address,
                     if (!list_only) {
                         rc = deliver_row(s);
                         if (rc != ODV_OK) return rc;
+                        odv_report_progress(s, fp);
                     }
 
                     record_count++;
@@ -578,6 +605,7 @@ static int parse_expdp_records(ODV_SESSION *s, FILE *fp, int64_t *address,
                         if (!list_only) {
                             rc = deliver_row(s);
                             if (rc != ODV_OK) return rc;
+                            odv_report_progress(s, fp);
                         }
 
                         record_count++;
@@ -623,6 +651,12 @@ int parse_expdp_dump(ODV_SESSION *s, int list_only)
         snprintf(s->last_error, ODV_MSG_LEN, "Cannot open: %s", s->dump_path);
         return ODV_ERROR_FOPEN;
     }
+
+    /* Set 64KB I/O buffer for improved read throughput */
+    setvbuf(fp, NULL, _IOFBF, 65536);
+
+    /* Reset progress tracking */
+    s->last_progress_pct = -1;
 
     /* Allocate DDL accumulation buffer (1MB) */
     ddl_alloc = ODV_DDL_BUF_LEN;
@@ -685,6 +719,7 @@ int parse_expdp_dump(ODV_SESSION *s, int list_only)
                 memset(&s->table, 0, sizeof(ODV_TABLE));
                 s->table.dump_charset = s->dump_charset;
                 s->table.os_charset = s->out_charset;
+                invalidate_meta_cache();
 
                 parse_xml_ddl(ddl_buf, end_pos, ddl_xml_callback, &dc);
 
@@ -702,19 +737,67 @@ int parse_expdp_dump(ODV_SESSION *s, int list_only)
 
                     address = odv_ftell(fp);
 
-                    if (list_only) {
-                        /* Just notify about the table */
-                        notify_table(s, 0);
-                    } else {
-                        /* Parse record data */
-                        rc = parse_expdp_records(s, fp, &address, list_only);
-
-                        /* Notify with actual row count */
-                        notify_table(s, s->table.record_count);
-
-                        if (rc != ODV_OK && rc != ODV_ERROR_CANCELLED) {
-                            /* Non-fatal: continue to next table */
+                    /* Table filter check (ref: ARK e2c_pmpdmp.c:491-509) */
+                    if (s->filter_active) {
+                        int match = 1;
+                        if (s->filter_table[0]) {
+                            char ft[ODV_OBJNAME_LEN + 1];
+                            int ft_len = 0;
+                            odv_strcpy(ft, s->filter_table, ODV_OBJNAME_LEN);
+                            ft_len = (int)strlen(ft);
+                            /* Reverse-convert filter name: UTF-8 → dump charset */
+                            if (s->dump_charset != s->out_charset &&
+                                s->dump_charset != CHARSET_UNKNOWN) {
+                                char tmp[ODV_OBJNAME_LEN + 1];
+                                int tlen = 0;
+                                if (convert_charset(ft, ft_len, s->out_charset,
+                                                    tmp, ODV_OBJNAME_LEN, s->dump_charset,
+                                                    &tlen) == ODV_OK) {
+                                    tmp[tlen] = '\0';
+                                    odv_strcpy(ft, tmp, ODV_OBJNAME_LEN);
+                                }
+                            }
+                            if (_stricmp(s->table.name, ft) != 0)
+                                match = 0;
                         }
+                        if (match && s->filter_schema[0]) {
+                            char fs[ODV_OBJNAME_LEN + 1];
+                            int fs_len = 0;
+                            odv_strcpy(fs, s->filter_schema, ODV_OBJNAME_LEN);
+                            fs_len = (int)strlen(fs);
+                            if (s->dump_charset != s->out_charset &&
+                                s->dump_charset != CHARSET_UNKNOWN) {
+                                char tmp[ODV_OBJNAME_LEN + 1];
+                                int tlen = 0;
+                                if (convert_charset(fs, fs_len, s->out_charset,
+                                                    tmp, ODV_OBJNAME_LEN, s->dump_charset,
+                                                    &tlen) == ODV_OK) {
+                                    tmp[tlen] = '\0';
+                                    odv_strcpy(fs, tmp, ODV_OBJNAME_LEN);
+                                }
+                            }
+                            if (_stricmp(s->table.schema, fs) != 0)
+                                match = 0;
+                        }
+                        s->pass_flg = match ? 0 : 1;
+                    }
+
+                    if (list_only && s->filter_active && s->pass_flg) {
+                        /* Filtered out in list_only: skip records entirely */
+                        notify_table(s, 0);
+                    } else if (list_only && !s->filter_active) {
+                        /* list_only without filter: count rows (ref: ARK MODE_LIST_TABLE) */
+                        rc = parse_expdp_records(s, fp, &address, list_only);
+                        notify_table(s, s->table.record_count);
+                        if (rc != ODV_OK && rc != ODV_ERROR_CANCELLED) { /* non-fatal */ }
+                    } else if (!s->filter_active || !s->pass_flg) {
+                        /* Full parse (no filter or filter matched) */
+                        rc = parse_expdp_records(s, fp, &address, list_only);
+                        notify_table(s, s->table.record_count);
+                        if (rc != ODV_OK && rc != ODV_ERROR_CANCELLED) { /* non-fatal */ }
+                    } else {
+                        /* Filtered out in full parse: skip records */
+                        notify_table(s, 0);
                     }
                 }
 

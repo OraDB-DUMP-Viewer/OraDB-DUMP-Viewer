@@ -60,7 +60,12 @@ typedef void (__stdcall *ODV_ROW_CALLBACK)(
     void *user_data
 );
 
-/* Progress notification callback */
+/* Progress notification callback
+   rows_processed: total rows processed so far
+   current_table:  name of the table currently being parsed
+   user_data:      user context pointer
+   Note: Called when file-position percentage changes (0-100), at most 101 times.
+         Use odv_get_progress_pct() after callback to get the current percentage. */
 typedef void (__stdcall *ODV_PROGRESS_CALLBACK)(
     int64_t rows_processed,
     const char *current_table,
@@ -94,6 +99,11 @@ ODV_API int __stdcall odv_set_row_callback(ODV_SESSION *s, ODV_ROW_CALLBACK cb, 
 ODV_API int __stdcall odv_set_progress_callback(ODV_SESSION *s, ODV_PROGRESS_CALLBACK cb, void *user_data);
 ODV_API int __stdcall odv_set_table_callback(ODV_SESSION *s, ODV_TABLE_CALLBACK cb, void *user_data);
 
+/* Set table filter for selective parsing (ref: ARK MODE_SELECT_TABLE)
+   schema/table names in UTF-8. DLL reverse-converts to dump charset for comparison.
+   Pass NULL to clear filter and parse all tables. */
+ODV_API int __stdcall odv_set_table_filter(ODV_SESSION *s, const char *schema, const char *table);
+
 /*---------------------------------------------------------------------------
     Operations
  ---------------------------------------------------------------------------*/
@@ -122,6 +132,9 @@ ODV_API const char * __stdcall odv_get_version(void);
 
 /* Get last error message for the session */
 ODV_API const char * __stdcall odv_get_last_error(ODV_SESSION *s);
+
+/* Get current progress percentage (0-100), call from progress callback */
+ODV_API int __stdcall odv_get_progress_pct(ODV_SESSION *s);
 
 #ifdef __cplusplus
 }

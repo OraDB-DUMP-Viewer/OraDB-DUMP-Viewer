@@ -17,28 +17,22 @@ Public Class AnalyzeLogic
         Try
             ValidateFilePath(filePath)
 
-            ' プログレスバーをマーキースタイルに設定
-            COMMON.setProgressBarMarquee()
+            ' プログレスバーを0-100%モードで初期化
+            COMMON.InitProgressBar()
 
-            Dim sw As New Diagnostics.Stopwatch()
-            sw.Start()
+            Dim startTime As DateTime = DateTime.Now
 
-            ' 進捗コールバック: UIスレッドでプログレスバーを更新
-            Dim progressAction As Action(Of Long, String) =
-                Sub(rowsProcessed As Long, currentTable As String)
-                    Try
-                        Dim elapsed = sw.Elapsed
-                        Dim msg = $"{rowsProcessed:#,0}行処理済み | {currentTable} | 経過: {elapsed.TotalSeconds:F0}s"
-                        COMMON.Set_StatusLavel(msg)
-                    Catch
-                        ' UI更新エラーは無視
-                    End Try
+            ' 進捗コールバック: ファイル位置ベースのパーセンテージで更新
+            ' (DLL側でパーセンテージが変わった時のみ呼ばれる、最大101回)
+            Dim progressAction As Action(Of Long, String, Integer) =
+                Sub(rowsProcessed As Long, currentTable As String, pct As Integer)
+                    COMMON.UpdateProgress(rowsProcessed, currentTable, pct, startTime)
                 End Sub
 
             ' DLLを使ってダンプファイルを解析
             Dim result = OraDB_NativeParser.ParseDump(filePath, progressAction)
 
-            sw.Stop()
+            Dim elapsed As TimeSpan = DateTime.Now - startTime
 
             ' プログレスバーをリセット
             COMMON.ResetProgressBar()
@@ -52,7 +46,7 @@ Public Class AnalyzeLogic
                     totalRows += table.Value.Count
                 Next
             Next
-            COMMON.Set_StatusLavel($"解析完了: {totalTables}テーブル, {totalRows:#,0}行 ({sw.Elapsed.TotalSeconds:F1}秒)")
+            COMMON.Set_StatusLavel($"解析完了: {totalTables}テーブル, {totalRows:#,0}行 ({elapsed.TotalSeconds:F1}秒)")
 
             Return result
 
@@ -67,6 +61,91 @@ Public Class AnalyzeLogic
             MessageBox.Show($"ダンプファイル解析中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
             COMMON.ResetProgressBar()
             Return New Dictionary(Of String, Dictionary(Of String, List(Of Dictionary(Of String, Object))))()
+        End Try
+    End Function
+
+    ''' <summary>
+    ''' テーブル一覧のみ取得する（高速・メモリ軽量）
+    ''' 行データは読み込まない
+    ''' </summary>
+    ''' <param name="filePath">ダンプファイルのパス</param>
+    ''' <returns>テーブル情報のリスト (スキーマ名, テーブル名, カラム数)</returns>
+    Public Shared Function ListTables(filePath As String) As List(Of Tuple(Of String, String, Integer, Long))
+        Try
+            ValidateFilePath(filePath)
+
+            COMMON.SetProgressBarMarquee()
+            COMMON.Set_StatusLavel("テーブル一覧を取得中...")
+
+            Dim startTime As DateTime = DateTime.Now
+            Dim tables = OraDB_NativeParser.ListTables(filePath)
+            Dim elapsed As TimeSpan = DateTime.Now - startTime
+
+            COMMON.ResetProgressBar()
+            COMMON.Set_StatusLavel($"テーブル一覧取得完了: {tables.Count}テーブル ({elapsed.TotalSeconds:F1}秒)")
+
+            Return tables
+
+        Catch ex As DllNotFoundException
+            MessageBox.Show($"解析DLLが見つかりません: {ex.Message}" & vbCrLf &
+                           "OraDB_DumpParser.dll が実行ファイルと同じフォルダにあることを確認してください。",
+                           "DLLエラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            COMMON.ResetProgressBar()
+            Return New List(Of Tuple(Of String, String, Integer, Long))()
+
+        Catch ex As Exception
+            MessageBox.Show($"テーブル一覧取得中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return New List(Of Tuple(Of String, String, Integer, Long))()
+        End Try
+    End Function
+
+    ''' <summary>
+    ''' 指定されたテーブルのみ解析する（メモリ効率的）
+    ''' DUMPファイル全体をスキャンするが、行データは指定テーブルのみ蓄積する
+    ''' </summary>
+    ''' <param name="filePath">ダンプファイルのパス</param>
+    ''' <param name="schemaName">スキーマ名</param>
+    ''' <param name="tableName">テーブル名</param>
+    ''' <returns>行データのリスト</returns>
+    Public Shared Function AnalyzeTable(filePath As String, schemaName As String, tableName As String) As List(Of Dictionary(Of String, Object))
+        Try
+            ValidateFilePath(filePath)
+
+            COMMON.InitProgressBar()
+            Dim startTime As DateTime = DateTime.Now
+
+            Dim progressAction As Action(Of Long, String, Integer) =
+                Sub(rowsProcessed As Long, currentTable As String, pct As Integer)
+                    COMMON.UpdateProgress(rowsProcessed, currentTable, pct, startTime)
+                End Sub
+
+            ' テーブルフィルタ付きで解析
+            Dim result = OraDB_NativeParser.ParseDump(filePath, progressAction, schemaName, tableName)
+
+            Dim elapsed As TimeSpan = DateTime.Now - startTime
+            COMMON.ResetProgressBar()
+
+            ' 結果からテーブルデータを抽出
+            If result.ContainsKey(schemaName) AndAlso result(schemaName).ContainsKey(tableName) Then
+                Dim rows = result(schemaName)(tableName)
+                COMMON.Set_StatusLavel($"解析完了: {schemaName}.{tableName} {rows.Count:#,0}行 ({elapsed.TotalSeconds:F1}秒)")
+                Return rows
+            End If
+
+            COMMON.Set_StatusLavel($"解析完了: {schemaName}.{tableName} 0行 ({elapsed.TotalSeconds:F1}秒)")
+            Return New List(Of Dictionary(Of String, Object))()
+
+        Catch ex As DllNotFoundException
+            MessageBox.Show($"解析DLLが見つかりません: {ex.Message}" & vbCrLf &
+                           "OraDB_DumpParser.dll が実行ファイルと同じフォルダにあることを確認してください。",
+                           "DLLエラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            COMMON.ResetProgressBar()
+            Return New List(Of Dictionary(Of String, Object))()
+
+        Catch ex As Exception
+            MessageBox.Show($"テーブル解析中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            COMMON.ResetProgressBar()
+            Return New List(Of Dictionary(Of String, Object))()
         End Try
     End Function
 

@@ -39,7 +39,7 @@ Public Class OraDB_NativeParser
     )
 
     ''' <summary>
-    ''' 進捗通知コールバック (500行ごとに呼ばれる)
+    ''' 進捗通知コールバック (ファイル位置のパーセンテージが変わるたびに呼ばれる、最大101回)
     ''' </summary>
     <UnmanagedFunctionPointer(CallingConvention.StdCall)>
     Public Delegate Sub ProgressCallback(
@@ -90,6 +90,12 @@ Public Class OraDB_NativeParser
     Private Shared Function odv_set_table_callback(session As IntPtr, cb As TableCallback, userData As IntPtr) As Integer
     End Function
 
+    <DllImport(DLL_NAME, CallingConvention:=CallingConvention.StdCall, CharSet:=CharSet.Ansi)>
+    Private Shared Function odv_set_table_filter(session As IntPtr,
+        <MarshalAs(UnmanagedType.LPStr)> schema As String,
+        <MarshalAs(UnmanagedType.LPStr)> table As String) As Integer
+    End Function
+
     ' 操作
     <DllImport(DLL_NAME, CallingConvention:=CallingConvention.StdCall)>
     Private Shared Function odv_check_dump_kind(session As IntPtr, ByRef dumpType As Integer) As Integer
@@ -120,6 +126,10 @@ Public Class OraDB_NativeParser
 
     <DllImport(DLL_NAME, CallingConvention:=CallingConvention.StdCall)>
     Private Shared Function odv_get_last_error(session As IntPtr) As IntPtr
+    End Function
+
+    <DllImport(DLL_NAME, CallingConvention:=CallingConvention.StdCall)>
+    Private Shared Function odv_get_progress_pct(session As IntPtr) As Integer
     End Function
 #End Region
 
@@ -154,14 +164,45 @@ Public Class OraDB_NativeParser
         Public AllData As New Dictionary(Of String, Dictionary(Of String, List(Of Dictionary(Of String, Object))))
         Public RowsProcessed As Long = 0
         Public CurrentTable As String = ""
-        Public ProgressAction As Action(Of Long, String) = Nothing
+        Public ProgressAction As Action(Of Long, String, Integer) = Nothing
         Public ColumnNamesCache As New Dictionary(Of String, String())
+        Public SessionHandle As IntPtr = IntPtr.Zero
+
+        ' テーブルフィルタ（Nothing=全テーブル、指定時=そのテーブルのみ蓄積）
+        Public FilterSchema As String = Nothing
+        Public FilterTable As String = Nothing
+
+        ' テーブル切替検出用キャッシュ（毎行のマーシャリングを回避）
+        Public LastSchema As String = ""
+        Public LastTable As String = ""
+        Private LastSchemaPtr As IntPtr = IntPtr.Zero
+        Private LastTablePtr As IntPtr = IntPtr.Zero
+        Private LastTableKey As String = ""
 
         ''' <summary>
-        ''' テーブルのフルキー (schema.table)
+        ''' テーブルのフルキー (schema.table) — String版
         ''' </summary>
         Public Shared Function TableKey(schema As String, table As String) As String
             Return $"{schema}.{table}"
+        End Function
+
+        ''' <summary>
+        ''' テーブルのフルキー (IntPtr版) — ポインタ値でテーブル切替を高速検出
+        ''' ポインタが変わらなければ同じテーブル（DLL側はバッファ再利用）
+        ''' </summary>
+        Public Function TableKey(schemaPtr As IntPtr, tablePtr As IntPtr) As String
+            ' ポインタが前回と同じなら高速パス
+            If schemaPtr = LastSchemaPtr AndAlso tablePtr = LastTablePtr Then
+                Return LastTableKey
+            End If
+
+            ' 新しいテーブル: 文字列をマーシャリングしてキーを構築
+            LastSchemaPtr = schemaPtr
+            LastTablePtr = tablePtr
+            LastSchema = String.Intern(PtrToStringUTF8(schemaPtr))
+            LastTable = String.Intern(PtrToStringUTF8(tablePtr))
+            LastTableKey = $"{LastSchema}.{LastTable}"
+            Return LastTableKey
         End Function
     End Class
 #End Region
@@ -204,15 +245,22 @@ Public Class OraDB_NativeParser
     End Function
 
     ''' <summary>
-    ''' ダンプファイルを解析し、全テーブルデータを返す
+    ''' ダンプファイルを解析し、テーブルデータを返す
     ''' </summary>
     ''' <param name="filePath">ダンプファイルパス</param>
-    ''' <param name="progressAction">進捗コールバック (処理行数, 現在のテーブル名)</param>
+    ''' <param name="progressAction">進捗コールバック (処理行数, 現在のテーブル名, パーセンテージ0-100)</param>
+    ''' <param name="filterSchema">フィルタ: このスキーマのテーブルのみ蓄積 (Nothing=全スキーマ)</param>
+    ''' <param name="filterTable">フィルタ: このテーブルのみ蓄積 (Nothing=全テーブル)</param>
     ''' <returns>スキーマ→テーブル→行リストの辞書</returns>
-    Public Shared Function ParseDump(filePath As String, Optional progressAction As Action(Of Long, String) = Nothing) As Dictionary(Of String, Dictionary(Of String, List(Of Dictionary(Of String, Object))))
+    Public Shared Function ParseDump(filePath As String,
+                                      Optional progressAction As Action(Of Long, String, Integer) = Nothing,
+                                      Optional filterSchema As String = Nothing,
+                                      Optional filterTable As String = Nothing) As Dictionary(Of String, Dictionary(Of String, List(Of Dictionary(Of String, Object))))
         Dim session As IntPtr = IntPtr.Zero
         Dim ctx As New ParseContext()
         ctx.ProgressAction = progressAction
+        ctx.FilterSchema = filterSchema
+        ctx.FilterTable = filterTable
         Dim gcHandle As GCHandle = GCHandle.Alloc(ctx)
 
         ' コールバックデリゲートをフィールドに保持（GC回収防止）
@@ -225,6 +273,9 @@ Public Class OraDB_NativeParser
                 Throw New Exception($"セッション作成に失敗しました (rc={rc})")
             End If
 
+            ' セッションハンドルをコンテキストに保持（進捗%取得用）
+            ctx.SessionHandle = session
+
             rc = odv_set_dump_file(session, filePath)
             If rc <> ODV_OK Then
                 Dim errMsg = PtrToStringUTF8(odv_get_last_error(session))
@@ -236,6 +287,11 @@ Public Class OraDB_NativeParser
             odv_set_row_callback(session, rowCb, userData)
             odv_set_progress_callback(session, progCb, userData)
 
+            ' テーブルフィルタ設定（DLL側で文字セット変換後に比較）
+            If filterTable IsNot Nothing AndAlso filterTable.Length > 0 Then
+                odv_set_table_filter(session, If(filterSchema, ""), filterTable)
+            End If
+
             ' 解析実行
             rc = odv_parse_dump(session)
             If rc <> ODV_OK AndAlso rc <> ODV_ERROR_CANCELLED Then
@@ -246,6 +302,7 @@ Public Class OraDB_NativeParser
             Return ctx.AllData
 
         Finally
+            ctx.SessionHandle = IntPtr.Zero
             If session <> IntPtr.Zero Then
                 odv_destroy_session(session)
             End If
@@ -258,11 +315,14 @@ Public Class OraDB_NativeParser
     ''' <summary>
     ''' テーブル一覧のみ取得（データは読み込まない）
     ''' </summary>
-    Public Shared Function ListTables(filePath As String) As List(Of Tuple(Of String, String, Integer))
+    Public Shared Function ListTables(filePath As String) As List(Of Tuple(Of String, String, Integer, Long))
         Dim session As IntPtr = IntPtr.Zero
-        Dim tables As New List(Of Tuple(Of String, String, Integer))
+        Dim tables As New List(Of Tuple(Of String, String, Integer, Long))
         Dim gcHandle As GCHandle = GCHandle.Alloc(tables)
         Dim tableCb As New TableCallback(AddressOf OnTableListCallback)
+
+        ' 進捗コールバック: Application.DoEvents()でUIメッセージを処理
+        Dim progCb As New ProgressCallback(AddressOf OnListTablesProgressCallback)
 
         Try
             Dim rc = odv_create_session(session)
@@ -273,6 +333,7 @@ Public Class OraDB_NativeParser
 
             Dim userData As IntPtr = GCHandle.ToIntPtr(gcHandle)
             odv_set_table_callback(session, tableCb, userData)
+            odv_set_progress_callback(session, progCb, userData)
 
             odv_list_tables(session)
             Return tables
@@ -312,6 +373,12 @@ Public Class OraDB_NativeParser
 #Region "コールバック実装"
     ''' <summary>
     ''' 行データコールバック - C DLLから1行ごとに呼ばれる
+    '''
+    ''' メモリ最適化:
+    ''' - カラム名はテーブル単位でキャッシュ（毎行マーシャリングしない）
+    ''' - スキーマ名/テーブル名はインターン化して重複排除
+    ''' - Dictionary初期容量をカラム数に合わせて確保（リハッシュ防止）
+    ''' - 空文字列はString.Emptyを共有
     ''' </summary>
     Private Shared Sub OnRowCallback(schemaPtr As IntPtr, tablePtr As IntPtr,
                                      colCount As Integer, colNamesPtr As IntPtr,
@@ -320,32 +387,73 @@ Public Class OraDB_NativeParser
             Dim gcHandle As GCHandle = GCHandle.FromIntPtr(userData)
             Dim ctx = DirectCast(gcHandle.Target, ParseContext)
 
-            Dim schema = PtrToStringUTF8(schemaPtr)
-            Dim table = PtrToStringUTF8(tablePtr)
-            Dim colNames = PtrArrayToStrings(colNamesPtr, colCount)
-            Dim colValues = PtrArrayToStrings(colValuesPtr, colCount)
+            ' テーブルキー（schema.table）を構築してカラム名キャッシュを管理
+            Dim schema As String = Nothing
+            Dim table As String = Nothing
+            Dim cachedColNames As String() = Nothing
+            Dim tableKey As String = ctx.TableKey(schemaPtr, tablePtr)
+
+            If ctx.ColumnNamesCache.ContainsKey(tableKey) Then
+                ' キャッシュヒット: カラム名のマーシャリングをスキップ
+                cachedColNames = ctx.ColumnNamesCache(tableKey)
+                schema = ctx.LastSchema
+                table = ctx.LastTable
+            Else
+                ' 新しいテーブル: カラム名をマーシャリングしてキャッシュ
+                schema = String.Intern(PtrToStringUTF8(schemaPtr))
+                table = String.Intern(PtrToStringUTF8(tablePtr))
+                cachedColNames = New String(colCount - 1) {}
+                For i As Integer = 0 To colCount - 1
+                    Dim strPtr As IntPtr = Marshal.ReadIntPtr(colNamesPtr, i * IntPtr.Size)
+                    Dim name = PtrToStringUTF8(strPtr)
+                    cachedColNames(i) = If(String.IsNullOrEmpty(name), $"COL_{i}", String.Intern(name))
+                Next
+                ctx.ColumnNamesCache(tableKey) = cachedColNames
+                ctx.LastSchema = schema
+                ctx.LastTable = table
+            End If
+
+            ' テーブルフィルタはDLL側(odv_set_table_filter)で処理済み
+            ' DLL側で文字セット変換後に比較するため、VB.NET側のフィルタは不要
 
             ' スキーマ辞書を確保
-            If Not ctx.AllData.ContainsKey(schema) Then
-                ctx.AllData(schema) = New Dictionary(Of String, List(Of Dictionary(Of String, Object)))
+            Dim schemaTables As Dictionary(Of String, List(Of Dictionary(Of String, Object))) = Nothing
+            If Not ctx.AllData.TryGetValue(schema, schemaTables) Then
+                schemaTables = New Dictionary(Of String, List(Of Dictionary(Of String, Object)))
+                ctx.AllData(schema) = schemaTables
             End If
 
             ' テーブル行リストを確保
-            If Not ctx.AllData(schema).ContainsKey(table) Then
-                ctx.AllData(schema)(table) = New List(Of Dictionary(Of String, Object))
+            Dim tableRows As List(Of Dictionary(Of String, Object)) = Nothing
+            If Not schemaTables.TryGetValue(table, tableRows) Then
+                tableRows = New List(Of Dictionary(Of String, Object))
+                schemaTables(table) = tableRows
             End If
 
             ' 行データを辞書に変換して追加
-            Dim row As New Dictionary(Of String, Object)
+            ' Dictionary初期容量をカラム数に合わせてリハッシュを防止
+            Dim row As New Dictionary(Of String, Object)(colCount)
             For i As Integer = 0 To colCount - 1
-                Dim colName = If(colNames(i), $"COL_{i}")
-                Dim colValue As Object = If(String.IsNullOrEmpty(colValues(i)), DBNull.Value, colValues(i))
+                Dim colValue As Object
+                Dim valPtr As IntPtr = Marshal.ReadIntPtr(colValuesPtr, i * IntPtr.Size)
+                If valPtr = IntPtr.Zero Then
+                    colValue = DBNull.Value
+                Else
+                    Dim s = Marshal.PtrToStringUTF8(valPtr)
+                    If String.IsNullOrEmpty(s) Then
+                        colValue = DBNull.Value
+                    Else
+                        colValue = s
+                    End If
+                End If
+
+                Dim colName = If(i < cachedColNames.Length, cachedColNames(i), $"COL_{i}")
                 If Not row.ContainsKey(colName) Then
                     row(colName) = colValue
                 End If
             Next
 
-            ctx.AllData(schema)(table).Add(row)
+            tableRows.Add(row)
             ctx.RowsProcessed += 1
 
         Catch
@@ -354,7 +462,7 @@ Public Class OraDB_NativeParser
     End Sub
 
     ''' <summary>
-    ''' 進捗コールバック - 500行ごとに呼ばれる
+    ''' 進捗コールバック - ファイル位置のパーセンテージが変わるたびに呼ばれる
     ''' </summary>
     Private Shared Sub OnProgressCallback(rowsProcessed As Long, currentTablePtr As IntPtr, userData As IntPtr)
         Try
@@ -364,8 +472,26 @@ Public Class OraDB_NativeParser
 
             ctx.CurrentTable = currentTable
 
-            ctx.ProgressAction?.Invoke(rowsProcessed, currentTable)
+            ' セッションハンドルからパーセンテージを取得
+            Dim pct As Integer = 0
+            If ctx.SessionHandle <> IntPtr.Zero Then
+                pct = odv_get_progress_pct(ctx.SessionHandle)
+            End If
 
+            ctx.ProgressAction?.Invoke(rowsProcessed, currentTable, pct)
+
+        Catch
+            ' コールバック中の例外は握りつぶす
+        End Try
+    End Sub
+
+    ''' <summary>
+    ''' テーブル一覧取得中の進捗コールバック
+    ''' UIメッセージポンプを処理してマーキーアニメーションを動かす
+    ''' </summary>
+    Private Shared Sub OnListTablesProgressCallback(rowsProcessed As Long, currentTablePtr As IntPtr, userData As IntPtr)
+        Try
+            Application.DoEvents()
         Catch
             ' コールバック中の例外は握りつぶす
         End Try
@@ -380,12 +506,12 @@ Public Class OraDB_NativeParser
                                            userData As IntPtr)
         Try
             Dim gcHandle As GCHandle = GCHandle.FromIntPtr(userData)
-            Dim tables = DirectCast(gcHandle.Target, List(Of Tuple(Of String, String, Integer)))
+            Dim tables = DirectCast(gcHandle.Target, List(Of Tuple(Of String, String, Integer, Long)))
 
             Dim schema = PtrToStringUTF8(schemaPtr)
             Dim table = PtrToStringUTF8(tablePtr)
 
-            tables.Add(Tuple.Create(schema, table, colCount))
+            tables.Add(Tuple.Create(schema, table, colCount, rowCount))
 
         Catch
             ' コールバック中の例外は握りつぶす

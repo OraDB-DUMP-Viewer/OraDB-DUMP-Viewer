@@ -281,12 +281,22 @@ struct _odv_session {
     ODV_TABLE_CALLBACK      table_cb;
     void                   *table_ud;
 
+    /* Table filter (ARK MODE_SELECT_TABLE equivalent) */
+    /* Names stored in dump_charset for raw comparison (ref: e2c_pmpdmp.c:491-509) */
+    char            filter_schema[ODV_OBJNAME_LEN + 1];
+    char            filter_table[ODV_OBJNAME_LEN + 1];
+    int             filter_active;   /* 0=no filter, 1=filter active */
+    int             pass_flg;        /* 1=skip current table's records */
+
     /* Control */
     int             cancelled;
     char            last_error[ODV_MSG_LEN + 1];
 
     /* Statistics */
     int64_t         total_rows;
+
+    /* Progress tracking (file-position-based percentage with hysteresis) */
+    int             last_progress_pct;  /* Last reported percentage (0-100) */
 };
 
 /*---------------------------------------------------------------------------
@@ -333,6 +343,9 @@ int  set_value_null(ODV_VALUE *v);
 int  set_value_string(ODV_VALUE *v, const char *str, int len);
 int  ensure_value_buf(ODV_VALUE *v, int needed);
 int  deliver_row(ODV_SESSION *s);
+void odv_report_progress(ODV_SESSION *s, FILE *fp);
+void invalidate_meta_cache(void);
+void update_meta_cache(ODV_SESSION *s);
 
 /* odv_number.c */
 int decode_oracle_number(const unsigned char *buf, int len, char *out, int out_size);

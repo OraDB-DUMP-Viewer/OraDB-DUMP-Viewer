@@ -46,6 +46,10 @@ int decode_oracle_number(const unsigned char *buf, int len, char *out, int out_s
     if (!buf || !out || out_size < 2) return ODV_ERROR_INVALID_ARG;
     if (len < 1) { out[0] = '\0'; return ODV_ERROR_INVALID_ARG; }
 
+    /* Oracle NUMBER is at most 22 bytes. Cap to prevent buffer overflow
+       in int_buf[64]/frac_buf[64] which hold base-100 digit pairs. */
+    if (len > 22) len = 22;
+
     out[0] = '\0';
     exp_byte = buf[0];
 

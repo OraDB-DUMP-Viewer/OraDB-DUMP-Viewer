@@ -6,7 +6,8 @@ Public Class Workspace
 #Region "フィールド・コンストラクタ"
     Private DumpFilePath As String
     Private WorkspacePath As String
-    Private _allTableData As Dictionary(Of String, Dictionary(Of String, List(Of Dictionary(Of String, Object))))
+    ''' <summary>テーブル一覧メタデータ (スキーマ名→(テーブル名, 行数)リスト)</summary>
+    Private _tableList As New Dictionary(Of String, List(Of Tuple(Of String, Long)))
     Private _currentSchema As String = String.Empty
 
     ' 引数ありコンストラクタ
@@ -19,8 +20,20 @@ Public Class Workspace
 
 #Region "イベント処理"
     Private Sub Workspace_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        'ダンプファイルの解析を実行する
-        _allTableData = AnalyzeLogic.AnalyzeDumpFile(DumpFilePath)
+        ' フェーズ1: テーブル一覧のみ取得（高速・メモリ軽量）
+        Dim tables = AnalyzeLogic.ListTables(DumpFilePath)
+
+        ' テーブル一覧をスキーマ別に整理
+        _tableList.Clear()
+        For Each t In tables
+            Dim schema = t.Item1
+            Dim tableName = t.Item2
+            Dim rowCount = t.Item4
+            If Not _tableList.ContainsKey(schema) Then
+                _tableList(schema) = New List(Of Tuple(Of String, Long))
+            End If
+            _tableList(schema).Add(Tuple.Create(tableName, rowCount))
+        Next
 
         'TreeViewにスキーマ一覧を追加
         PopulateSchemaTree()
@@ -49,7 +62,7 @@ Public Class Workspace
         ' スキーマノードの場合 - 括弧を削除してスキーマ名を抽出
         Dim schemaName As String = ExtractSchemaName(node.Text)
 
-        If _allTableData.ContainsKey(schemaName) Then
+        If _tableList.ContainsKey(schemaName) Then
             _currentSchema = schemaName
             DisplayTablesForSchema(schemaName)
         End If
@@ -71,6 +84,10 @@ Public Class Workspace
     ''' ListViewのアイテムがダブルクリックされた時のイベント
     ''' 選択されたテーブルをTablePreviewで表示
     ''' </summary>
+    ''' <summary>
+    ''' テーブルダブルクリック時: オンデマンドで選択テーブルのみ解析
+    ''' DUMPファイル全体をスキャンするが、行データは選択テーブルのみメモリに蓄積
+    ''' </summary>
     Private Sub LstTableList_DoubleClick(sender As Object, e As EventArgs)
         If lstTableList.SelectedItems.Count = 0 Then
             MessageBox.Show("テーブルが選択されていません。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
@@ -81,17 +98,13 @@ Public Class Workspace
             Dim selectedItem = lstTableList.SelectedItems(0)
             Dim tableName As String = selectedItem.Text
 
-            If String.IsNullOrEmpty(_currentSchema) OrElse Not _allTableData.ContainsKey(_currentSchema) Then
+            If String.IsNullOrEmpty(_currentSchema) Then
                 MessageBox.Show("スキーマが選択されていません。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Return
             End If
 
-            If Not _allTableData(_currentSchema).ContainsKey(tableName) Then
-                MessageBox.Show($"テーブル '{tableName}' が見つかりません。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                Return
-            End If
-
-            Dim tableData = _allTableData(_currentSchema)(tableName)
+            ' フェーズ2: 選択テーブルのみ解析（他テーブルの行データはスキップ）
+            Dim tableData = AnalyzeLogic.AnalyzeTable(DumpFilePath, _currentSchema, tableName)
 
             If tableData Is Nothing OrElse tableData.Count = 0 Then
                 MessageBox.Show("テーブルにデータがありません。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
@@ -118,7 +131,7 @@ Public Class Workspace
     Private Sub PopulateSchemaTree()
         treeDBList.Nodes.Clear()
 
-        If _allTableData Is Nothing OrElse _allTableData.Count = 0 Then
+        If _tableList Is Nothing OrElse _tableList.Count = 0 Then
             MessageBox.Show("データベースのスキーマが見つかりません。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Return
         End If
@@ -128,7 +141,7 @@ Public Class Workspace
             Dim rootNode As TreeNode = treeDBList.Nodes.Add(System.IO.Path.GetFileNameWithoutExtension(DumpFilePath))
 
             ' スキーマノードを作成
-            For Each schemaKvp In _allTableData
+            For Each schemaKvp In _tableList
                 Dim schemaName As String = schemaKvp.Key
                 Dim tableCount As Integer = schemaKvp.Value.Count
 
@@ -143,7 +156,7 @@ Public Class Workspace
             If rootNode.Nodes.Count > 0 Then
                 treeDBList.SelectedNode = rootNode.Nodes(0)
                 Dim firstSchemaName As String = ExtractSchemaName(rootNode.Nodes(0).Text)
-                If _allTableData.ContainsKey(firstSchemaName) Then
+                If _tableList.ContainsKey(firstSchemaName) Then
                     _currentSchema = firstSchemaName
                     DisplayTablesForSchema(firstSchemaName)
                 End If
@@ -164,29 +177,26 @@ Public Class Workspace
             Return
         End If
 
-        If Not _allTableData.ContainsKey(schemaName) Then
+        If Not _tableList.ContainsKey(schemaName) Then
             MessageBox.Show($"スキーマ '{schemaName}' が見つかりません。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return
         End If
 
         Try
-            Dim tables = _allTableData(schemaName)
+            Dim tables = _tableList(schemaName)
 
             If tables Is Nothing OrElse tables.Count = 0 Then
-                ' テーブルがない場合も表示
                 Return
             End If
 
-            For Each tableKvp In tables
-                Dim tableName As String = tableKvp.Key
-                Dim tableData = tableKvp.Value
-                Dim rowCount As Integer = If(tableData IsNot Nothing, tableData.Count, 0)
-
+            For Each tableInfo In tables
+                Dim tableName = tableInfo.Item1
+                Dim rowCount = tableInfo.Item2
                 ' ListViewItemを作成
                 Dim item As New ListViewItem(tableName)
                 item.SubItems.Add(schemaName)       ' 所有者
                 item.SubItems.Add("TABLE")          ' 種類
-                item.SubItems.Add(rowCount.ToString())  ' 行数
+                item.SubItems.Add(rowCount.ToString("#,0"))  ' 行数
 
                 lstTableList.Items.Add(item)
             Next

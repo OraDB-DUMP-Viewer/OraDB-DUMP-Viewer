@@ -23,6 +23,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>OraDB_DumpParser.dll</Link>
     </None>
+    <None Include="Logics\DumpParser\OraDB_DumpParser.pdb" Condition="Exists('Logics\DumpParser\OraDB_DumpParser.pdb')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>OraDB_DumpParser.pdb</Link>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

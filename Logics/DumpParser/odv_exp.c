@@ -20,8 +20,7 @@
     Constants
  ---------------------------------------------------------------------------*/
 #define EXP_HEADER_SIZE     0x100
-#define EXP_WORD_BUF_SIZE   8192
-#define EXP_DDL_BUF_SIZE    262144   /* 256KB for DDL text */
+#define EXP_DDL_BUF_SIZE    262144   /* 256KB for single DDL statement */
 
 /*---------------------------------------------------------------------------
     Forward declarations
@@ -81,64 +80,50 @@ static const char *extract_identifier(const char *p, char *out, int max_len)
 }
 
 /*---------------------------------------------------------------------------
+    byte_to_charset
+
+    Maps a charset indicator byte from the EXP header to an internal constant.
+    Byte ranges:
+      0x30-0x3f -> JA16EUC
+      0x40-0x4f -> JA16SJIS
+      0x60-0x6f -> UTF8
+      0xd0-0xdf -> UTF16
+      other     -> US7ASCII
+ ---------------------------------------------------------------------------*/
+static int byte_to_charset(unsigned char b)
+{
+    if (b >= 0x30 && b <= 0x3f) return CHARSET_EUC;
+    if (b >= 0x40 && b <= 0x4f) return CHARSET_SJIS;
+    if (b >= 0x60 && b <= 0x6f) return CHARSET_UTF8;
+    if (b >= 0xd0 && b <= 0xdf) return CHARSET_UTF16LE;
+    return CHARSET_US7;
+}
+
+/*---------------------------------------------------------------------------
     parse_exp_header
 
     Reads the 256-byte EXP header and extracts:
     - Oracle version
     - Export mode (TABLE/USER/DATABASE)
     - Character sets (client, database, NLS)
+
+    Header structure: records separated by 0x00 or 0x0A, starting at offset 6.
+    Record 0: Oracle version (e.g. "V11.02.00")
+    Record 1: Export user/schema
+    Record 2: Export mode ("RTABLES"/"RUSERS"/"RENTIRE")
+    Records 3-6: (misc)
+    Record 7: Charset info - byte[1]=env, byte[3]=tbl, byte[5]=nls
  ---------------------------------------------------------------------------*/
 static int parse_exp_header(ODV_SESSION *s, FILE *fp)
 {
     unsigned char hdr[EXP_HEADER_SIZE];
-    int i;
+    unsigned char word[256];
+    int i, ct, step;
 
     odv_fseek(fp, 0, SEEK_SET);
     if (fread(hdr, 1, EXP_HEADER_SIZE, fp) != EXP_HEADER_SIZE) {
         odv_strcpy(s->last_error, "Cannot read EXP header", ODV_MSG_LEN);
         return ODV_ERROR_FREAD;
-    }
-
-    /* Extract Oracle version from near offset 6 */
-    s->exp_state.oracle_version = 0;
-    for (i = 3; i < 20; i++) {
-        if (hdr[i] == 'V' || hdr[i] == 'v') {
-            s->exp_state.oracle_version = atoi((char *)&hdr[i + 1]);
-            break;
-        }
-    }
-
-    /* Extract export mode from around offset 0x20-0x40 */
-    s->exp_state.exp_mode = EXP_MODE_TABLE;
-    for (i = 16; i < 64; i++) {
-        if (hdr[i] == 'R' && i + 6 < EXP_HEADER_SIZE) {
-            if (memcmp(&hdr[i], "RTABLES", 7) == 0) {
-                s->exp_state.exp_mode = EXP_MODE_TABLE;
-                break;
-            } else if (memcmp(&hdr[i], "RUSERS", 6) == 0) {
-                s->exp_state.exp_mode = EXP_MODE_USER;
-                break;
-            } else if (memcmp(&hdr[i], "RENTIRE", 7) == 0) {
-                s->exp_state.exp_mode = EXP_MODE_DATABASE;
-                break;
-            }
-        }
-    }
-
-    /* Extract character set from header (~offset 96-127) */
-    /* Three charset indicators at specific positions */
-    for (i = 96; i < 128; i++) {
-        unsigned char b = hdr[i];
-        if (b >= 0x60 && b <= 0x6F) {
-            s->table.dump_charset = CHARSET_UTF8;
-            break;
-        } else if (b >= 0x40 && b <= 0x4F) {
-            s->table.dump_charset = CHARSET_SJIS;
-            break;
-        } else if (b >= 0x30 && b <= 0x3F) {
-            s->table.dump_charset = CHARSET_EUC;
-            break;
-        }
     }
 
     /* Check for direct export mode: look for "D\n" in first 32 bytes */
@@ -147,6 +132,70 @@ static int parse_exp_header(ODV_SESSION *s, FILE *fp)
             s->dump_type = DUMP_EXP_DIRECT;
             break;
         }
+    }
+
+    /* Parse header records separated by 0x00 or 0x0A */
+    ct = 0;
+    step = 0;
+    s->exp_state.exp_mode = EXP_MODE_TABLE;
+
+    for (i = 6; i < 0x100; i++) {
+        switch (hdr[i]) {
+        case 0x00:
+        case 0x0A:
+            word[ct] = '\0';
+            ct = 0;
+
+            switch (step) {
+            case 0:
+                /* Record 0: Oracle version ("V11.02.00") */
+                if (word[0] == 'V' || word[0] == 'v')
+                    s->exp_state.oracle_version = atoi((char *)&word[1]);
+                else
+                    s->exp_state.oracle_version = atoi((char *)&word[2]);
+                break;
+            case 2:
+                /* Record 2: Export mode */
+                if (memcmp(word, "RTABLES", 7) == 0)
+                    s->exp_state.exp_mode = EXP_MODE_TABLE;
+                else if (memcmp(word, "RUSERS", 6) == 0)
+                    s->exp_state.exp_mode = EXP_MODE_USER;
+                else if (memcmp(word, "RENTIRE", 7) == 0)
+                    s->exp_state.exp_mode = EXP_MODE_DATABASE;
+                break;
+            case 7: {
+                /* Record 7: Character set info */
+                /* word[1]=env charset, word[3]=tbl charset, word[5]=nls charset */
+                int tbl_cs;
+                if (ct >= 2 || strlen((char*)word) >= 2) {
+                    /* env charset = word[1] (informational, not used directly) */
+                }
+                if (ct >= 4 || strlen((char*)word) >= 4) {
+                    /* tbl charset = word[3]: this is the database charset */
+                    tbl_cs = byte_to_charset(word[3]);
+                    s->dump_charset = tbl_cs;
+                } else if (ct >= 2 || strlen((char*)word) >= 2) {
+                    /* Fallback: use env charset */
+                    s->dump_charset = byte_to_charset(word[1]);
+                }
+                break;
+            }
+            default:
+                break;
+            }
+            step++;
+            break;
+
+        default:
+            if (ct < (int)sizeof(word) - 1) {
+                word[ct] = hdr[i];
+                ct++;
+            }
+            break;
+        }
+
+        /* Stop after charset record */
+        if (step > 7) break;
     }
 
     s->exp_state.header_size = EXP_HEADER_SIZE;
@@ -300,13 +349,15 @@ static int parse_create_table(ODV_SESSION *s, const char *ddl)
 
     s->table.col_count = col_count;
 
-    /* Count LOB columns */
+    /* Count LOB columns (ref: e2c_parse_exp_ddl)
+       LOB types: BLOB, CLOB, NCLOB, BFILE, USER_DEFINE
+       Note: LONG and LONG_RAW are NOT counted as LOB (ref: line 2830-2836) */
     {
         int i;
         for (i = 0; i < col_count; i++) {
             int t = s->table.columns[i].type;
             if (t == COL_BLOB || t == COL_CLOB || t == COL_NCLOB ||
-                t == COL_BFILE || t == COL_LONG_RAW || t == COL_LONG) {
+                t == COL_BFILE || t == COL_USER_DEFINE) {
                 s->table.lob_col_count++;
             }
         }
@@ -423,34 +474,59 @@ static int parse_column_type(const char *type_str, ODV_COLUMN *col)
 
     Notifies via table callback and adds to table list.
  ---------------------------------------------------------------------------*/
-static void notify_exp_table(ODV_SESSION *s)
+static void conv_name(const char *src, int src_cs, int dst_cs,
+                      char *dst, int dst_size)
+{
+    if (src_cs != dst_cs && src_cs != CHARSET_UNKNOWN) {
+        int out_len = 0;
+        if (convert_charset(src, (int)strlen(src), src_cs,
+                            dst, dst_size, dst_cs, &out_len) == ODV_OK) {
+            dst[out_len] = '\0';
+            return;
+        }
+    }
+    odv_strcpy(dst, src, dst_size - 1);
+}
+
+static void notify_exp_table(ODV_SESSION *s, int64_t row_count)
 {
     const char *col_names[ODV_MAX_COLUMNS];
     const char *col_types[ODV_MAX_COLUMNS];
+    char conv_schema[ODV_OBJNAME_LEN * 4 + 1];
+    char conv_name_buf[ODV_OBJNAME_LEN * 4 + 1];
+    char conv_col_names[ODV_MAX_COLUMNS][ODV_OBJNAME_LEN * 4 + 1];
     int i;
+
+    /* Convert names to output charset */
+    conv_name(s->table.schema, s->dump_charset, s->out_charset,
+              conv_schema, sizeof(conv_schema));
+    conv_name(s->table.name, s->dump_charset, s->out_charset,
+              conv_name_buf, sizeof(conv_name_buf));
 
     if (s->table_count < ODV_MAX_TABLES) {
         ODV_TABLE_ENTRY *e = &s->table_list[s->table_count];
-        odv_strcpy(e->schema, s->table.schema, ODV_OBJNAME_LEN);
-        odv_strcpy(e->name, s->table.name, ODV_OBJNAME_LEN);
+        odv_strcpy(e->schema, conv_schema, ODV_OBJNAME_LEN);
+        odv_strcpy(e->name, conv_name_buf, ODV_OBJNAME_LEN);
         e->type = 0;
         e->col_count = s->table.col_count;
-        e->row_count = 0;
+        e->row_count = row_count;
         s->table_count++;
     }
 
     if (s->table_cb) {
         for (i = 0; i < s->table.col_count && i < ODV_MAX_COLUMNS; i++) {
-            col_names[i] = s->table.columns[i].name;
+            conv_name(s->table.columns[i].name, s->dump_charset, s->out_charset,
+                      conv_col_names[i], sizeof(conv_col_names[i]));
+            col_names[i] = conv_col_names[i];
             col_types[i] = s->table.columns[i].type_str;
         }
         s->table_cb(
-            s->table.schema,
-            s->table.name,
+            conv_schema,
+            conv_name_buf,
             s->table.col_count,
             col_names,
             col_types,
-            0,
+            row_count,
             s->table_ud
         );
     }
@@ -638,7 +714,8 @@ static int decode_exp_column(ODV_SESSION *s, int col_idx,
     Table end: 0xFFFF
     NULL: 0xFFFE
  ---------------------------------------------------------------------------*/
-static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start)
+static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start,
+                             int list_only)
 {
     unsigned char len_buf[2];
     unsigned char *col_buf = NULL;
@@ -673,6 +750,12 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start)
     reset_record(&s->record);
     col_idx = 0;
 
+#ifdef ODV_DEBUG_EXP
+    fprintf(stderr, "  [DBG] parse_exp_records: start at 0x%llX, col_count=%d\n",
+            (long long)data_start, s->table.col_count);
+    fflush(stderr);
+#endif
+
     while (!s->cancelled) {
         /* Read 2-byte length prefix */
         if (fread(len_buf, 1, 2, fp) != 2) {
@@ -681,13 +764,33 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start)
 
         col_len = (int)len_buf[0] | ((int)len_buf[1] << 8);
 
+#ifdef ODV_DEBUG_EXP
+        if (row_count < 3) {
+            fprintf(stderr, "  [DBG] rec: row=%lld col_idx=%d len=0x%04X(%d) at 0x%llX\n",
+                    (long long)row_count, col_idx, col_len, col_len,
+                    (long long)odv_ftell(fp));
+            fflush(stderr);
+        }
+#endif
+
         /* Special markers */
         if (col_len == 0x0000) {
             /* Record end */
             if (col_idx > 0) {
                 s->record.col_count = col_idx;
-                deliver_row(s);
+#ifdef ODV_DEBUG_EXP
+                if (row_count < 3) {
+                    fprintf(stderr, "  [DBG] delivering row %lld (%d cols)\n",
+                            (long long)row_count + 1, col_idx);
+                    fflush(stderr);
+                }
+#endif
+                if (!list_only) {
+                    deliver_row(s);
+                    odv_report_progress(s, fp);
+                }
                 row_count++;
+                s->table.record_count++;
             }
             reset_record(&s->record);
             col_idx = 0;
@@ -696,6 +799,11 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start)
 
         if (col_len == 0xFFFF) {
             /* Table data end */
+#ifdef ODV_DEBUG_EXP
+            fprintf(stderr, "  [DBG] 0xFFFF table end after %lld rows at 0x%llX\n",
+                    (long long)row_count, (long long)odv_ftell(fp));
+            fflush(stderr);
+#endif
             break;
         }
 
@@ -718,6 +826,58 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start)
                     | ((int)big_len[3] << 24);
         }
 
+        /* Type-specific length validation (ref: check_column_length) */
+        if (col_idx < s->table.col_count) {
+            int ctype = s->table.columns[col_idx].type;
+            int bad = 0;
+            switch (ctype) {
+            case COL_NUMBER: case COL_FLOAT:
+                if (col_len > 32) bad = 1; break;
+            case COL_DATE:
+                if (col_len > 7) bad = 1; break;
+            case COL_TIMESTAMP: case COL_TIMESTAMP_TZ: case COL_TIMESTAMP_LTZ:
+                if (col_len > 13) bad = 1; break;
+            case COL_INTERVAL_YM: case COL_INTERVAL_DS:
+                if (col_len > 11) bad = 1; break;
+            case COL_BFILE:
+                if (col_len > 1000) bad = 1; break;
+            case COL_ROWID:
+                if (col_len > 100) bad = 1; break;
+            case COL_CHAR: case COL_NCHAR: case COL_VARCHAR: case COL_NVARCHAR:
+                if (col_len > ODV_VARCHAR_LEN * 3) bad = 1; break;
+            default:
+                break; /* BLOB, CLOB, RAW, LONG, LONG_RAW: no upper limit */
+            }
+            if (bad) {
+                /* Corrupt data — skip to next table */
+#ifdef ODV_DEBUG_EXP
+                fprintf(stderr, "  [DBG] col_len=%d exceeds max for type %d at col[%d]\n",
+                        col_len, ctype, col_idx);
+                fflush(stderr);
+#endif
+                while (!s->cancelled) {
+                    unsigned char scan[2];
+                    if (fread(scan, 1, 2, fp) != 2) goto rec_done;
+                    if (scan[0] == 0xFF && scan[1] == 0xFF) break;
+                    odv_fseek(fp, -1, SEEK_CUR);
+                }
+                break;
+            }
+        }
+
+        /* Sanity check: reject absurdly large column lengths */
+        if (col_len < 0 || col_len > ODV_EXP_RECORD_LEN) {
+            /* Corrupt data — try to find 0xFFFF end marker */
+            while (!s->cancelled) {
+                unsigned char scan[2];
+                if (fread(scan, 1, 2, fp) != 2) goto rec_done;
+                if (scan[0] == 0xFF && scan[1] == 0xFF) break;
+                /* Seek back 1 byte (sliding window) */
+                odv_fseek(fp, -1, SEEK_CUR);
+            }
+            break;
+        }
+
         /* Ensure buffer is large enough */
         if (col_len > col_buf_size) {
             unsigned char *new_buf = (unsigned char *)realloc(col_buf, col_len + 1);
@@ -738,13 +898,23 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start)
             decode_exp_column(s, col_idx, col_buf, col_len);
         }
         col_idx++;
+
+        /* Ref: safety check — too many columns means record structure is corrupt
+           (ref: e2c_expdmp.c line 740, col_ct > tbl_col_num)
+           Allow extra for LOB columns beyond regular col_count */
+        if (col_idx > s->table.col_count + s->table.lob_col_count + 1) {
+            /* Scan forward to find 0xFFFF table end marker */
+            while (!s->cancelled) {
+                unsigned char scan[2];
+                if (fread(scan, 1, 2, fp) != 2) goto rec_done;
+                if (scan[0] == 0xFF && scan[1] == 0xFF) break;
+                odv_fseek(fp, -1, SEEK_CUR);
+            }
+            break;
+        }
     }
 
-    /* Update row count in table list */
-    if (s->table_count > 0) {
-        s->table_list[s->table_count - 1].row_count = row_count;
-    }
-
+rec_done:
     free(col_buf);
 
     if (s->cancelled) return ODV_ERROR_CANCELLED;
@@ -754,174 +924,497 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start)
 /*---------------------------------------------------------------------------
     parse_exp_ddl_and_data
 
-    Reads EXP file after header, searching for CREATE TABLE + INSERT INTO
-    patterns, then parsing record data.
+    Byte-by-byte state machine for EXP dump parsing.
+
+    EXP files interleave ASCII DDL text with binary data:
+      step 0: Skip 256-byte header
+      step 1: Export mode recognition (METRICST, INTERPRETED, etc.)
+      step 2: DDL parsing (CREATE TABLE, INSERT INTO, CONNECT)
+      step 3: Binary metadata (column count, types, lengths, charset)
+      After metadata: call parse_exp_records() for binary record data
+      On 0xFFFF end-of-table: back to step 2 for next table
+
+    DDL statements are terminated by \0 or \n.
  ---------------------------------------------------------------------------*/
 static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
 {
-    char *ddl_buf;
-    int ddl_len = 0;
-    int ddl_buf_size;
-    unsigned char read_buf[4096];
-    int read_len;
-    int in_ddl = 0;     /* 1 = accumulating DDL text */
-    int found_insert = 0;
-    int64_t data_start = 0;
+    int step;               /* 0=header, 1=mode, 2=ddl, 3=metadata */
+    int data_step;          /* sub-state within step 3 */
+    char *word;
+    int wlen = 0;
+    char current_schema[ODV_OBJNAME_LEN + 1] = {0};
+    unsigned char c;
+    int64_t address = 0;
     int rc = ODV_OK;
-    int i;
 
-    /* Allocate DDL buffer */
-    ddl_buf_size = EXP_DDL_BUF_SIZE;
-    ddl_buf = (char *)malloc(ddl_buf_size);
-    if (!ddl_buf) return ODV_ERROR_MALLOC;
+    /* Step 3 (metadata) state */
+    int meta_col_count = 0;
+    int meta_col_idx = 0;
+    int meta_col_type = 0;
+    int is_char_type = 0;
+    int meta_lob_idx = 0;
+    int lob_total = 0;
+    int lob_name_len = 0;
+    int lob_name_read = 0;
+    unsigned char meta_buf[4];
+    int null_count = 0;
+    int pending_table = 0;  /* 1=table parsed but not yet notified */
 
-    /* Start reading after header */
-    odv_fseek(fp, EXP_HEADER_SIZE, SEEK_SET);
+    word = (char *)malloc(EXP_DDL_BUF_SIZE);
+    if (!word) return ODV_ERROR_MALLOC;
 
-    /*
-     * EXP files contain ASCII DDL text mixed with binary data.
-     * Strategy: read blocks, scan for CREATE TABLE / INSERT INTO / CONNECT
-     * as text, then switch to binary record parsing at INSERT INTO boundary.
-     *
-     * EXP DDL text is typically terminated by INSERT INTO statement,
-     * after which binary record data begins.
-     */
+    /* Start from beginning of file */
+    odv_fseek(fp, 0, SEEK_SET);
 
-    ddl_len = 0;
-    in_ddl = 0;
+    step = 0;
+    data_step = 0;
 
-    /* Read entire file into DDL buffer to parse text sections */
-    /* For EXP, DDL is relatively small; we read until we find binary data */
     while (!s->cancelled) {
-        read_len = (int)fread(read_buf, 1, sizeof(read_buf), fp);
-        if (read_len <= 0) break;
+        if (fread(&c, 1, 1, fp) != 1) break;
+        address++;
 
-        for (i = 0; i < read_len; i++) {
-            unsigned char c = read_buf[i];
+        switch (step) {
 
-            /* EXP DDL is printable ASCII text.
-               Binary data sections have many non-printable bytes. */
-            if (ddl_len < ddl_buf_size - 1) {
-                ddl_buf[ddl_len++] = (char)c;
+        case 0: /* Skip 256-byte header */
+            if (address >= EXP_HEADER_SIZE) {
+                step = 1;
+                wlen = 0;
             }
-        }
-    }
-    ddl_buf[ddl_len] = '\0';
+            break;
 
-    /*
-     * Now parse the DDL buffer for CREATE TABLE and INSERT INTO patterns.
-     * In EXP format:
-     *   - CONNECT schema; indicates schema switch
-     *   - CREATE TABLE defines table structure
-     *   - INSERT INTO indicates data follows (binary records)
-     */
-    {
-        char *pos = ddl_buf;
-        char *create_start;
-        char *insert_pos;
-        char current_schema[ODV_OBJNAME_LEN + 1] = {0};
-
-        while (*pos && !s->cancelled) {
-            pos = (char *)skip_ws(pos);
-            if (!*pos) break;
-
-            /* Look for CONNECT schema */
-            if (starts_with_ci(pos, "CONNECT ")) {
-                char sch[ODV_OBJNAME_LEN + 1];
-                const char *ep;
-                pos += 8;
-                ep = extract_identifier(pos, sch, ODV_OBJNAME_LEN);
-                if (sch[0] != '\0') {
-                    odv_strcpy(current_schema, sch, ODV_OBJNAME_LEN);
+        case 1: /* Export mode recognition */
+            /* Accumulate chars until \0 or \n terminator */
+            if (c == 0x00 || c == 0x0a) {
+                if (wlen > 0) {
+                    word[wlen] = '\0';
+                    /* Check if this looks like DDL — if so, transition */
+                    if (starts_with_ci(word, "CREATE ") ||
+                        starts_with_ci(word, "CONNECT ") ||
+                        starts_with_ci(word, "ALTER ") ||
+                        starts_with_ci(word, "GRANT ") ||
+                        starts_with_ci(word, "INSERT ")) {
+                        step = 2;
+                        goto handle_ddl;
+                    }
+                    wlen = 0;
                 }
-                pos = (char *)ep;
-                /* Skip to end of statement (semicolon or newline) */
-                while (*pos && *pos != ';' && *pos != '\n') pos++;
-                if (*pos) pos++;
-                continue;
+            } else {
+                if (wlen < EXP_DDL_BUF_SIZE - 2)
+                    word[wlen++] = (char)c;
             }
+            break;
 
-            /* Look for CREATE TABLE */
-            if (starts_with_ci(pos, "CREATE ")) {
-                create_start = pos;
+        case 2: /* DDL text parsing */
+            if (c == 0x00 || c == 0x0a) {
+                if (wlen == 0) break;
+                word[wlen] = '\0';
 
-                /* Find the end of CREATE TABLE ... (...) */
-                /* Look for matching INSERT INTO or next CREATE */
-                insert_pos = NULL;
-                {
-                    char *scan = pos + 7;
-                    while (*scan) {
-                        if (starts_with_ci(scan, "INSERT INTO")) {
-                            insert_pos = scan;
-                            break;
+            handle_ddl:
+                if (starts_with_ci(word, "CONNECT ")) {
+                    /* Extract schema name */
+                    char sch[ODV_OBJNAME_LEN + 1] = {0};
+                    extract_identifier(word + 8, sch, ODV_OBJNAME_LEN);
+                    if (sch[0] != '\0')
+                        odv_strcpy(current_schema, sch, ODV_OBJNAME_LEN);
+
+                } else if (starts_with_ci(word, "CREATE ")) {
+                    const char *after = skip_ws(word + 7);
+                    /* Match "TABLE" but NOT "TABLESPACE" etc. */
+                    if (starts_with_ci(after, "TABLE") &&
+                        (after[5] == ' ' || after[5] == '\t' ||
+                         after[5] == '"' || after[5] == '\0')) {
+                        /* Notify previous pending table if it had no INSERT INTO */
+                        if (pending_table && s->table.name[0] != '\0') {
+                            notify_exp_table(s, 0);
+                            pending_table = 0;
                         }
-                        /* Also stop at next CREATE that's not part of this DDL */
-                        if (scan != pos && starts_with_ci(scan, "CREATE ") &&
-                            starts_with_ci(skip_ws(scan + 7), "TABLE")) {
-                            break;
+                        if (parse_create_table(s, word)) {
+                            if (s->table.schema[0] == '\0' &&
+                                current_schema[0] != '\0')
+                                odv_strcpy(s->table.schema, current_schema,
+                                           ODV_OBJNAME_LEN);
+                            s->table.record_count = 0;
+                            invalidate_meta_cache();
+                            pending_table = 1;
+
+                            /* Table filter check (ref: ARK e2c_expdmp.c:1706-1731) */
+                            if (s->filter_active) {
+                                int match = 1;
+                                if (s->filter_table[0]) {
+                                    char ft[ODV_OBJNAME_LEN + 1];
+                                    int ft_len;
+                                    odv_strcpy(ft, s->filter_table, ODV_OBJNAME_LEN);
+                                    ft_len = (int)strlen(ft);
+                                    /* Reverse-convert: UTF-8 -> dump charset */
+                                    if (s->dump_charset != s->out_charset &&
+                                        s->dump_charset != CHARSET_UNKNOWN) {
+                                        char tmp[ODV_OBJNAME_LEN + 1];
+                                        int tlen = 0;
+                                        if (convert_charset(ft, ft_len, s->out_charset,
+                                                            tmp, ODV_OBJNAME_LEN, s->dump_charset,
+                                                            &tlen) == ODV_OK) {
+                                            tmp[tlen] = '\0';
+                                            odv_strcpy(ft, tmp, ODV_OBJNAME_LEN);
+                                        }
+                                    }
+                                    if (_stricmp(s->table.name, ft) != 0)
+                                        match = 0;
+                                }
+                                if (match && s->filter_schema[0]) {
+                                    char fs[ODV_OBJNAME_LEN + 1];
+                                    int fs_len;
+                                    odv_strcpy(fs, s->filter_schema, ODV_OBJNAME_LEN);
+                                    fs_len = (int)strlen(fs);
+                                    if (s->dump_charset != s->out_charset &&
+                                        s->dump_charset != CHARSET_UNKNOWN) {
+                                        char tmp[ODV_OBJNAME_LEN + 1];
+                                        int tlen = 0;
+                                        if (convert_charset(fs, fs_len, s->out_charset,
+                                                            tmp, ODV_OBJNAME_LEN, s->dump_charset,
+                                                            &tlen) == ODV_OK) {
+                                            tmp[tlen] = '\0';
+                                            odv_strcpy(fs, tmp, ODV_OBJNAME_LEN);
+                                        }
+                                    }
+                                    if (_stricmp(s->table.schema, fs) != 0)
+                                        match = 0;
+                                }
+                                s->pass_flg = match ? 0 : 1;
+                            }
+
+                            /* notify_exp_table is deferred to after record counting */
                         }
-                        scan++;
                     }
+                    /* Other CREATE types (TRIGGER, INDEX...) are ignored */
+
+                } else if (starts_with_ci(word, "INSERT INTO ")) {
+                    /* Extract table name from INSERT INTO and compare with
+                       the table from the most recent CREATE TABLE.
+                       Format: INSERT INTO "schema"."table" or INSERT INTO "table"
+                       Only transition to binary metadata (step 3) if they
+                       match; otherwise this is a DDL INSERT (e.g. PL/SQL)
+                       and should be ignored.
+                       (ref: e2c_expdmp.c line 1856-1884) */
+                    char ins_table[ODV_OBJNAME_LEN + 1] = {0};
+                    {
+                        const char *ip = extract_identifier(word + 12, ins_table, ODV_OBJNAME_LEN);
+                        ip = skip_ws(ip);
+                        if (*ip == '.') {
+                            /* schema.table format — extract table part */
+                            ip++;
+                            extract_identifier(ip, ins_table, ODV_OBJNAME_LEN);
+                        }
+                    }
+
+                    if (s->table.name[0] != '\0' &&
+                        strcmp(s->table.name, ins_table) == 0) {
+                        /* Table name matches — transition to binary metadata */
+#ifdef ODV_DEBUG_EXP
+                        fprintf(stderr, "  [DBG] INSERT INTO \"%s\" matched at 0x%llX => step 3\n",
+                                ins_table, (long long)address);
+                        fflush(stderr);
+#endif
+                        step = 3;
+                        data_step = 0;
+                        meta_col_count = 0;
+                        meta_col_idx = 0;
+                        meta_lob_idx = 0;
+                        null_count = 0;
+                    }
+                    /* else: DDL INSERT, ignore and stay in step 2 */
                 }
 
-                /* Parse the CREATE TABLE */
-                if (parse_create_table(s, create_start)) {
-                    /* If no schema in DDL, use CONNECT schema */
-                    if (s->table.schema[0] == '\0' && current_schema[0] != '\0') {
-                        odv_strcpy(s->table.schema, current_schema, ODV_OBJNAME_LEN);
-                    }
+                wlen = 0;
+            } else {
+                if (wlen < EXP_DDL_BUF_SIZE - 2)
+                    word[wlen++] = (char)c;
+            }
+            break;
 
-                    notify_exp_table(s);
+        case 3: /* Binary metadata after INSERT INTO */
+            /*
+             * Based on ARKDumpViewer reference: e2c_expdmp.c step 3
+             *
+             * Structure (field order per reference):
+             *   2 bytes: column count (LE)         [data_step 0-1]
+             *   For each column:
+             *     1 byte: Oracle internal type code [data_step 2]
+             *     1 byte: null flag                 [data_step 3]
+             *     2 bytes: byte length (LE)         [data_step 4-5]
+             *     [4 bytes: charset if char type]   [data_step 6-9]
+             *   If LOB columns exist:
+             *     2 bytes: LOB column count (LE)    [data_step 10-11]
+             *     LOB column names (len-prefixed)   [data_step 12-13]
+             *   Null padding (0x00 bytes)           [data_step 20]
+             *   Record data starts at first non-0x00 byte
+             *
+             * Char types (need 4 charset bytes):
+             *   0x01=VARCHAR2, 0x60=CHAR, 0x70=CLOB, 0xD0=NCLOB
+             *   (per reference: 0x40=LONG_RAW also flagged)
+             *
+             * XMLTYPE (0x3A) triggers abort — back to DDL.
+             */
+            switch (data_step) {
+            case 0: /* Column count byte 0 */
+                meta_buf[0] = c;
+                data_step = 1;
+                break;
 
-                    /* If not list_only, find INSERT INTO and parse records */
-                    if (!list_only && insert_pos) {
-                        /* Data starts after INSERT INTO ... VALUES ( */
-                        /* The binary data starts right after the INSERT INTO marker.
-                           In EXP format, the INSERT INTO is followed by binary records. */
-                        int64_t offset_in_buf = insert_pos - ddl_buf;
-                        char *vals;
+            case 1: /* Column count byte 1 */
+                meta_col_count = (int)meta_buf[0] | ((int)c << 8);
+                meta_col_idx = 0;
+                is_char_type = 0;
+#ifdef ODV_DEBUG_EXP
+                fprintf(stderr, "  [DBG] meta col_count=%d at 0x%llX\n",
+                        meta_col_count, (long long)address);
+                fflush(stderr);
+#endif
+                if (meta_col_count <= 0 || meta_col_count > ODV_MAX_COLUMNS) {
+                    s->table.name[0] = '\0';
+                    if (s->table_count > 0) s->table_count--;
+                    step = 2;
+                    wlen = 0;
+                } else {
+                    data_step = 2;
+                }
+                break;
 
-                        /* Skip "INSERT INTO ..." to find start of binary data */
-                        vals = insert_pos;
-                        /* Skip to end of the INSERT INTO text line */
-                        while (*vals && *vals != '\n' && *vals != '\r') vals++;
-                        while (*vals == '\n' || *vals == '\r') vals++;
+            case 2: /* Column type byte */
+                meta_col_type = (int)c;
 
-                        /* Calculate file offset for binary data */
-                        data_start = EXP_HEADER_SIZE + (vals - ddl_buf);
+                /* Check type code against known Oracle internal types
+                   (ref: e2c_expdmp.c step 3, case 2) */
+                switch (c) {
+                case 0x3A: /* XMLTYPE — unsupported */
+                    s->table.name[0] = '\0';
+                    if (s->table_count > 0) s->table_count--;
+                    step = 2;
+                    wlen = 0;
+                    goto meta_done;
 
-                        /* Parse records */
-                        rc = parse_exp_records(s, fp, data_start);
-                        if (rc != ODV_OK && rc != ODV_ERROR_CANCELLED) {
-                            /* Non-fatal: continue to next table */
-                        }
-                    }
+                /* Char types: need 4 charset bytes after length */
+                case 0x01: /* VARCHAR2 */
+                case 0x40: /* LONG RAW (ref flags as char) */
+                case 0x60: /* CHAR */
+                case 0x70: /* CLOB */
+                case 0xD0: /* NCLOB */
+                    is_char_type = 1;
+                    break;
+
+                /* Non-char types: no charset bytes */
+                case 0x02: /* NUMBER */
+                case 0x08: /* LONG */
+                case 0x09: /* VARCHAR (alternate) */
+                case 0x0C: /* DATE */
+                case 0x17: /* RAW */
+                case 0x18: /* LONG RAW (alt) */
+                case 0x45: /* ROWID */
+                case 0x71: /* BLOB */
+                case 0x72: /* BFILE */
+                case 0xB4: /* TIMESTAMP */
+                case 0xB5: /* TIMESTAMP WITH TIMEZONE */
+                case 0xB6: /* INTERVAL YEAR TO MONTH */
+                case 0xB7: /* INTERVAL DAY TO SECOND */
+                case 0xE7: /* TIMESTAMP WITH LOCAL TIMEZONE */
+                    is_char_type = 0;
+                    break;
+
+                default:
+                    /* Unknown type — WARNING and continue parsing
+                       (ref: e2c_expdmp.c line 1982-2013, break not continue) */
+#ifdef ODV_DEBUG_EXP
+                    fprintf(stderr, "  [DBG] WARNING: unknown type 0x%02X at 0x%llX\n",
+                            c, (long long)address);
+                    fflush(stderr);
+#endif
+                    is_char_type = 0;
+                    break;
                 }
 
-                /* Advance past this CREATE TABLE block */
-                if (insert_pos) {
-                    pos = insert_pos;
-                    /* Skip past INSERT INTO and its data */
-                    while (*pos && !starts_with_ci(pos, "CONNECT ") &&
-                           !starts_with_ci(pos, "CREATE ")) {
-                        pos++;
+                data_step = 3;
+            meta_done:
+                break;
+
+            case 3: /* Null flag byte */
+                data_step = 4;
+                break;
+
+            case 4: /* Length byte 0 */
+                meta_buf[0] = c;
+                data_step = 5;
+                break;
+
+            case 5: /* Length byte 1 — advance */
+                meta_col_idx++;
+                if (is_char_type) {
+                    data_step = 6; /* read 4 charset bytes */
+                } else {
+                    if (meta_col_idx >= meta_col_count) {
+                        /* Use DDL-parsed LOB count (ref: tbl_lob_num from
+                           table->lob_column_ct, not from metadata bytes) */
+                        if (s->table.lob_col_count > 0) {
+                            data_step = 10; /* LOB metadata */
+                        } else {
+                            data_step = 20; /* null padding */
+                            null_count = 0;
+                        }
+                    } else {
+                        data_step = 2; /* next column */
+                    }
+                }
+                break;
+
+            case 6: case 7: case 8: /* Charset bytes 0-2 */
+                data_step++;
+                break;
+
+            case 9: /* Charset byte 3 — advance to next col or finish */
+                if (meta_col_idx >= meta_col_count) {
+                    /* Use DDL-parsed LOB count (ref: tbl_lob_num) */
+                    if (s->table.lob_col_count > 0) {
+                        data_step = 10; /* LOB metadata */
+                    } else {
+                        data_step = 20; /* null padding */
+                        null_count = 0;
                     }
                 } else {
-                    /* Skip the CREATE TABLE statement */
-                    while (*pos && *pos != ';') pos++;
-                    if (*pos) pos++;
+                    data_step = 2; /* next column */
                 }
-                continue;
-            }
+                break;
 
-            /* Skip other content */
-            while (*pos && *pos != '\n') pos++;
-            if (*pos) pos++;
-        }
+            case 10: /* LOB column count byte 0 */
+                meta_buf[0] = c;
+                data_step = 11;
+                break;
+
+            case 11: /* LOB column count byte 1 */
+                lob_total = (int)meta_buf[0] | ((int)c << 8);
+                meta_lob_idx = 0;
+                /* Do NOT reset null_count here — ref does not reset null_ct
+                   in data_step 11. The prior null_ct is used in data_step 12. */
+#ifdef ODV_DEBUG_EXP
+                fprintf(stderr, "  [DBG] LOB total=%d null_count=%d at 0x%llX\n",
+                        lob_total, null_count, (long long)address);
+                fflush(stderr);
+#endif
+                data_step = 12;
+                break;
+
+            case 12: /* LOB metadata: null skip / name length */
+                if (c == 0xFF) {
+                    /* End marker within LOB section */
+                    step = 2;
+                    wlen = 0;
+                } else if (c != 0x00) {
+                    if (null_count > 0) {
+                        /* Non-zero after nulls = LOB column name length */
+                        lob_name_len = (int)c;
+                        lob_name_read = 0;
+                        data_step = 13;
+                    }
+                    null_count++;
+                } else {
+                    null_count++;
+                }
+                break;
+
+            case 13: /* LOB column name bytes */
+                if (c < 0x04) {
+                    /* End of LOB column name (ref: e2c_expdmp.c line 2098-2111) */
+                    meta_lob_idx++;
+                    if (meta_lob_idx >= s->table.lob_col_count) {
+                        /* All LOB names read — go to null padding
+                           (ref: null_ct reset only when all LOBs done) */
+                        null_count = 0;
+                        meta_lob_idx = 0;
+                        data_step = 20; /* final null padding */
+                    } else {
+                        /* Next LOB — do NOT reset null_count (ref behavior) */
+                        data_step = 12; /* next LOB */
+                    }
+                }
+                /* else: accumulate (we don't need the actual name) */
+                break;
+
+            case 20: /* Null padding before record data */
+                /* Ref: e2c_expdmp.c step 3, data_step 20 */
+                if (c == 0x00) {
+                    null_count++;
+                } else if (c == 0xFF) {
+                    /* No record data for this table — back to DDL */
+#ifdef ODV_DEBUG_EXP
+                    fprintf(stderr, "  [DBG] 0xFF in padding at 0x%llX, back to DDL\n",
+                            (long long)address);
+                    fflush(stderr);
+#endif
+                    notify_exp_table(s, 0);
+                    pending_table = 0;
+                    step = 2;
+                    wlen = 0;
+                } else {
+                    /* For DUMP_EXP_DIRECT, need at least 3 null bytes */
+                    if (s->dump_type == DUMP_EXP_DIRECT && null_count < 3) {
+                        break;
+                    }
+                    /* First byte of record data detected.
+                       This byte is len_buff[0]; seek back 1 so
+                       parse_exp_records reads the full 2-byte length. */
+                    {
+                        int64_t rec_start = odv_ftell(fp) - 1;
+#ifdef ODV_DEBUG_EXP
+                        fprintf(stderr, "  [DBG] record start at 0x%llX (null_pad=%d)\n",
+                                (long long)rec_start, null_count);
+                        fflush(stderr);
+#endif
+                        if (list_only && s->filter_active && s->pass_flg) {
+                            /* Filtered out in list_only: skip records entirely */
+                            /* Scan forward to find 0xFFFF end marker */
+                            while (!s->cancelled) {
+                                unsigned char scan[2];
+                                if (fread(scan, 1, 2, fp) != 2) goto done;
+                                if (scan[0] == 0xFF && scan[1] == 0xFF) break;
+                                odv_fseek(fp, -1, SEEK_CUR);
+                            }
+                            notify_exp_table(s, 0);
+                            pending_table = 0;
+                        } else if (!s->filter_active || !s->pass_flg) {
+                            /* Parse records (list_only=count only, full=deliver) */
+                            rc = parse_exp_records(s, fp, rec_start, list_only);
+                            notify_exp_table(s, s->table.record_count);
+                            pending_table = 0;
+                        } else {
+                            /* Filtered out in full parse: skip */
+                            while (!s->cancelled) {
+                                unsigned char scan[2];
+                                if (fread(scan, 1, 2, fp) != 2) goto done;
+                                if (scan[0] == 0xFF && scan[1] == 0xFF) break;
+                                odv_fseek(fp, -1, SEEK_CUR);
+                            }
+                            notify_exp_table(s, 0);
+                            pending_table = 0;
+                        }
+                        /* Update address to match new file position */
+                        address = odv_ftell(fp);
+                    }
+                    step = 2;
+                    wlen = 0;
+                    if (rc == ODV_ERROR_CANCELLED) goto done;
+                    rc = ODV_OK;
+                }
+                break;
+            } /* switch data_step */
+            break;
+
+        } /* switch step */
     }
 
-    free(ddl_buf);
+done:
+    /* Notify last pending table if not yet notified */
+    if (pending_table && s->table.name[0] != '\0') {
+        notify_exp_table(s, s->table.record_count);
+    }
 
+    free(word);
     if (s->cancelled) return ODV_ERROR_CANCELLED;
     return rc;
 }
@@ -943,6 +1436,12 @@ int parse_exp_dump(ODV_SESSION *s, int list_only)
         odv_strcpy(s->last_error, "Cannot open dump file", ODV_MSG_LEN);
         return ODV_ERROR_FOPEN;
     }
+
+    /* Set 64KB I/O buffer for improved read throughput */
+    setvbuf(fp, NULL, _IOFBF, 65536);
+
+    /* Reset progress tracking */
+    s->last_progress_pct = -1;
 
     /* Parse header */
     rc = parse_exp_header(s, fp);

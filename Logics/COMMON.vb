@@ -28,10 +28,8 @@
 
 #Region "プログレスバー関連"
     ''' <summary>
-    ''' プログレスバー更新処理
+    ''' プログレスバー更新処理 (行番号ベース: current/total)
     ''' </summary>
-    ''' <param name="currentLine"></param>
-    ''' <param name="totalLines"></param>
     Public Shared Sub UpdateProgress(current As Long, total As Long, startTime As DateTime)
         Try
             ' 現在の時間と経過時間を取得
@@ -70,17 +68,49 @@
     End Sub
 
     ''' <summary>
-    ''' プログレスバーをマーキースタイルに設定する（総行数不明時用）
+    ''' プログレスバー更新処理 (パーセンテージベース: DLL解析用)
+    ''' ファイル位置ベースのパーセンテージ(0-100)と処理行数で更新する。
+    ''' 残り時間の推定にもパーセンテージを使用。
     ''' </summary>
-    Public Shared Sub setProgressBarMarquee()
-        OraDB_DUMP_Viewer.ToolStripProgressBar.Style = ProgressBarStyle.Marquee
-        OraDB_DUMP_Viewer.ToolStripProgressBar.Visible = True
+    ''' <param name="rowsProcessed">処理済み行数</param>
+    ''' <param name="currentTable">現在解析中のテーブル名</param>
+    ''' <param name="pct">ファイル位置ベースのパーセンテージ (0-100)</param>
+    ''' <param name="startTime">解析開始時刻</param>
+    Public Shared Sub UpdateProgress(rowsProcessed As Long, currentTable As String, pct As Integer, startTime As DateTime)
+        Try
+            Dim elapsed As TimeSpan = DateTime.Now - startTime
+
+            ' 残り時間を推定
+            Dim remainingStr As String = ""
+            If pct > 0 AndAlso pct < 100 Then
+                Dim estimatedTotal As TimeSpan = TimeSpan.FromTicks(CLng(elapsed.Ticks * 100.0 / pct))
+                Dim remaining As TimeSpan = estimatedTotal - elapsed
+                remainingStr = $" | 残り: {FormatTimeSpan(remaining)}"
+            End If
+
+            ' 処理速度
+            Dim speed As Double = If(elapsed.TotalSeconds > 0, rowsProcessed / elapsed.TotalSeconds, 0)
+
+            Dim msg As String = $"処理中... {rowsProcessed:N0}行 ({pct}%) | {currentTable} | " &
+                               $"経過: {FormatTimeSpan(elapsed)}{remainingStr} | {speed:N0}行/秒"
+
+            COMMON.Set_StatusLavel(msg)
+
+            ' プログレスバーを更新
+            If pct >= 0 AndAlso pct <= 100 Then
+                OraDB_DUMP_Viewer.ToolStripProgressBar.Value = pct
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine($"プログレス更新エラー: {ex.Message}")
+        End Try
     End Sub
 
-    Public Shared Sub setProgressBarMax(total As Integer)
-        OraDB_DUMP_Viewer.ToolStripProgressBar.Maximum = total
-        OraDB_DUMP_Viewer.ToolStripProgressBar.Value = 0
-        OraDB_DUMP_Viewer.ToolStripProgressBar.Visible = True
+    ''' <summary>
+    ''' プログレスバーをパーセンテージモード (0-100%) で初期化する
+    ''' </summary>
+    Public Shared Sub InitProgressBar()
+        SetProgressBarMax(100)
     End Sub
 
     ''' <summary>
@@ -90,6 +120,21 @@
         OraDB_DUMP_Viewer.ToolStripProgressBar.Style = ProgressBarStyle.Blocks
         OraDB_DUMP_Viewer.ToolStripProgressBar.Value = 0
         OraDB_DUMP_Viewer.ToolStripProgressBar.Visible = False
+    End Sub
+
+    ''' <summary>
+    ''' プログレスバーをマーキースタイルに設定する（総行数不明時用）
+    ''' </summary>
+    Public Shared Sub SetProgressBarMarquee()
+        OraDB_DUMP_Viewer.ToolStripProgressBar.Style = ProgressBarStyle.Marquee
+        OraDB_DUMP_Viewer.ToolStripProgressBar.Visible = True
+    End Sub
+
+    Private Shared Sub SetProgressBarMax(total As Integer)
+        OraDB_DUMP_Viewer.ToolStripProgressBar.Style = ProgressBarStyle.Blocks
+        OraDB_DUMP_Viewer.ToolStripProgressBar.Maximum = total
+        OraDB_DUMP_Viewer.ToolStripProgressBar.Value = 0
+        OraDB_DUMP_Viewer.ToolStripProgressBar.Visible = True
     End Sub
 #End Region
 

@@ -32,6 +32,7 @@ static void clear_session(ODV_SESSION *s)
     s->dump_type = DUMP_UNKNOWN;
     s->dump_charset = CHARSET_UTF8;
     s->out_charset = CHARSET_UTF8;
+    s->last_progress_pct = -1;
 }
 
 /*---------------------------------------------------------------------------
@@ -127,6 +128,31 @@ ODV_API int __stdcall odv_set_table_callback(ODV_SESSION *s, ODV_TABLE_CALLBACK 
     if (!s) return ODV_ERROR_INVALID_ARG;
     s->table_cb = cb;
     s->table_ud = user_data;
+    return ODV_OK;
+}
+
+ODV_API int __stdcall odv_set_table_filter(ODV_SESSION *s, const char *schema, const char *table)
+{
+    if (!s) return ODV_ERROR_INVALID_ARG;
+
+    if (!table || table[0] == '\0') {
+        /* Clear filter */
+        s->filter_active = 0;
+        s->filter_schema[0] = '\0';
+        s->filter_table[0] = '\0';
+        return ODV_OK;
+    }
+
+    /* Store filter names in UTF-8 (will be reverse-converted after charset detection) */
+    if (schema && schema[0]) {
+        odv_strcpy(s->filter_schema, schema, ODV_OBJNAME_LEN);
+    } else {
+        s->filter_schema[0] = '\0';
+    }
+    odv_strcpy(s->filter_table, table, ODV_OBJNAME_LEN);
+    s->filter_active = 1;
+    s->pass_flg = 0;
+
     return ODV_OK;
 }
 
@@ -233,4 +259,10 @@ ODV_API const char * __stdcall odv_get_last_error(ODV_SESSION *s)
 {
     if (!s) return "Invalid session";
     return s->last_error;
+}
+
+ODV_API int __stdcall odv_get_progress_pct(ODV_SESSION *s)
+{
+    if (!s) return 0;
+    return s->last_progress_pct;
 }

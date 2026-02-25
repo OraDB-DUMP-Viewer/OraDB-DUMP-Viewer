@@ -56,9 +56,35 @@
   - Format options: SLASH ("YYYY/MM/DD HH:MI:SS"), COMPACT, FULL
 - [x] BUILD VERIFIED: Zero warnings, zero errors
 
-## Phase 5: Record Parsing - PENDING
+## Phase 5: Record Parsing - COMPLETED (included in Phase 3)
+- [x] odv_record.c - Buffer management + row delivery (implemented in Phase 1)
+- [x] parse_expdp_records in odv_expdp.c - EXPDP binary record state machine (Phase 3)
+- [x] Column length encoding: 0x00=empty, 0x01-0xfd=direct, 0xfe=2-byte LE, 0xff=NULL
+- [x] Record headers: 0x01/0x04, 0x08/0x09 LOB, 0x18/0x19 >255-col, 0xff=end
+- [x] LOB chunk reassembly with dynamic buffer
+- [x] 255-column boundary filler handling
 
-## Phase 6: EXP Parsing - PENDING
+## Phase 6: EXP Parsing - COMPLETED
+- [x] odv_exp.c - Full legacy EXP format parser (~600 lines)
+  - `parse_exp_header`: 256-byte header parsing (version, mode RTABLES/RUSERS/RENTIRE, charset detection)
+  - `parse_create_table`: DDL text parser for CREATE TABLE statements
+    - Extracts schema.table, column names, types from quoted identifiers
+    - Skips CONSTRAINT/PRIMARY/UNIQUE/FOREIGN/CHECK clauses
+  - `parse_column_type`: Maps DDL type strings (VARCHAR2, NUMBER, DATE, etc.) to COL_* constants
+    - Extracts length/precision/scale from parentheses
+    - Supports all Oracle types including INTERVAL, BINARY_FLOAT/DOUBLE, XMLTYPE
+  - `parse_exp_records`: Binary record reader
+    - 2-byte LE length prefix per column
+    - Special markers: 0x0000=record end, 0xFFFF=table end, 0xFFFE=NULL, 0xFF00=4-byte length
+  - `decode_exp_column`: Type-specific column decoding
+    - NUMBER/DATE/TIMESTAMP via odv_number/odv_datetime
+    - RAW/ROWID as hex string
+    - String types with charset conversion
+    - CHAR right-space trimming
+    - LOB placeholders (%BLOB%, %CLOB% etc.)
+  - CONNECT schema detection for multi-schema exports
+  - Direct export mode detection ("D\\n" marker)
+- [x] BUILD VERIFIED: Zero warnings, zero errors
 
 ## Phase 7: Output (CSV/SQL) - PENDING
 

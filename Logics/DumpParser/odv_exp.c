@@ -930,8 +930,7 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
     unsigned char meta_buf[4];
     int null_count = 0;
     int pending_table = 0;  /* 1=table parsed but not yet notified */
-    int filter_found = 0;   /* 1=filter target table already processed
-                               (ref: ARK is_find_table + goto RETURN) */
+    int filter_found = 0;   /* 1=filter target table already processed */
 
     word = (char *)malloc(EXP_DDL_BUF_SIZE);
     if (!word) return ODV_ERROR_MALLOC;
@@ -1048,7 +1047,7 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                             invalidate_meta_cache();
                             pending_table = 1;
 
-                            /* Table filter check (ref: ARK e2c_expdmp.c:1706-1731) */
+                            /* Table filter check */
                             if (s->filter_active) {
                                 int match = 1;
                                 if (s->filter_table[0]) {
@@ -1093,8 +1092,7 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                                 }
                                 s->pass_flg = match ? 0 : 1;
                                 /* Early exit: target table already processed,
-                                   now a different table appeared → done
-                                   (ref: ARK e2c_expdmp.c:1590 goto RETURN) */
+                                   now a different table appeared → done */
                                 if (filter_found && s->pass_flg) {
                                     goto done;
                                 }
@@ -1149,9 +1147,9 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
 
         case 3: /* Binary metadata after INSERT INTO */
             /*
-             * Based on ARKDumpViewer reference: e2c_expdmp.c step 3
+             * Binary metadata structure:
              *
-             * Structure (field order per reference):
+             * Structure (field order):
              *   2 bytes: column count (LE)         [data_step 0-1]
              *   For each column:
              *     1 byte: Oracle internal type code [data_step 2]

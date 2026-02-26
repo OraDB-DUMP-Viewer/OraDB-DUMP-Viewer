@@ -283,8 +283,7 @@ struct _odv_session {
     ODV_TABLE_CALLBACK      table_cb;
     void                   *table_ud;
 
-    /* Table filter (ARK MODE_SELECT_TABLE equivalent) */
-    /* Names stored in dump_charset for raw comparison (ref: e2c_pmpdmp.c:491-509) */
+    /* Table filter for selective parsing */
     char            filter_schema[ODV_OBJNAME_LEN + 1];
     char            filter_table[ODV_OBJNAME_LEN + 1];
     int             filter_active;   /* 0=no filter, 1=filter active */

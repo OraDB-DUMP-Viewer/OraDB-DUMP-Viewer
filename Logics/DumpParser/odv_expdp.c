@@ -644,8 +644,7 @@ int parse_expdp_dump(ODV_SESSION *s, int list_only)
     int ddl_len = 0;
     int ddl_alloc = 0;
     int in_ddl = 0;
-    int filter_found = 0;   /* 1=filter target table already processed
-                               (ref: ARK break_flg / e2c_pmpdmp.c:462-483) */
+    int filter_found = 0;   /* 1=filter target table already processed */
     int64_t address = 0;
     int64_t cur_ddl_pos = 0;    /* File position of current XML DDL block */
     int n, rc;
@@ -757,7 +756,7 @@ int parse_expdp_dump(ODV_SESSION *s, int list_only)
 
                     address = odv_ftell(fp);
 
-                    /* Table filter check (ref: ARK e2c_pmpdmp.c:491-509) */
+                    /* Table filter check */
                     if (s->filter_active) {
                         int match = 1;
                         if (s->filter_table[0]) {
@@ -802,8 +801,7 @@ int parse_expdp_dump(ODV_SESSION *s, int list_only)
                         s->pass_flg = match ? 0 : 1;
 
                         /* Early exit: target table already processed,
-                           now a different table appeared → done
-                           (ref: ARK e2c_pmpdmp.c:462-483 break_flg) */
+                           now a different table appeared → done */
                         if (filter_found && s->pass_flg) {
                             in_ddl = 0;
                             goto expdp_done;
@@ -817,7 +815,7 @@ int parse_expdp_dump(ODV_SESSION *s, int list_only)
                         /* Filtered out in list_only: skip records entirely */
                         notify_table(s, 0);
                     } else if (list_only && !s->filter_active) {
-                        /* list_only without filter: count rows (ref: ARK MODE_LIST_TABLE) */
+                        /* list_only without filter: count rows */
                         rc = parse_expdp_records(s, fp, &address, list_only);
                         notify_table(s, s->table.record_count);
                         if (rc != ODV_OK && rc != ODV_ERROR_CANCELLED) { /* non-fatal */ }

@@ -102,7 +102,7 @@ ODV_API int __stdcall odv_set_row_callback(ODV_SESSION *s, ODV_ROW_CALLBACK cb, 
 ODV_API int __stdcall odv_set_progress_callback(ODV_SESSION *s, ODV_PROGRESS_CALLBACK cb, void *user_data);
 ODV_API int __stdcall odv_set_table_callback(ODV_SESSION *s, ODV_TABLE_CALLBACK cb, void *user_data);
 
-/* Set table filter for selective parsing (ref: ARK MODE_SELECT_TABLE)
+/* Set table filter for selective parsing.
    schema/table names in UTF-8. DLL reverse-converts to dump charset for comparison.
    Pass NULL to clear filter and parse all tables. */
 ODV_API int __stdcall odv_set_table_filter(ODV_SESSION *s, const char *schema, const char *table);

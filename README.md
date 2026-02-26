@@ -75,7 +75,7 @@ NUMBER / DATE / TIMESTAMP / VARCHAR2 / CHAR / CLOB / BINARY_FLOAT / BINARY_DOUBL
 | 項目 | 要件 |
 |---|---|
 | OS | Windows 7 以降 (x64) |
-| ランタイム | 不要（.NET ランタイム同梱済み） |
+| ランタイム | ポータブル版: 不要（同梱済み） / MSI 版: [.NET 10.0](https://dotnet.microsoft.com/ja-jp/download/dotnet/10.0) |
 | 対応ファイル | Oracle .dmp (EXP / EXPDP) |
 
 ---
@@ -84,10 +84,10 @@ NUMBER / DATE / TIMESTAMP / VARCHAR2 / CHAR / CLOB / BINARY_FLOAT / BINARY_DOUBL
 
 [Releases](https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases) ページからダウンロードしてください。
 
-| 配布形式 | ファイル名 | 説明 |
-|---|---|---|
-| **MSI インストーラー** (推奨) | `OraDBDumpViewer_vX.X.X_installer.msi` | デスクトップ・スタートメニューにショートカット作成 |
-| **ポータブル版** | `OraDBDumpViewer_vX.X.X_portable.zip` | 任意のフォルダに展開して使用 |
+| 配布形式 | ファイル名 | .NET ランタイム | 説明 |
+|---|---|:---:|---|
+| **MSI インストーラー** | `OraDBDumpViewer_vX.X.X_installer.msi` | 別途必要 | 軽量。ショートカット自動作成 |
+| **ポータブル版** (推奨) | `OraDBDumpViewer_vX.X.X_portable.zip` | **同梱済み** | 解凍してすぐ使える |
 
 ---
 

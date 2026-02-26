@@ -113,17 +113,28 @@ jobs:
         run: dotnet restore "OraDB DUMP Viewer.vbproj"
 
       # ─────────────────────────────────────
-      # 8. Release ビルド (実行ファイル生成)
-      #    出力先: ./publish/exe/
-      #    vbproj の CopyToOutputDirectory で DLL も含まれる
+      # 8a. ポータブル版ビルド (Self-contained)
+      #     .NET ランタイム同梱 → 解凍してすぐ使える
       # ─────────────────────────────────────
-      - name: Build (Release)
+      - name: Build portable (self-contained)
         run: |
           dotnet publish "OraDB DUMP Viewer.vbproj" `
             --configuration Release `
             --runtime win-x64 `
             --self-contained true `
-            --output ./publish/exe
+            --output ./publish/portable
+
+      # ─────────────────────────────────────
+      # 8b. MSI 用ビルド (Framework-dependent)
+      #     .NET ランタイムは別途インストール → 軽量
+      # ─────────────────────────────────────
+      - name: Build for MSI (framework-dependent)
+        run: |
+          dotnet publish "OraDB DUMP Viewer.vbproj" `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained false `
+            --output ./publish/msi
 
       # ─────────────────────────────────────
       # 9. DLL が出力に含まれていることを検証
@@ -131,22 +142,23 @@ jobs:
       - name: Verify native DLL in output
         shell: pwsh
         run: |
-          if (-not (Test-Path "./publish/exe/OraDB_DumpParser.dll")) {
-            Write-Error "OraDB_DumpParser.dll が publish 出力に含まれていません"
-            exit 1
+          foreach ($dir in @("./publish/portable", "./publish/msi")) {
+            if (-not (Test-Path "$dir/OraDB_DumpParser.dll")) {
+              Write-Error "OraDB_DumpParser.dll が $dir に含まれていません"
+              exit 1
+            }
           }
-          Write-Host "OraDB_DumpParser.dll found in publish output"
-          Get-Item "./publish/exe/OraDB_DumpParser.dll" | Select-Object Name, Length, LastWriteTime
+          Write-Host "OraDB_DumpParser.dll found in both outputs"
 
       # ─────────────────────────────────────
-      # 10. 実行ファイルを ZIP に圧縮
+      # 10. ポータブル版を ZIP に圧縮
       # ─────────────────────────────────────
-      - name: Zip executable
+      - name: Zip portable
         shell: pwsh
         run: |
           $version = "${{ steps.get_version.outputs.VERSION }}"
           Compress-Archive `
-            -Path "./publish/exe/*" `
+            -Path "./publish/portable/*" `
             -DestinationPath "./publish/OraDBDumpViewer_v${version}_portable.zip"
 
       # ─────────────────────────────────────
@@ -168,7 +180,7 @@ jobs:
         shell: pwsh
         run: |
           $version = "${{ steps.get_version.outputs.VERSION }}"
-          $exeDir = "$env:GITHUB_WORKSPACE\publish\exe"
+          $exeDir = "$env:GITHUB_WORKSPACE\publish\msi"
 
           $wxs = @"
           <?xml version="1.0" encoding="UTF-8"?>
@@ -185,6 +197,12 @@ jobs:
 
               <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
               <MediaTemplate EmbedCab="yes" />
+
+              <!-- .NET 10.0 ランタイムの存在チェックと案内 -->
+              <Property Id="DOTNET_INSTALLED">
+                <RegistrySearch Id="CheckDotNet10Runtime" Root="HKLM" Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedhost" Name="Version" Type="raw" />
+              </Property>
+              <Launch Condition="DOTNET_INSTALLED" Message=".NET 10.0 ランタイムが必要です。インストールしてから再度セットアップを実行してください。&#10;&#10;ダウンロード: https://dotnet.microsoft.com/ja-jp/download/dotnet/10.0" />
 
               <ui:WixUI Id="WixUI_InstallDir" />
               <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />

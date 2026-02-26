@@ -751,11 +751,6 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start,
     reset_record(&s->record);
     col_idx = 0;
 
-#ifdef ODV_DEBUG_EXP
-    fprintf(stderr, "  [DBG] parse_exp_records: start at 0x%llX, col_count=%d\n",
-            (long long)data_start, s->table.col_count);
-    fflush(stderr);
-#endif
 
     while (!s->cancelled) {
         /* Read 2-byte length prefix */
@@ -765,27 +760,12 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start,
 
         col_len = (int)len_buf[0] | ((int)len_buf[1] << 8);
 
-#ifdef ODV_DEBUG_EXP
-        if (row_count < 3) {
-            fprintf(stderr, "  [DBG] rec: row=%lld col_idx=%d len=0x%04X(%d) at 0x%llX\n",
-                    (long long)row_count, col_idx, col_len, col_len,
-                    (long long)odv_ftell(fp));
-            fflush(stderr);
-        }
-#endif
 
         /* Special markers */
         if (col_len == 0x0000) {
             /* Record end */
             if (col_idx > 0) {
                 s->record.col_count = col_idx;
-#ifdef ODV_DEBUG_EXP
-                if (row_count < 3) {
-                    fprintf(stderr, "  [DBG] delivering row %lld (%d cols)\n",
-                            (long long)row_count + 1, col_idx);
-                    fflush(stderr);
-                }
-#endif
                 if (!list_only) {
                     deliver_row(s);
                     odv_report_progress(s, fp);
@@ -800,11 +780,6 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start,
 
         if (col_len == 0xFFFF) {
             /* Table data end */
-#ifdef ODV_DEBUG_EXP
-            fprintf(stderr, "  [DBG] 0xFFFF table end after %lld rows at 0x%llX\n",
-                    (long long)row_count, (long long)odv_ftell(fp));
-            fflush(stderr);
-#endif
             break;
         }
 
@@ -851,11 +826,6 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start,
             }
             if (bad) {
                 /* Corrupt data — skip to next table */
-#ifdef ODV_DEBUG_EXP
-                fprintf(stderr, "  [DBG] col_len=%d exceeds max for type %d at col[%d]\n",
-                        col_len, ctype, col_idx);
-                fflush(stderr);
-#endif
                 while (!s->cancelled) {
                     unsigned char scan[2];
                     if (fread(scan, 1, 2, fp) != 2) goto rec_done;
@@ -1094,30 +1064,11 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                                         int cvt_rc = convert_charset(ft, ft_len, s->out_charset,
                                                             tmp, ODV_OBJNAME_LEN, s->dump_charset,
                                                             &tlen);
-#ifdef ODV_DEBUG_FILTER
-                                        fprintf(stderr, "[FILTER] convert_charset rc=%d tlen=%d\n", cvt_rc, tlen);
-                                        fflush(stderr);
-#endif
                                         if (cvt_rc == ODV_OK) {
                                             tmp[tlen] = '\0';
                                             odv_strcpy(ft, tmp, ODV_OBJNAME_LEN);
                                         }
                                     }
-#ifdef ODV_DEBUG_FILTER
-                                    {
-                                        int k;
-                                        fprintf(stderr, "[FILTER] table.name hex: ");
-                                        for (k = 0; k < (int)strlen(s->table.name) && k < 40; k++)
-                                            fprintf(stderr, "%02X ", (unsigned char)s->table.name[k]);
-                                        fprintf(stderr, " [%s]\n", s->table.name);
-                                        fprintf(stderr, "[FILTER] ft hex:         ");
-                                        for (k = 0; k < (int)strlen(ft) && k < 40; k++)
-                                            fprintf(stderr, "%02X ", (unsigned char)ft[k]);
-                                        fprintf(stderr, " [%s]\n", ft);
-                                        fprintf(stderr, "[FILTER] _stricmp=%d\n", _stricmp(s->table.name, ft));
-                                        fflush(stderr);
-                                    }
-#endif
                                     if (_stricmp(s->table.name, ft) != 0)
                                         match = 0;
                                 }
@@ -1137,19 +1088,10 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                                             odv_strcpy(fs, tmp, ODV_OBJNAME_LEN);
                                         }
                                     }
-#ifdef ODV_DEBUG_FILTER
-                                    fprintf(stderr, "[FILTER] schema cmp: [%s] vs [%s] = %d\n",
-                                            s->table.schema, fs, _stricmp(s->table.schema, fs));
-                                    fflush(stderr);
-#endif
                                     if (_stricmp(s->table.schema, fs) != 0)
                                         match = 0;
                                 }
                                 s->pass_flg = match ? 0 : 1;
-#ifdef ODV_DEBUG_FILTER
-                                fprintf(stderr, "[FILTER] => match=%d pass_flg=%d filter_found=%d\n", match, s->pass_flg, filter_found);
-                                fflush(stderr);
-#endif
                                 /* Early exit: target table already processed,
                                    now a different table appeared → done
                                    (ref: ARK e2c_expdmp.c:1590 goto RETURN) */
@@ -1188,11 +1130,6 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                     if (s->table.name[0] != '\0' &&
                         strcmp(s->table.name, ins_table) == 0) {
                         /* Table name matches — transition to binary metadata */
-#ifdef ODV_DEBUG_EXP
-                        fprintf(stderr, "  [DBG] INSERT INTO \"%s\" matched at 0x%llX => step 3\n",
-                                ins_table, (long long)address);
-                        fflush(stderr);
-#endif
                         step = 3;
                         data_step = 0;
                         meta_col_count = 0;
@@ -1243,11 +1180,6 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                 meta_col_count = (int)meta_buf[0] | ((int)c << 8);
                 meta_col_idx = 0;
                 is_char_type = 0;
-#ifdef ODV_DEBUG_EXP
-                fprintf(stderr, "  [DBG] meta col_count=%d at 0x%llX\n",
-                        meta_col_count, (long long)address);
-                fflush(stderr);
-#endif
                 if (meta_col_count <= 0 || meta_col_count > ODV_MAX_COLUMNS) {
                     s->table.name[0] = '\0';
                     if (s->table_count > 0) s->table_count--;
@@ -1301,11 +1233,6 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                 default:
                     /* Unknown type — WARNING and continue parsing
                        (ref: e2c_expdmp.c line 1982-2013, break not continue) */
-#ifdef ODV_DEBUG_EXP
-                    fprintf(stderr, "  [DBG] WARNING: unknown type 0x%02X at 0x%llX\n",
-                            c, (long long)address);
-                    fflush(stderr);
-#endif
                     is_char_type = 0;
                     break;
                 }
@@ -1371,11 +1298,6 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                 meta_lob_idx = 0;
                 /* Do NOT reset null_count here — ref does not reset null_ct
                    in data_step 11. The prior null_ct is used in data_step 12. */
-#ifdef ODV_DEBUG_EXP
-                fprintf(stderr, "  [DBG] LOB total=%d null_count=%d at 0x%llX\n",
-                        lob_total, null_count, (long long)address);
-                fflush(stderr);
-#endif
                 data_step = 12;
                 break;
 
@@ -1421,11 +1343,6 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                     null_count++;
                 } else if (c == 0xFF) {
                     /* No record data for this table — back to DDL */
-#ifdef ODV_DEBUG_EXP
-                    fprintf(stderr, "  [DBG] 0xFF in padding at 0x%llX, back to DDL\n",
-                            (long long)address);
-                    fflush(stderr);
-#endif
                     notify_exp_table(s, 0);
                     pending_table = 0;
                     step = 2;
@@ -1440,17 +1357,7 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                        parse_exp_records reads the full 2-byte length. */
                     {
                         int64_t rec_start = odv_ftell(fp) - 1;
-#ifdef ODV_DEBUG_EXP
-                        fprintf(stderr, "  [DBG] record start at 0x%llX (null_pad=%d)\n",
-                                (long long)rec_start, null_count);
-                        fflush(stderr);
-#endif
 
-#ifdef ODV_DEBUG_FILTER
-                        fprintf(stderr, "[FILTER] record branch: list_only=%d filter_active=%d pass_flg=%d table=[%s]\n",
-                                list_only, s->filter_active, s->pass_flg, s->table.name);
-                        fflush(stderr);
-#endif
                         if (list_only && s->filter_active && s->pass_flg) {
                             /* Filtered out in list_only: skip records entirely */
                             /* Scan forward to find 0xFFFF end marker */
@@ -1470,19 +1377,10 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                         } else if (!s->filter_active || !s->pass_flg) {
                             /* Parse records (list_only=count only, full=deliver) */
                             rc = parse_exp_records(s, fp, rec_start, list_only);
-#ifdef ODV_DEBUG_FILTER
-                            fprintf(stderr, "[FILTER] parse_exp_records done: record_count=%lld rc=%d\n",
-                                    (long long)s->table.record_count, rc);
-                            fflush(stderr);
-#endif
                             notify_exp_table(s, s->table.record_count);
                             pending_table = 0;
                         } else {
                             /* Filtered out in full parse: skip */
-#ifdef ODV_DEBUG_FILTER
-                            fprintf(stderr, "[FILTER] => SKIP (filtered out in full parse)\n");
-                            fflush(stderr);
-#endif
                             {
                                 int skip_ct = 0;
                                 while (!s->cancelled) {
@@ -1553,12 +1451,6 @@ int parse_exp_dump(ODV_SESSION *s, int list_only)
         fclose(fp);
         return rc;
     }
-
-#ifdef ODV_DEBUG_FILTER
-    fprintf(stderr, "[FILTER] parse_exp_dump: dump_charset=%d out_charset=%d filter_active=%d filter_table=[%s] filter_schema=[%s] list_only=%d\n",
-            s->dump_charset, s->out_charset, s->filter_active, s->filter_table, s->filter_schema, list_only);
-    fflush(stderr);
-#endif
 
     /* Parse DDL and data */
     rc = parse_exp_ddl_and_data(s, fp, list_only);

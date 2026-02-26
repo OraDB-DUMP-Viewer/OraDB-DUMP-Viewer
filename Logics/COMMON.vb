@@ -63,7 +63,7 @@
             OraDB_DUMP_Viewer.ToolStripProgressBar.Value = current
 
         Catch ex As Exception
-            Console.WriteLine($"プログレス更新エラー: {ex.Message}")
+            ' エラーは無視（プログレス表示の失敗でアプリを停止させない）
         End Try
     End Sub
 
@@ -111,7 +111,7 @@
             End If
 
         Catch ex As Exception
-            Console.WriteLine($"プログレス更新エラー: {ex.Message}")
+            ' エラーは無視（プログレス表示の失敗でアプリを停止させない）
         End Try
     End Sub
 
@@ -145,7 +145,7 @@
             End If
 
         Catch ex As Exception
-            Console.WriteLine($"プログレス更新エラー: {ex.Message}")
+            ' エラーは無視（プログレス表示の失敗でアプリを停止させない）
         End Try
     End Sub
 

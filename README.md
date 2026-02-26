@@ -75,7 +75,7 @@ NUMBER / DATE / TIMESTAMP / VARCHAR2 / CHAR / CLOB / BINARY_FLOAT / BINARY_DOUBL
 | 項目 | 要件 |
 |---|---|
 | OS | Windows 7 以降 (x64) |
-| ランタイム | [.NET 10.0](https://dotnet.microsoft.com/ja-jp/download/dotnet/10.0) |
+| ランタイム | 不要（.NET ランタイム同梱済み） |
 | 対応ファイル | Oracle .dmp (EXP / EXPDP) |
 
 ---

@@ -122,7 +122,7 @@ jobs:
           dotnet publish "OraDB DUMP Viewer.vbproj" `
             --configuration Release `
             --runtime win-x64 `
-            --self-contained false `
+            --self-contained true `
             --output ./publish/exe
 
       # ─────────────────────────────────────
@@ -185,12 +185,6 @@ jobs:
 
               <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
               <MediaTemplate EmbedCab="yes" />
-
-              <!-- .NET 10.0 ランタイムの存在チェックと案内 -->
-              <Property Id="DOTNET_INSTALLED">
-                <RegistrySearch Id="CheckDotNet10Runtime" Root="HKLM" Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedhost" Name="Version" Type="raw" />
-              </Property>
-              <Launch Condition="DOTNET_INSTALLED" Message=".NET 10.0 ランタイムが必要です。インストールしてから再度セットアップを実行してください。&#10;&#10;ダウンロード: https://dotnet.microsoft.com/ja-jp/download/dotnet/10.0" />
 
               <ui:WixUI Id="WixUI_InstallDir" />
               <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />

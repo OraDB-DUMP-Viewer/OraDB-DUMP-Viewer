@@ -32,7 +32,32 @@ jobs:
           dotnet-version: '10.0.x'
 
       # ─────────────────────────────────────
-      # 3. バージョン番号を .vbproj から取得
+      # 3. MSVC 環境セットアップ (C DLL ビルド用)
+      # ─────────────────────────────────────
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      # ─────────────────────────────────────
+      # 4. C ネイティブ DLL ビルド
+      #    OraDB_DumpParser.dll を cl.exe で直接ビルド
+      # ─────────────────────────────────────
+      - name: Build native DLL (OraDB_DumpParser.dll)
+        shell: cmd
+        working-directory: Logics/DumpParser
+        run: |
+          set DEFS=/DWINDOWS /DWIN32 /DUTF8 /DODV_DLL_MODE /D_CRT_SECURE_NO_WARNINGS /DNDEBUG
+          set CFLAGS=/O2 /W3 /LD /MT /nologo /utf-8 /std:c11
+          set SRCS=odv_api.c odv_detect.c odv_expdp.c odv_exp.c odv_record.c odv_number.c odv_datetime.c odv_charset.c odv_xml.c odv_csv.c odv_sql.c
+          cl %CFLAGS% %DEFS% /I "." /Fe"OraDB_DumpParser.dll" %SRCS% /link /DLL
+          if %ERRORLEVEL% NEQ 0 exit /b 1
+          del /q *.obj *.exp *.lib 2>nul
+          echo DLL built successfully
+          dir OraDB_DumpParser.dll
+
+      # ─────────────────────────────────────
+      # 5. バージョン番号を .vbproj から取得
       # ─────────────────────────────────────
       - name: Get version from .vbproj
         id: get_version
@@ -48,7 +73,7 @@ jobs:
           echo "TAG=v$version" >> $env:GITHUB_OUTPUT
 
       # ─────────────────────────────────────
-      # 4. CHANGELOG.md から該当バージョンの
+      # 6. CHANGELOG.md から該当バージョンの
       #    リリースノートを抽出
       # ─────────────────────────────────────
       - name: Extract release notes from CHANGELOG.md
@@ -82,14 +107,15 @@ jobs:
           $delimiter | Out-File -Append -Encoding utf8 $env:GITHUB_OUTPUT
 
       # ─────────────────────────────────────
-      # 5. NuGet パッケージの復元
+      # 7. NuGet パッケージの復元
       # ─────────────────────────────────────
       - name: Restore dependencies
         run: dotnet restore "OraDB DUMP Viewer.vbproj"
 
       # ─────────────────────────────────────
-      # 6. Release ビルド (実行ファイル生成)
+      # 8. Release ビルド (実行ファイル生成)
       #    出力先: ./publish/exe/
+      #    vbproj の CopyToOutputDirectory で DLL も含まれる
       # ─────────────────────────────────────
       - name: Build (Release)
         run: |
@@ -100,7 +126,20 @@ jobs:
             --output ./publish/exe
 
       # ─────────────────────────────────────
-      # 7. 実行ファイルを ZIP に圧縮
+      # 9. DLL が出力に含まれていることを検証
+      # ─────────────────────────────────────
+      - name: Verify native DLL in output
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "./publish/exe/OraDB_DumpParser.dll")) {
+            Write-Error "OraDB_DumpParser.dll が publish 出力に含まれていません"
+            exit 1
+          }
+          Write-Host "OraDB_DumpParser.dll found in publish output"
+          Get-Item "./publish/exe/OraDB_DumpParser.dll" | Select-Object Name, Length, LastWriteTime
+
+      # ─────────────────────────────────────
+      # 10. 実行ファイルを ZIP に圧縮
       # ─────────────────────────────────────
       - name: Zip executable
         shell: pwsh
@@ -111,19 +150,19 @@ jobs:
             -DestinationPath "./publish/OraDBDumpViewer_v${version}_portable.zip"
 
       # ─────────────────────────────────────
-      # 8. WiX Toolset v5.0.2 のインストール
+      # 11. WiX Toolset v5.0.2 のインストール
       # ─────────────────────────────────────
       - name: Install WiX Toolset
         run: dotnet tool install --global wix --version 5.0.2
 
       # ─────────────────────────────────────
-      # 9. WiX UI 拡張を追加
+      # 12. WiX UI 拡張を追加
       # ─────────────────────────────────────
       - name: Add WiX UI extension
         run: wix extension add WixToolset.UI.wixext/5.0.2
 
       # ─────────────────────────────────────
-      # 10. WiX ソースファイルの生成
+      # 13. WiX ソースファイルの生成
       # ─────────────────────────────────────
       - name: Generate WiX source file
         shell: pwsh
@@ -220,7 +259,7 @@ jobs:
           $wxs | Set-Content -Path installer.wxs -Encoding UTF8
 
       # ─────────────────────────────────────
-      # 11. .msi インストーラーのビルド
+      # 14. .msi インストーラーのビルド
       # ─────────────────────────────────────
       - name: Build MSI installer
         shell: pwsh
@@ -231,7 +270,7 @@ jobs:
             -o "./publish/OraDBDumpViewer_v${version}_installer.msi"
 
       # ─────────────────────────────────────
-      # 12. GitHub Release の作成 & アップロード
+      # 15. GitHub Release の作成 & アップロード
       #     body に CHANGELOG.md の内容を使用
       # ─────────────────────────────────────
       - name: Create GitHub Release

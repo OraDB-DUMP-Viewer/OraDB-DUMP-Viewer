@@ -75,7 +75,7 @@ Public Class MenuStripLogics
                         Return
                     End If
                     ' 認証成功時はAppDataにそのまま保存
-                    Dim appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OracleDUMPViewer")
+                    Dim appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OraDBDUMPViewer")
                     If Not Directory.Exists(appData) Then Directory.CreateDirectory(appData)
                     Dim statusPath = Path.Combine(appData, "license.status")
                     File.Copy(licPath, statusPath, True)

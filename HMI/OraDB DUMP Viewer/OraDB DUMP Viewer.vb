@@ -18,33 +18,87 @@ Public Class OraDB_DUMP_Viewer
         COMMON.ResetProgressBar()
 
         '起動時ライセンスチェック（RSA署名方式）
+        '認証が完了するまでアプリケーションを使用不可にする
+        If Not CheckAndActivateLicense() Then
+            Application.Exit()
+            Return
+        End If
+
+        'ステータスラベルにライセンス保有者名を反映
+        COMMON.ReSet_StatusLavel()
+
+    End Sub
+#End Region
+
+#Region "ライセンス認証"
+    ''' <summary>
+    ''' ライセンスを検証し、未認証の場合はユーザーに認証を促す。
+    ''' 認証が完了するまでリトライし、キャンセル時は False を返す。
+    ''' </summary>
+    ''' <returns>認証成功なら True、アプリ終了すべき場合は False</returns>
+    Private Function CheckAndActivateLicense() As Boolean
         Try
             Dim appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OraDBDUMPViewer")
             Dim statusPath = Path.Combine(appData, "license.status")
 
-            If Not File.Exists(statusPath) Then
-                Dim res As DialogResult = MessageBox.Show("ライセンスが見つかりません。今すぐライセンス認証しますか？", "ライセンス未登録", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+            ' 既にライセンスが有効ならすぐに通過
+            If File.Exists(statusPath) Then
+                Dim licenseKey As String = String.Empty
+                Dim expiryDate As DateTime
+                Dim holder As String = String.Empty
+                Dim errMsg As String = String.Empty
+                If LICENSE.VerifyLicenseFile(statusPath, licenseKey, expiryDate, holder, errMsg) Then
+                    Return True
+                End If
+            End If
+
+            ' ライセンスが無効または存在しない → 認証ループ
+            Do
+                Dim msg As String
+                If Not File.Exists(statusPath) Then
+                    msg = "ライセンスが登録されていません。" & vbCrLf & vbCrLf &
+                          "ライセンスの取得は下記サイトから行えます。" & vbCrLf &
+                          "https://odv.ta-yan.ai/" & vbCrLf & vbCrLf &
+                          "ライセンスファイル (.lic.json) を選択して認証しますか？"
+                Else
+                    Dim errMsg As String = String.Empty
+                    Dim dummy1 As String = String.Empty
+                    Dim dummy2 As DateTime
+                    Dim dummy3 As String = String.Empty
+                    LICENSE.VerifyLicenseFile(statusPath, dummy1, dummy2, dummy3, errMsg)
+                    msg = "ライセンス検証に失敗しました: " & errMsg & vbCrLf & vbCrLf &
+                          "新しいライセンスファイルを選択して認証しますか？"
+                End If
+
+                Dim res = MessageBox.Show(msg, "ライセンス認証が必要です",
+                                          MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
+
                 If res = DialogResult.Yes Then
                     MenuStripLogics.ライセンス認証ToolStripMenuItem()
+
+                    ' 認証成功したか再確認
+                    If File.Exists(statusPath) Then
+                        Dim licenseKey As String = String.Empty
+                        Dim expiryDate As DateTime
+                        Dim holder As String = String.Empty
+                        Dim errMsg As String = String.Empty
+                        If LICENSE.VerifyLicenseFile(statusPath, licenseKey, expiryDate, holder, errMsg) Then
+                            Return True
+                        End If
+                    End If
+                    ' 認証失敗 → ループ継続
+                Else
+                    ' 「いいえ」を選択 → アプリ終了
+                    Return False
                 End If
-                Return
-            End If
+            Loop
 
-            Dim licenseKey As String = String.Empty
-            Dim expiryDate As DateTime
-            Dim holder As String = String.Empty
-            Dim errMsg As String = String.Empty
-            If Not LICENSE.VerifyLicenseFile(statusPath, licenseKey, expiryDate, holder, errMsg) Then
-                MessageBox.Show("ライセンス検証に失敗しました: " & errMsg & vbCrLf & "今すぐライセンス認証しますか？", "ライセンス無効", MessageBoxButtons.YesNo, MessageBoxIcon.Error)
-                MenuStripLogics.ライセンス認証ToolStripMenuItem()
-            End If
         Catch ex As Exception
-            MessageBox.Show("起動時ライセンスチェック中にエラーが発生しました: " & ex.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            Application.Exit()
-            Return
+            MessageBox.Show("ライセンスチェック中にエラーが発生しました: " & ex.Message, "エラー",
+                           MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return False
         End Try
-
-    End Sub
+    End Function
 #End Region
 
 #Region "メニューイベント: ダンプファイル"

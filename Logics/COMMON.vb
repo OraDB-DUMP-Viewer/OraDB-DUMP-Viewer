@@ -88,11 +88,54 @@
                 remainingStr = $" | 残り: {FormatTimeSpan(remaining)}"
             End If
 
-            ' 処理速度
-            Dim speed As Double = If(elapsed.TotalSeconds > 0, rowsProcessed / elapsed.TotalSeconds, 0)
+            Dim msg As String
+            If rowsProcessed = 0 Then
+                ' DDLスキャン中（まだレコードが見つかっていない）
+                If String.IsNullOrEmpty(currentTable) Then
+                    msg = $"テーブル検索中... ({pct}%) | 経過: {FormatTimeSpan(elapsed)}{remainingStr}"
+                Else
+                    msg = $"テーブル検索中... ({pct}%) | {currentTable} | 経過: {FormatTimeSpan(elapsed)}{remainingStr}"
+                End If
+            Else
+                ' レコード読み取り中
+                Dim speed As Double = If(elapsed.TotalSeconds > 0, rowsProcessed / elapsed.TotalSeconds, 0)
+                msg = $"処理中... {rowsProcessed:N0}行 ({pct}%) | {currentTable} | " &
+                      $"経過: {FormatTimeSpan(elapsed)}{remainingStr} | {speed:N0}行/秒"
+            End If
 
-            Dim msg As String = $"処理中... {rowsProcessed:N0}行 ({pct}%) | {currentTable} | " &
-                               $"経過: {FormatTimeSpan(elapsed)}{remainingStr} | {speed:N0}行/秒"
+            COMMON.Set_StatusLavel(msg)
+
+            ' プログレスバーを更新
+            If pct >= 0 AndAlso pct <= 100 Then
+                OraDB_DUMP_Viewer.ToolStripProgressBar.Value = pct
+            End If
+
+        Catch ex As Exception
+            Console.WriteLine($"プログレス更新エラー: {ex.Message}")
+        End Try
+    End Sub
+
+    ''' <summary>
+    ''' プログレスバー更新処理 (テーブル一覧取得用)
+    ''' </summary>
+    ''' <param name="tableCount">発見済みテーブル数</param>
+    ''' <param name="currentTable">現在スキャン中のテーブル名</param>
+    ''' <param name="pct">ファイル位置ベースのパーセンテージ (0-100)</param>
+    ''' <param name="startTime">処理開始時刻</param>
+    Public Shared Sub UpdateProgressListTables(tableCount As Long, currentTable As String, pct As Integer, startTime As DateTime)
+        Try
+            Dim elapsed As TimeSpan = DateTime.Now - startTime
+
+            ' 残り時間を推定
+            Dim remainingStr As String = ""
+            If pct > 0 AndAlso pct < 100 Then
+                Dim estimatedTotal As TimeSpan = TimeSpan.FromTicks(CLng(elapsed.Ticks * 100.0 / pct))
+                Dim remaining As TimeSpan = estimatedTotal - elapsed
+                remainingStr = $" | 残り: {FormatTimeSpan(remaining)}"
+            End If
+
+            Dim tableStr As String = If(String.IsNullOrEmpty(currentTable), "", $" | {currentTable}")
+            Dim msg = $"テーブル一覧取得中... {tableCount}テーブル ({pct}%){tableStr} | 経過: {FormatTimeSpan(elapsed)}{remainingStr}"
 
             COMMON.Set_StatusLavel(msg)
 

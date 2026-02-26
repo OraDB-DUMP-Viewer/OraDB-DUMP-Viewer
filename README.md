@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Oracle-DUMP-Viewer/Oracle-DUMP-Viewer/releases"><img src="https://img.shields.io/github/v/release/Oracle-DUMP-Viewer/Oracle-DUMP-Viewer?label=%E6%9C%80%E6%96%B0%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3&style=flat-square" alt="Release"></a>
+  <a href="https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases"><img src="https://img.shields.io/github/v/release/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer?label=%E6%9C%80%E6%96%B0%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3&style=flat-square" alt="Release"></a>
   <img src="https://img.shields.io/badge/platform-Windows%20x64-blue?style=flat-square" alt="Platform">
   <img src="https://img.shields.io/badge/runtime-.NET%2010.0-purple?style=flat-square" alt=".NET 10">
   <a href="https://odv.ta-yan.ai/"><img src="https://img.shields.io/badge/%E3%83%A9%E3%82%A4%E3%82%BB%E3%83%B3%E3%82%B9-odv.ta--yan.ai-green?style=flat-square" alt="License"></a>
@@ -82,7 +82,7 @@ NUMBER / DATE / TIMESTAMP / VARCHAR2 / CHAR / CLOB / BINARY_FLOAT / BINARY_DOUBL
 
 ## インストール
 
-[Releases](https://github.com/Oracle-DUMP-Viewer/Oracle-DUMP-Viewer/releases) ページからダウンロードしてください。
+[Releases](https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases) ページからダウンロードしてください。
 
 | 配布形式 | ファイル名 | 説明 |
 |---|---|---|

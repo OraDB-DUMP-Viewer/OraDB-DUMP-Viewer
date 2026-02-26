@@ -190,12 +190,9 @@ jobs:
               <Property Id="DOTNET_INSTALLED">
                 <RegistrySearch Id="CheckDotNet10Runtime" Root="HKLM" Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedhost" Name="Version" Type="raw" />
               </Property>
-              <Condition Message=".NET 10.0 ランタイムが必要です。インストールしてから再度セットアップを実行してください。\n\nダウンロード: https://dotnet.microsoft.com/ja-jp/download/dotnet/10.0">
-                <![CDATA[DOTNET_INSTALLED AND DOTNET_INSTALLED >= "10.0.0"]]>
-              </Condition>
+              <Launch Condition="DOTNET_INSTALLED" Message=".NET 10.0 ランタイムが必要です。インストールしてから再度セットアップを実行してください。&#10;&#10;ダウンロード: https://dotnet.microsoft.com/ja-jp/download/dotnet/10.0" />
 
               <ui:WixUI Id="WixUI_InstallDir" />
-              <WixLocalization Culture="ja-jp" />
               <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
 
               <Feature Id="ProductFeature" Title="OraDB DUMP Viewer" Level="1">

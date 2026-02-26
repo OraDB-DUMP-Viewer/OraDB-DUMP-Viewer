@@ -6,8 +6,8 @@ Public Class Workspace
 #Region "フィールド・コンストラクタ"
     Private DumpFilePath As String
     Private WorkspacePath As String
-    ''' <summary>テーブル一覧メタデータ (スキーマ名→(テーブル名, 行数)リスト)</summary>
-    Private _tableList As New Dictionary(Of String, List(Of Tuple(Of String, Long)))
+    ''' <summary>テーブル一覧メタデータ (スキーマ名→(テーブル名, 行数, データオフセット)リスト)</summary>
+    Private _tableList As New Dictionary(Of String, List(Of Tuple(Of String, Long, Long)))
     Private _currentSchema As String = String.Empty
 
     ' 引数ありコンストラクタ
@@ -29,10 +29,11 @@ Public Class Workspace
             Dim schema = t.Item1
             Dim tableName = t.Item2
             Dim rowCount = t.Item4
+            Dim dataOffset = t.Item5
             If Not _tableList.ContainsKey(schema) Then
-                _tableList(schema) = New List(Of Tuple(Of String, Long))
+                _tableList(schema) = New List(Of Tuple(Of String, Long, Long))
             End If
-            _tableList(schema).Add(Tuple.Create(tableName, rowCount))
+            _tableList(schema).Add(Tuple.Create(tableName, rowCount, dataOffset))
         Next
 
         'TreeViewにスキーマ一覧を追加
@@ -103,8 +104,17 @@ Public Class Workspace
                 Return
             End If
 
-            ' フェーズ2: 選択テーブルのみ解析（他テーブルの行データはスキップ）
-            Dim tableData = AnalyzeLogic.AnalyzeTable(DumpFilePath, _currentSchema, tableName)
+            ' テーブルのデータオフセットを取得（高速シーク用）
+            Dim dataOffset As Long = 0
+            If _tableList.ContainsKey(_currentSchema) Then
+                Dim entry = _tableList(_currentSchema).Find(Function(x) x.Item1 = tableName)
+                If entry IsNot Nothing Then
+                    dataOffset = entry.Item3
+                End If
+            End If
+
+            ' フェーズ2: 選択テーブルのみ解析（dataOffset>0ならDDL位置に高速シーク）
+            Dim tableData = AnalyzeLogic.AnalyzeTable(DumpFilePath, _currentSchema, tableName, dataOffset)
 
             If tableData Is Nothing OrElse tableData.Count = 0 Then
                 MessageBox.Show("テーブルにデータがありません。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)

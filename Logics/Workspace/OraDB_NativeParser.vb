@@ -50,6 +50,7 @@ Public Class OraDB_NativeParser
 
     ''' <summary>
     ''' テーブル発見コールバック (テーブルごとに呼ばれる)
+    ''' dataOffset: DDLのファイル位置（odv_set_data_offsetで高速シークに使用）
     ''' </summary>
     <UnmanagedFunctionPointer(CallingConvention.StdCall)>
     Public Delegate Sub TableCallback(
@@ -59,6 +60,7 @@ Public Class OraDB_NativeParser
         colNames As IntPtr,
         colTypes As IntPtr,
         rowCount As Long,
+        dataOffset As Long,
         userData As IntPtr
     )
 #End Region
@@ -88,6 +90,11 @@ Public Class OraDB_NativeParser
 
     <DllImport(DLL_NAME, CallingConvention:=CallingConvention.StdCall)>
     Private Shared Function odv_set_table_callback(session As IntPtr, cb As TableCallback, userData As IntPtr) As Integer
+    End Function
+
+    ' データオフセット設定（高速シーク用）
+    <DllImport(DLL_NAME, CallingConvention:=CallingConvention.StdCall)>
+    Private Shared Function odv_set_data_offset(session As IntPtr, offset As Long) As Integer
     End Function
 
     ' フィルタ名はUTF-8でDLLに渡す（DLL側でUTF-8→dump charsetに逆変換して比較する）
@@ -210,6 +217,15 @@ Public Class OraDB_NativeParser
     End Class
 #End Region
 
+#Region "テーブル一覧コンテキスト"
+    ''' <summary>
+    ''' ListTables用のコンテキスト
+    ''' </summary>
+    Public Class ListTablesContext
+        Public Tables As List(Of Tuple(Of String, String, Integer, Long, Long))
+    End Class
+#End Region
+
 #Region "公開API"
     ''' <summary>
     ''' DLLバージョンを取得
@@ -258,7 +274,8 @@ Public Class OraDB_NativeParser
     Public Shared Function ParseDump(filePath As String,
                                       Optional progressAction As Action(Of Long, String, Integer) = Nothing,
                                       Optional filterSchema As String = Nothing,
-                                      Optional filterTable As String = Nothing) As Dictionary(Of String, Dictionary(Of String, List(Of Dictionary(Of String, Object))))
+                                      Optional filterTable As String = Nothing,
+                                      Optional dataOffset As Long = 0) As Dictionary(Of String, Dictionary(Of String, List(Of Dictionary(Of String, Object))))
         Dim session As IntPtr = IntPtr.Zero
         Dim ctx As New ParseContext()
         ctx.ProgressAction = progressAction
@@ -295,6 +312,11 @@ Public Class OraDB_NativeParser
                 odv_set_table_filter(session, If(filterSchema, ""), filterTable)
             End If
 
+            ' データオフセット設定（高速シーク: list_tablesで取得したDDL位置にジャンプ）
+            If dataOffset > 0 Then
+                odv_set_data_offset(session, dataOffset)
+            End If
+
             ' 解析実行
             rc = odv_parse_dump(session)
             If rc <> ODV_OK AndAlso rc <> ODV_ERROR_CANCELLED Then
@@ -317,29 +339,29 @@ Public Class OraDB_NativeParser
 
     ''' <summary>
     ''' テーブル一覧のみ取得（データは読み込まない）
+    ''' 戻り値: (スキーマ, テーブル, カラム数, 行数, データオフセット)
     ''' </summary>
-    Public Shared Function ListTables(filePath As String) As List(Of Tuple(Of String, String, Integer, Long))
+    Public Shared Function ListTables(filePath As String) As List(Of Tuple(Of String, String, Integer, Long, Long))
         Dim session As IntPtr = IntPtr.Zero
-        Dim tables As New List(Of Tuple(Of String, String, Integer, Long))
-        Dim gcHandle As GCHandle = GCHandle.Alloc(tables)
+        Dim ctx As New ListTablesContext()
+        ctx.Tables = New List(Of Tuple(Of String, String, Integer, Long, Long))
+        Dim gcHandle As GCHandle = GCHandle.Alloc(ctx)
         Dim tableCb As New TableCallback(AddressOf OnTableListCallback)
-
-        ' 進捗コールバック: Application.DoEvents()でUIメッセージを処理
         Dim progCb As New ProgressCallback(AddressOf OnListTablesProgressCallback)
 
         Try
             Dim rc = odv_create_session(session)
-            If rc <> ODV_OK Then Return tables
+            If rc <> ODV_OK Then Return ctx.Tables
 
             rc = odv_set_dump_file(session, filePath)
-            If rc <> ODV_OK Then Return tables
+            If rc <> ODV_OK Then Return ctx.Tables
 
             Dim userData As IntPtr = GCHandle.ToIntPtr(gcHandle)
             odv_set_table_callback(session, tableCb, userData)
             odv_set_progress_callback(session, progCb, userData)
 
             odv_list_tables(session)
-            Return tables
+            Return ctx.Tables
 
         Finally
             If session <> IntPtr.Zero Then
@@ -510,15 +532,15 @@ Public Class OraDB_NativeParser
     Private Shared Sub OnTableListCallback(schemaPtr As IntPtr, tablePtr As IntPtr,
                                            colCount As Integer, colNamesPtr As IntPtr,
                                            colTypesPtr As IntPtr, rowCount As Long,
-                                           userData As IntPtr)
+                                           dataOffset As Long, userData As IntPtr)
         Try
             Dim gcHandle As GCHandle = GCHandle.FromIntPtr(userData)
-            Dim tables = DirectCast(gcHandle.Target, List(Of Tuple(Of String, String, Integer, Long)))
+            Dim ctx = DirectCast(gcHandle.Target, ListTablesContext)
 
             Dim schema = PtrToStringUTF8(schemaPtr)
             Dim table = PtrToStringUTF8(tablePtr)
 
-            tables.Add(Tuple.Create(schema, table, colCount, rowCount))
+            ctx.Tables.Add(Tuple.Create(schema, table, colCount, rowCount, dataOffset))
 
         Catch
             ' コールバック中の例外は握りつぶす

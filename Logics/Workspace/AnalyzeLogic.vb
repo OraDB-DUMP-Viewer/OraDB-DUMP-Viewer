@@ -69,8 +69,8 @@ Public Class AnalyzeLogic
     ''' 行データは読み込まない
     ''' </summary>
     ''' <param name="filePath">ダンプファイルのパス</param>
-    ''' <returns>テーブル情報のリスト (スキーマ名, テーブル名, カラム数)</returns>
-    Public Shared Function ListTables(filePath As String) As List(Of Tuple(Of String, String, Integer, Long))
+    ''' <returns>テーブル情報のリスト (スキーマ名, テーブル名, カラム数, 行数, データオフセット)</returns>
+    Public Shared Function ListTables(filePath As String) As List(Of Tuple(Of String, String, Integer, Long, Long))
         Try
             ValidateFilePath(filePath)
 
@@ -91,11 +91,11 @@ Public Class AnalyzeLogic
                            "OraDB_DumpParser.dll が実行ファイルと同じフォルダにあることを確認してください。",
                            "DLLエラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
             COMMON.ResetProgressBar()
-            Return New List(Of Tuple(Of String, String, Integer, Long))()
+            Return New List(Of Tuple(Of String, String, Integer, Long, Long))()
 
         Catch ex As Exception
             MessageBox.Show($"テーブル一覧取得中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            Return New List(Of Tuple(Of String, String, Integer, Long))()
+            Return New List(Of Tuple(Of String, String, Integer, Long, Long))()
         End Try
     End Function
 
@@ -107,7 +107,7 @@ Public Class AnalyzeLogic
     ''' <param name="schemaName">スキーマ名</param>
     ''' <param name="tableName">テーブル名</param>
     ''' <returns>行データのリスト</returns>
-    Public Shared Function AnalyzeTable(filePath As String, schemaName As String, tableName As String) As List(Of Dictionary(Of String, Object))
+    Public Shared Function AnalyzeTable(filePath As String, schemaName As String, tableName As String, Optional dataOffset As Long = 0) As List(Of Dictionary(Of String, Object))
         Try
             ValidateFilePath(filePath)
 
@@ -119,8 +119,8 @@ Public Class AnalyzeLogic
                     COMMON.UpdateProgress(rowsProcessed, currentTable, pct, startTime)
                 End Sub
 
-            ' テーブルフィルタ付きで解析
-            Dim result = OraDB_NativeParser.ParseDump(filePath, progressAction, schemaName, tableName)
+            ' テーブルフィルタ付きで解析（dataOffset>0ならDDL位置に高速シーク）
+            Dim result = OraDB_NativeParser.ParseDump(filePath, progressAction, schemaName, tableName, dataOffset)
 
             Dim elapsed As TimeSpan = DateTime.Now - startTime
             COMMON.ResetProgressBar()

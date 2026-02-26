@@ -90,10 +90,12 @@ Public Class OraDB_NativeParser
     Private Shared Function odv_set_table_callback(session As IntPtr, cb As TableCallback, userData As IntPtr) As Integer
     End Function
 
-    <DllImport(DLL_NAME, CallingConvention:=CallingConvention.StdCall, CharSet:=CharSet.Ansi)>
+    ' フィルタ名はUTF-8でDLLに渡す（DLL側でUTF-8→dump charsetに逆変換して比較する）
+    ' LPStrだとANSI(=SJIS)に変換されてしまい、DLL側のUTF-8→SJIS変換で文字化けする
+    <DllImport(DLL_NAME, CallingConvention:=CallingConvention.StdCall)>
     Private Shared Function odv_set_table_filter(session As IntPtr,
-        <MarshalAs(UnmanagedType.LPStr)> schema As String,
-        <MarshalAs(UnmanagedType.LPStr)> table As String) As Integer
+        <MarshalAs(UnmanagedType.LPUTF8Str)> schema As String,
+        <MarshalAs(UnmanagedType.LPUTF8Str)> table As String) As Integer
     End Function
 
     ' 操作
@@ -109,9 +111,10 @@ Public Class OraDB_NativeParser
     Private Shared Function odv_parse_dump(session As IntPtr) As Integer
     End Function
 
+    ' テーブル名はUTF-8で渡す（DLL側でUTF-8→dump charsetに変換して比較するため）
     <DllImport(DLL_NAME, CallingConvention:=CallingConvention.StdCall, CharSet:=CharSet.Ansi)>
     Private Shared Function odv_export_csv(session As IntPtr,
-        <MarshalAs(UnmanagedType.LPStr)> tableName As String,
+        <MarshalAs(UnmanagedType.LPUTF8Str)> tableName As String,
         <MarshalAs(UnmanagedType.LPStr)> outputPath As String) As Integer
     End Function
 

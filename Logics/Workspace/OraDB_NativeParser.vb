@@ -483,6 +483,10 @@ Public Class OraDB_NativeParser
 
             ctx.ProgressAction?.Invoke(rowsProcessed, currentTable, pct)
 
+            ' UIメッセージポンプを処理してステータスバー/プログレスバーを再描画
+            ' (DLL処理がUIスレッドをブロックするため、明示的にポンプを回す必要がある)
+            Application.DoEvents()
+
         Catch
             ' コールバック中の例外は握りつぶす
         End Try

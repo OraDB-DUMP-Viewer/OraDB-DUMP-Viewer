@@ -973,6 +973,13 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
         if (fread(&c, 1, 1, fp) != 1) break;
         address++;
 
+        /* Report progress periodically during DDL scan / metadata parse.
+           Check every 64KB to keep overhead negligible.
+           (odv_report_progress fires callback only when % changes) */
+        if ((address & 0xFFFF) == 0) {
+            odv_report_progress(s, fp);
+        }
+
         switch (step) {
 
         case 0: /* Skip 256-byte header */
@@ -1404,11 +1411,16 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                         if (list_only && s->filter_active && s->pass_flg) {
                             /* Filtered out in list_only: skip records entirely */
                             /* Scan forward to find 0xFFFF end marker */
-                            while (!s->cancelled) {
-                                unsigned char scan[2];
-                                if (fread(scan, 1, 2, fp) != 2) goto done;
-                                if (scan[0] == 0xFF && scan[1] == 0xFF) break;
-                                odv_fseek(fp, -1, SEEK_CUR);
+                            {
+                                int skip_ct = 0;
+                                while (!s->cancelled) {
+                                    unsigned char scan[2];
+                                    if (fread(scan, 1, 2, fp) != 2) goto done;
+                                    if (scan[0] == 0xFF && scan[1] == 0xFF) break;
+                                    odv_fseek(fp, -1, SEEK_CUR);
+                                    if ((++skip_ct & 0x7FFF) == 0)
+                                        odv_report_progress(s, fp);
+                                }
                             }
                             notify_exp_table(s, 0);
                             pending_table = 0;
@@ -1428,11 +1440,16 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                             fprintf(stderr, "[FILTER] => SKIP (filtered out in full parse)\n");
                             fflush(stderr);
 #endif
-                            while (!s->cancelled) {
-                                unsigned char scan[2];
-                                if (fread(scan, 1, 2, fp) != 2) goto done;
-                                if (scan[0] == 0xFF && scan[1] == 0xFF) break;
-                                odv_fseek(fp, -1, SEEK_CUR);
+                            {
+                                int skip_ct = 0;
+                                while (!s->cancelled) {
+                                    unsigned char scan[2];
+                                    if (fread(scan, 1, 2, fp) != 2) goto done;
+                                    if (scan[0] == 0xFF && scan[1] == 0xFF) break;
+                                    odv_fseek(fp, -1, SEEK_CUR);
+                                    if ((++skip_ct & 0x7FFF) == 0)
+                                        odv_report_progress(s, fp);
+                                }
                             }
                             notify_exp_table(s, 0);
                             pending_table = 0;

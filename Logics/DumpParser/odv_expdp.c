@@ -367,6 +367,9 @@ static int parse_expdp_records(ODV_SESSION *s, FILE *fp, int64_t *address,
             if (buf_len <= 0) break;
             buf_pos = 0;
             *address += buf_len;
+
+            /* Report progress on each buffer refill so UI stays responsive */
+            odv_report_progress(s, fp);
         }
 
         unsigned char b = buf[buf_pos++];
@@ -673,6 +676,9 @@ int parse_expdp_dump(ODV_SESSION *s, int list_only)
     while (!s->cancelled) {
         n = (int)fread(block, 1, ODV_DUMP_BLOCK_LEN, fp);
         if (n <= 0) break;
+
+        /* Report progress during DDL scan so UI stays responsive */
+        odv_report_progress(s, fp);
 
         /* Search for XML marker in this block */
         int xml_pos = find_pattern(block, n, "<?xml", 5);

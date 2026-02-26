@@ -8,6 +8,8 @@ Public Class Workspace
     Private WorkspacePath As String
     ''' <summary>テーブル一覧メタデータ (スキーマ名→(テーブル名, 行数, データオフセット)リスト)</summary>
     Private _tableList As New Dictionary(Of String, List(Of Tuple(Of String, Long, Long)))
+    ''' <summary>テーブルごとのカラム名 (キー: "schema.table")</summary>
+    Private _columnNamesMap As New Dictionary(Of String, String())
     Private _currentSchema As String = String.Empty
 
     ' 引数ありコンストラクタ
@@ -21,7 +23,9 @@ Public Class Workspace
 #Region "イベント処理"
     Private Sub Workspace_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ' フェーズ1: テーブル一覧のみ取得（高速・メモリ軽量）
-        Dim tables = AnalyzeLogic.ListTables(DumpFilePath)
+        Dim colMap As Dictionary(Of String, String()) = Nothing
+        Dim tables = AnalyzeLogic.ListTables(DumpFilePath, colMap)
+        If colMap IsNot Nothing Then _columnNamesMap = colMap
 
         ' テーブル一覧をスキーマ別に整理
         _tableList.Clear()
@@ -116,16 +120,24 @@ Public Class Workspace
             ' フェーズ2: 選択テーブルのみ解析（dataOffset>0ならDDL位置に高速シーク）
             Dim tableData = AnalyzeLogic.AnalyzeTable(DumpFilePath, _currentSchema, tableName, dataOffset)
 
-            If tableData Is Nothing OrElse tableData.Count = 0 Then
-                MessageBox.Show("テーブルにデータがありません。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            ' 列名を取得（データがある場合は1行目から、ない場合はPhase1のキャッシュから）
+            Dim columnNames As New List(Of String)
+            Dim tableKey = $"{_currentSchema}.{tableName}"
+            If tableData IsNot Nothing AndAlso tableData.Count > 0 Then
+                columnNames = New List(Of String)(tableData(0).Keys)
+            ElseIf _columnNamesMap.ContainsKey(tableKey) Then
+                columnNames = New List(Of String)(_columnNamesMap(tableKey))
+            End If
+
+            If columnNames.Count = 0 Then
+                MessageBox.Show("テーブルに列情報がありません。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Return
             End If
 
-            ' 列名を取得
-            Dim columnNames As New List(Of String)(tableData(0).Keys)
-
-            ' TablePreview を表示
-            TablePreviewLogic.DisplayTableData(Me.MdiParent, tableData, columnNames,
+            ' TablePreview を表示（0行の場合も列ヘッダーは表示される）
+            TablePreviewLogic.DisplayTableData(Me.MdiParent,
+                                               If(tableData, New List(Of Dictionary(Of String, Object))),
+                                               columnNames,
                                                $"{_currentSchema}.{tableName}")
 
         Catch ex As Exception

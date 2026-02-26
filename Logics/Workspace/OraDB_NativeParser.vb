@@ -223,6 +223,8 @@ Public Class OraDB_NativeParser
     ''' </summary>
     Public Class ListTablesContext
         Public Tables As List(Of Tuple(Of String, String, Integer, Long, Long))
+        ''' <summary>テーブルごとのカラム名 (キー: "schema.table")</summary>
+        Public ColumnNames As New Dictionary(Of String, String())
     End Class
 #End Region
 
@@ -341,7 +343,9 @@ Public Class OraDB_NativeParser
     ''' テーブル一覧のみ取得（データは読み込まない）
     ''' 戻り値: (スキーマ, テーブル, カラム数, 行数, データオフセット)
     ''' </summary>
-    Public Shared Function ListTables(filePath As String) As List(Of Tuple(Of String, String, Integer, Long, Long))
+    ''' <param name="filePath">ダンプファイルのパス</param>
+    ''' <param name="columnNamesMap">テーブルごとのカラム名辞書 (キー: "schema.table")</param>
+    Public Shared Function ListTables(filePath As String, Optional ByRef columnNamesMap As Dictionary(Of String, String()) = Nothing) As List(Of Tuple(Of String, String, Integer, Long, Long))
         Dim session As IntPtr = IntPtr.Zero
         Dim ctx As New ListTablesContext()
         ctx.Tables = New List(Of Tuple(Of String, String, Integer, Long, Long))
@@ -361,6 +365,7 @@ Public Class OraDB_NativeParser
             odv_set_progress_callback(session, progCb, userData)
 
             odv_list_tables(session)
+            columnNamesMap = ctx.ColumnNames
             Return ctx.Tables
 
         Finally
@@ -541,6 +546,11 @@ Public Class OraDB_NativeParser
             Dim table = PtrToStringUTF8(tablePtr)
 
             ctx.Tables.Add(Tuple.Create(schema, table, colCount, rowCount, dataOffset))
+
+            ' カラム名を保持（0行テーブルでも列ヘッダーを表示するため）
+            If colCount > 0 AndAlso colNamesPtr <> IntPtr.Zero Then
+                ctx.ColumnNames($"{schema}.{table}") = PtrArrayToStrings(colNamesPtr, colCount)
+            End If
 
         Catch
             ' コールバック中の例外は握りつぶす

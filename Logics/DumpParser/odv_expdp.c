@@ -289,7 +289,7 @@ static void notify_table(ODV_SESSION *s, int64_t row_count)
 
         s->table_cb(conv_schema, conv_name,
                      s->table.col_count, col_names, col_types,
-                     row_count, s->table_ud);
+                     row_count, s->table.ddl_offset, s->table_ud);
     }
 
     /* Add to internal table list (store converted names) */
@@ -644,7 +644,10 @@ int parse_expdp_dump(ODV_SESSION *s, int list_only)
     int ddl_len = 0;
     int ddl_alloc = 0;
     int in_ddl = 0;
+    int filter_found = 0;   /* 1=filter target table already processed
+                               (ref: ARK break_flg / e2c_pmpdmp.c:462-483) */
     int64_t address = 0;
+    int64_t cur_ddl_pos = 0;    /* File position of current XML DDL block */
     int n, rc;
 
     if (!s) return ODV_ERROR_INVALID_ARG;
@@ -672,6 +675,13 @@ int parse_expdp_dump(ODV_SESSION *s, int list_only)
     s->table_count = 0;
     s->total_rows = 0;
 
+    /* Fast seek: if seek_offset is set (from previous list_tables),
+       jump directly to the target DDL position instead of scanning from top */
+    if (s->seek_offset > 0 && s->filter_active) {
+        odv_fseek(fp, s->seek_offset, SEEK_SET);
+        address = s->seek_offset;
+    }
+
     /* Read blocks sequentially */
     while (!s->cancelled) {
         n = (int)fread(block, 1, ODV_DUMP_BLOCK_LEN, fp);
@@ -684,7 +694,8 @@ int parse_expdp_dump(ODV_SESSION *s, int list_only)
         int xml_pos = find_pattern(block, n, "<?xml", 5);
 
         if (xml_pos >= 0 && !in_ddl) {
-            /* Start of XML DDL block */
+            /* Start of XML DDL block - record file position for caching */
+            cur_ddl_pos = odv_ftell(fp) - n + xml_pos;
             in_ddl = 1;
             ddl_len = 0;
 
@@ -728,6 +739,9 @@ int parse_expdp_dump(ODV_SESSION *s, int list_only)
                 invalidate_meta_cache();
 
                 parse_xml_ddl(ddl_buf, end_pos, ddl_xml_callback, &dc);
+
+                /* Record DDL position for fast seek on next parse */
+                s->table.ddl_offset = cur_ddl_pos;
 
                 /* Skip dictionary tables */
                 if (s->table.name[0] != '\0' && !is_dictionary_table(&s->table)) {
@@ -786,6 +800,17 @@ int parse_expdp_dump(ODV_SESSION *s, int list_only)
                                 match = 0;
                         }
                         s->pass_flg = match ? 0 : 1;
+
+                        /* Early exit: target table already processed,
+                           now a different table appeared → done
+                           (ref: ARK e2c_pmpdmp.c:462-483 break_flg) */
+                        if (filter_found && s->pass_flg) {
+                            in_ddl = 0;
+                            goto expdp_done;
+                        }
+                        if (match) {
+                            filter_found = 1;
+                        }
                     }
 
                     if (list_only && s->filter_active && s->pass_flg) {
@@ -815,6 +840,7 @@ int parse_expdp_dump(ODV_SESSION *s, int list_only)
         address = odv_ftell(fp);
     }
 
+expdp_done:
     free(ddl_buf);
     fclose(fp);
 

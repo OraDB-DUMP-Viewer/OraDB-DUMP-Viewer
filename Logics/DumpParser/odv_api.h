@@ -72,7 +72,9 @@ typedef void (__stdcall *ODV_PROGRESS_CALLBACK)(
     void *user_data
 );
 
-/* Table discovery callback (called per table during list_tables) */
+/* Table discovery callback (called per table during list_tables)
+   data_offset: file position of the table DDL, usable with odv_set_data_offset
+   for fast seeking on subsequent parse_dump calls. */
 typedef void (__stdcall *ODV_TABLE_CALLBACK)(
     const char *schema,
     const char *table,
@@ -80,6 +82,7 @@ typedef void (__stdcall *ODV_TABLE_CALLBACK)(
     const char **col_names,
     const char **col_types,
     int64_t row_count,
+    int64_t data_offset,
     void *user_data
 );
 
@@ -103,6 +106,11 @@ ODV_API int __stdcall odv_set_table_callback(ODV_SESSION *s, ODV_TABLE_CALLBACK 
    schema/table names in UTF-8. DLL reverse-converts to dump charset for comparison.
    Pass NULL to clear filter and parse all tables. */
 ODV_API int __stdcall odv_set_table_filter(ODV_SESSION *s, const char *schema, const char *table);
+
+/* Set file seek offset for fast table access.
+   Use the data_offset value from the table callback to skip DDL scan.
+   Set to 0 to disable (default: scan from beginning). */
+ODV_API int __stdcall odv_set_data_offset(ODV_SESSION *s, int64_t offset);
 
 /*---------------------------------------------------------------------------
     Operations

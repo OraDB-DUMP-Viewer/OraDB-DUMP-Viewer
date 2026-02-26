@@ -162,6 +162,7 @@ typedef struct {
     int         nls_charset;
     int         endian;          /* 0=little, 1=big */
     int64_t     record_count;
+    int64_t     ddl_offset;      /* File position of CREATE TABLE DDL (for fast seek) */
     int         is_partition;
 } ODV_TABLE;
 
@@ -246,6 +247,7 @@ typedef void (__stdcall *ODV_TABLE_CALLBACK)(
     const char **col_names,
     const char **col_types,
     int64_t row_count,
+    int64_t data_offset,         /* File position of table DDL (for fast seek) */
     void *user_data
 );
 
@@ -287,6 +289,7 @@ struct _odv_session {
     char            filter_table[ODV_OBJNAME_LEN + 1];
     int             filter_active;   /* 0=no filter, 1=filter active */
     int             pass_flg;        /* 1=skip current table's records */
+    int64_t         seek_offset;     /* If >0, seek here after header to skip DDL scan */
 
     /* Control */
     int             cancelled;

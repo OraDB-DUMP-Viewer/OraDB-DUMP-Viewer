@@ -156,6 +156,13 @@ ODV_API int __stdcall odv_set_table_filter(ODV_SESSION *s, const char *schema, c
     return ODV_OK;
 }
 
+ODV_API int __stdcall odv_set_data_offset(ODV_SESSION *s, int64_t offset)
+{
+    if (!s) return ODV_ERROR_INVALID_ARG;
+    s->seek_offset = offset;
+    return ODV_OK;
+}
+
 /*---------------------------------------------------------------------------
     Operations
  ---------------------------------------------------------------------------*/

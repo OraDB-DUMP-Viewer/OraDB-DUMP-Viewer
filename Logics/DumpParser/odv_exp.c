@@ -527,6 +527,7 @@ static void notify_exp_table(ODV_SESSION *s, int64_t row_count)
             col_names,
             col_types,
             row_count,
+            s->table.ddl_offset,
             s->table_ud
         );
     }
@@ -959,14 +960,43 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
     unsigned char meta_buf[4];
     int null_count = 0;
     int pending_table = 0;  /* 1=table parsed but not yet notified */
+    int filter_found = 0;   /* 1=filter target table already processed
+                               (ref: ARK is_find_table + goto RETURN) */
 
     word = (char *)malloc(EXP_DDL_BUF_SIZE);
     if (!word) return ODV_ERROR_MALLOC;
 
-    /* Start from beginning of file */
-    odv_fseek(fp, 0, SEEK_SET);
+    /* Fast seek: if seek_offset is set (from previous list_tables),
+       jump directly to the target table's DDL position.
+       Header must already be parsed (charset info needed). */
+    if (s->seek_offset > EXP_HEADER_SIZE && s->filter_active) {
+        odv_fseek(fp, s->seek_offset, SEEK_SET);
+        address = s->seek_offset;
+        step = 2;   /* Start in DDL scan mode */
+        wlen = 0;
 
-    step = 0;
+        /* Pre-set current_schema from filter (we skipped past CONNECT) */
+        if (s->filter_schema[0]) {
+            char tmp[ODV_OBJNAME_LEN + 1];
+            int tlen = 0;
+            if (s->dump_charset != s->out_charset &&
+                s->dump_charset != CHARSET_UNKNOWN) {
+                if (convert_charset(s->filter_schema, (int)strlen(s->filter_schema),
+                                    s->out_charset, tmp, ODV_OBJNAME_LEN,
+                                    s->dump_charset, &tlen) == ODV_OK) {
+                    tmp[tlen] = '\0';
+                    odv_strcpy(current_schema, tmp, ODV_OBJNAME_LEN);
+                }
+            } else {
+                odv_strcpy(current_schema, s->filter_schema, ODV_OBJNAME_LEN);
+            }
+        }
+    } else {
+        /* Normal: start from beginning of file */
+        odv_fseek(fp, 0, SEEK_SET);
+        step = 0;
+    }
+
     data_step = 0;
 
     while (!s->cancelled) {
@@ -1036,6 +1066,10 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                             pending_table = 0;
                         }
                         if (parse_create_table(s, word)) {
+                            /* Record file position of this CREATE TABLE
+                               for fast seeking on subsequent parse_dump calls */
+                            s->table.ddl_offset = address - wlen - 1;
+
                             if (s->table.schema[0] == '\0' &&
                                 current_schema[0] != '\0')
                                 odv_strcpy(s->table.schema, current_schema,
@@ -1113,9 +1147,18 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                                 }
                                 s->pass_flg = match ? 0 : 1;
 #ifdef ODV_DEBUG_FILTER
-                                fprintf(stderr, "[FILTER] => match=%d pass_flg=%d\n", match, s->pass_flg);
+                                fprintf(stderr, "[FILTER] => match=%d pass_flg=%d filter_found=%d\n", match, s->pass_flg, filter_found);
                                 fflush(stderr);
 #endif
+                                /* Early exit: target table already processed,
+                                   now a different table appeared → done
+                                   (ref: ARK e2c_expdmp.c:1590 goto RETURN) */
+                                if (filter_found && s->pass_flg) {
+                                    goto done;
+                                }
+                                if (match) {
+                                    filter_found = 1;
+                                }
                             }
 
                             /* notify_exp_table is deferred to after record counting */

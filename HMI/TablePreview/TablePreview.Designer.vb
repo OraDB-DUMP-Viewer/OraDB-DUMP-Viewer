@@ -181,6 +181,7 @@ Partial Class TablePreview
         ' 
         numericUpDownPageCount.Location = New Point(635, 23)
         numericUpDownPageCount.Margin = New Padding(5, 6, 5, 6)
+        numericUpDownPageCount.Maximum = New Decimal(New Integer() {2147483647, 0, 0, 0})
         numericUpDownPageCount.Minimum = New Decimal(New Integer() {1, 0, 0, 0})
         numericUpDownPageCount.Name = "numericUpDownPageCount"
         numericUpDownPageCount.Size = New Size(100, 31)

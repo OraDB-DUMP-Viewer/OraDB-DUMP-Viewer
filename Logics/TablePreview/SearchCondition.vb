@@ -90,6 +90,11 @@ Public Class SearchCondition
                 Return cellValue IsNot Nothing AndAlso Not String.IsNullOrEmpty(cellValue.ToString())
             End If
 
+            ' NULL値は文字列比較演算子ではFalseを返す
+            If cellValue Is Nothing Then
+                Return False
+            End If
+
             '--- 文字列変換（数値比較や部分一致のため）---
             Dim cellStr = cellValue.ToString() ' セル値を文字列化
             Dim searchStr = If(Value Is Nothing, "", Value.ToString()) ' 検索値を文字列化（Null安全）
@@ -192,17 +197,19 @@ Public Class SearchCondition
         ''' 条件数が1の場合はその条件だけ評価
         ''' 複数の場合はLogicalOperatorsに従って評価（最初の条件はスキップ）
         ''' </summary>
-        ''' <param name="row">行データ（列名→値）</param>
+        ''' <param name="row">行データ（String配列、列インデックスで格納）</param>
+        ''' <param name="columnIndexMap">列名→インデックスの逆引きマップ</param>
         ''' <returns>条件成立ならTrue</returns>
-        Public Function Evaluate(row As Dictionary(Of String, Object)) As Boolean
+        Public Function Evaluate(row As String(), columnIndexMap As Dictionary(Of String, Integer)) As Boolean
             If Conditions.Count = 0 Then
                 Return True
             End If
 
             If Conditions.Count = 1 Then
                 Dim condition = Conditions(0)
-                If row.ContainsKey(condition.ColumnName) Then
-                    Return condition.Evaluate(row(condition.ColumnName))
+                Dim colIndex As Integer = -1
+                If columnIndexMap.TryGetValue(condition.ColumnName, colIndex) AndAlso colIndex >= 0 AndAlso colIndex < row.Length Then
+                    Return condition.Evaluate(row(colIndex))
                 End If
                 Return False
             End If
@@ -210,14 +217,19 @@ Public Class SearchCondition
             ' 最初の条件を評価
             Dim result = False
             Dim firstCondition = Conditions(0)
-            If row.ContainsKey(firstCondition.ColumnName) Then
-                result = firstCondition.Evaluate(row(firstCondition.ColumnName))
+            Dim firstColIndex As Integer = -1
+            If columnIndexMap.TryGetValue(firstCondition.ColumnName, firstColIndex) AndAlso firstColIndex >= 0 AndAlso firstColIndex < row.Length Then
+                result = firstCondition.Evaluate(row(firstColIndex))
             End If
 
             ' 残りの条件をLogicalOperatorsに従って評価
             For i = 1 To Conditions.Count - 1
                 Dim condition = Conditions(i)
-                Dim cellValue = If(row.ContainsKey(condition.ColumnName), row(condition.ColumnName), Nothing)
+                Dim colIndex As Integer = -1
+                Dim cellValue As Object = Nothing
+                If columnIndexMap.TryGetValue(condition.ColumnName, colIndex) AndAlso colIndex >= 0 AndAlso colIndex < row.Length Then
+                    cellValue = row(colIndex)
+                End If
                 Dim conditionResult = condition.Evaluate(cellValue)
 
                 Dim logicalOp = LogicalOperators(i - 1)

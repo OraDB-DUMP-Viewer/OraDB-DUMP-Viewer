@@ -171,7 +171,7 @@ Public Class OraDB_NativeParser
     ''' GCHandle経由でコールバックに渡される
     ''' </summary>
     Public Class ParseContext
-        Public AllData As New Dictionary(Of String, Dictionary(Of String, List(Of Dictionary(Of String, Object))))
+        Public AllData As New Dictionary(Of String, Dictionary(Of String, List(Of String())))
         Public RowsProcessed As Long = 0
         Public CurrentTable As String = ""
         Public ProgressAction As Action(Of Long, String, Integer) = Nothing
@@ -277,7 +277,7 @@ Public Class OraDB_NativeParser
                                       Optional progressAction As Action(Of Long, String, Integer) = Nothing,
                                       Optional filterSchema As String = Nothing,
                                       Optional filterTable As String = Nothing,
-                                      Optional dataOffset As Long = 0) As Dictionary(Of String, Dictionary(Of String, List(Of Dictionary(Of String, Object))))
+                                      Optional dataOffset As Long = 0) As Dictionary(Of String, Dictionary(Of String, List(Of String())))
         Dim session As IntPtr = IntPtr.Zero
         Dim ctx As New ParseContext()
         ctx.ProgressAction = progressAction
@@ -447,39 +447,28 @@ Public Class OraDB_NativeParser
             ' DLL側で文字セット変換後に比較するため、VB.NET側のフィルタは不要
 
             ' スキーマ辞書を確保
-            Dim schemaTables As Dictionary(Of String, List(Of Dictionary(Of String, Object))) = Nothing
+            Dim schemaTables As Dictionary(Of String, List(Of String())) = Nothing
             If Not ctx.AllData.TryGetValue(schema, schemaTables) Then
-                schemaTables = New Dictionary(Of String, List(Of Dictionary(Of String, Object)))
+                schemaTables = New Dictionary(Of String, List(Of String()))
                 ctx.AllData(schema) = schemaTables
             End If
 
             ' テーブル行リストを確保
-            Dim tableRows As List(Of Dictionary(Of String, Object)) = Nothing
+            Dim tableRows As List(Of String()) = Nothing
             If Not schemaTables.TryGetValue(table, tableRows) Then
-                tableRows = New List(Of Dictionary(Of String, Object))
+                tableRows = New List(Of String())
                 schemaTables(table) = tableRows
             End If
 
-            ' 行データを辞書に変換して追加
-            ' Dictionary初期容量をカラム数に合わせてリハッシュを防止
-            Dim row As New Dictionary(Of String, Object)(colCount)
+            ' 行データを文字列配列に変換して追加（位置インデックスで格納）
+            Dim row As String() = New String(colCount - 1) {}
             For i As Integer = 0 To colCount - 1
-                Dim colValue As Object
                 Dim valPtr As IntPtr = Marshal.ReadIntPtr(colValuesPtr, i * IntPtr.Size)
                 If valPtr = IntPtr.Zero Then
-                    colValue = DBNull.Value
+                    row(i) = Nothing
                 Else
                     Dim s = Marshal.PtrToStringUTF8(valPtr)
-                    If String.IsNullOrEmpty(s) Then
-                        colValue = DBNull.Value
-                    Else
-                        colValue = s
-                    End If
-                End If
-
-                Dim colName = If(i < cachedColNames.Length, cachedColNames(i), $"COL_{i}")
-                If Not row.ContainsKey(colName) Then
-                    row(colName) = colValue
+                    row(i) = If(String.IsNullOrEmpty(s), Nothing, s)
                 End If
             Next
 

@@ -120,12 +120,10 @@ Public Class Workspace
             ' フェーズ2: 選択テーブルのみ解析（dataOffset>0ならDDL位置に高速シーク）
             Dim tableData = AnalyzeLogic.AnalyzeTable(DumpFilePath, _currentSchema, tableName, dataOffset)
 
-            ' 列名を取得（データがある場合は1行目から、ない場合はPhase1のキャッシュから）
+            ' 列名を取得（Phase1のListTablesで取得済みのキャッシュから）
             Dim columnNames As New List(Of String)
             Dim tableKey = $"{_currentSchema}.{tableName}"
-            If tableData IsNot Nothing AndAlso tableData.Count > 0 Then
-                columnNames = New List(Of String)(tableData(0).Keys)
-            ElseIf _columnNamesMap.ContainsKey(tableKey) Then
+            If _columnNamesMap.ContainsKey(tableKey) Then
                 columnNames = New List(Of String)(_columnNamesMap(tableKey))
             End If
 
@@ -136,7 +134,7 @@ Public Class Workspace
 
             ' TablePreview を表示（0行の場合も列ヘッダーは表示される）
             TablePreviewLogic.DisplayTableData(Me.MdiParent,
-                                               If(tableData, New List(Of Dictionary(Of String, Object))),
+                                               If(tableData, New List(Of String())),
                                                columnNames,
                                                $"{_currentSchema}.{tableName}")
 

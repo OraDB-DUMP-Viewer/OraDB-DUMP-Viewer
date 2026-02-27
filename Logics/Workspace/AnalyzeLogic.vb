@@ -13,7 +13,7 @@ Public Class AnalyzeLogic
     ''' </summary>
     ''' <param name="filePath">ダンプファイルのパス</param>
     ''' <returns>解析結果のデータ構造（スキーマ→テーブル→データ）</returns>
-    Public Shared Function AnalyzeDumpFile(filePath As String) As Dictionary(Of String, Dictionary(Of String, List(Of Dictionary(Of String, Object))))
+    Public Shared Function AnalyzeDumpFile(filePath As String) As Dictionary(Of String, Dictionary(Of String, List(Of String())))
         Try
             ValidateFilePath(filePath)
 
@@ -55,12 +55,12 @@ Public Class AnalyzeLogic
                            "OraDB_DumpParser.dll が実行ファイルと同じフォルダにあることを確認してください。",
                            "DLLエラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
             COMMON.ResetProgressBar()
-            Return New Dictionary(Of String, Dictionary(Of String, List(Of Dictionary(Of String, Object))))()
+            Return New Dictionary(Of String, Dictionary(Of String, List(Of String())))()
 
         Catch ex As Exception
             MessageBox.Show($"ダンプファイル解析中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
             COMMON.ResetProgressBar()
-            Return New Dictionary(Of String, Dictionary(Of String, List(Of Dictionary(Of String, Object))))()
+            Return New Dictionary(Of String, Dictionary(Of String, List(Of String())))()
         End Try
     End Function
 
@@ -108,7 +108,7 @@ Public Class AnalyzeLogic
     ''' <param name="schemaName">スキーマ名</param>
     ''' <param name="tableName">テーブル名</param>
     ''' <returns>行データのリスト</returns>
-    Public Shared Function AnalyzeTable(filePath As String, schemaName As String, tableName As String, Optional dataOffset As Long = 0) As List(Of Dictionary(Of String, Object))
+    Public Shared Function AnalyzeTable(filePath As String, schemaName As String, tableName As String, Optional dataOffset As Long = 0) As List(Of String())
         Try
             ValidateFilePath(filePath)
 
@@ -134,19 +134,19 @@ Public Class AnalyzeLogic
             End If
 
             COMMON.Set_StatusLavel($"解析完了: {schemaName}.{tableName} 0行 ({elapsed.TotalSeconds:F1}秒)")
-            Return New List(Of Dictionary(Of String, Object))()
+            Return New List(Of String())()
 
         Catch ex As DllNotFoundException
             MessageBox.Show($"解析DLLが見つかりません: {ex.Message}" & vbCrLf &
                            "OraDB_DumpParser.dll が実行ファイルと同じフォルダにあることを確認してください。",
                            "DLLエラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
             COMMON.ResetProgressBar()
-            Return New List(Of Dictionary(Of String, Object))()
+            Return New List(Of String())()
 
         Catch ex As Exception
             MessageBox.Show($"テーブル解析中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
             COMMON.ResetProgressBar()
-            Return New List(Of Dictionary(Of String, Object))()
+            Return New List(Of String())()
         End Try
     End Function
 

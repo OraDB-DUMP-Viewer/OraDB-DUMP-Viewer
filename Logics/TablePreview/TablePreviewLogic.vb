@@ -10,7 +10,7 @@ Public Class TablePreviewLogic
     ''' <param name="tableData">テーブルデータ（行ごとにDictionary&lt;列名, 値&gt;のリスト）</param>
     ''' <param name="columnNames">列名のリスト</param>
     ''' <param name="tableName">テーブル名</param>
-    Public Shared Sub DisplayTableData(parentForm As Form, tableData As List(Of Dictionary(Of String, Object)), 
+    Public Shared Sub DisplayTableData(parentForm As Form, tableData As List(Of String()),
                                        columnNames As List(Of String), tableName As String)
         Try
             ' 列名リストが空の場合はエラーダイアログを表示して終了
@@ -21,7 +21,7 @@ Public Class TablePreviewLogic
 
             ' データがNullの場合は空リストに置換（列ヘッダーのみ表示）
             If tableData Is Nothing Then
-                tableData = New List(Of Dictionary(Of String, Object))
+                tableData = New List(Of String())
             End If
 
             ' TablePreviewフォームを作成し、MDI親フォームに表示

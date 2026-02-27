@@ -32,14 +32,17 @@ Public Class TablePreview
 
 #Region "フィールド・コンストラクタ"
 
-    ''' <summary>元のテーブルデータ（全行）</summary>
-    Private _tableData As List(Of Dictionary(Of String, Object))
+    ''' <summary>元のテーブルデータ（全行、各行はString配列で列インデックスに対応）</summary>
+    Private _tableData As List(Of String())
 
     ''' <summary>検索・フィルタ後のテーブルデータ</summary>
-    Private _filteredData As List(Of Dictionary(Of String, Object))
+    Private _filteredData As List(Of String())
 
     ''' <summary>テーブルの列名リスト</summary>
     Private _columnNames As List(Of String)
+
+    ''' <summary>列名→インデックスの逆引きマップ（O(1) lookup）</summary>
+    Private _columnIndexMap As Dictionary(Of String, Integer)
 
     ''' <summary>現在表示中のページ番号（1ベース）</summary>
     Private _currentPage As Integer = 1
@@ -73,15 +76,21 @@ Public Class TablePreview
     ''' <param name="tableData">表示するテーブルデータ</param>
     ''' <param name="columnNames">テーブルの列名リスト</param>
     ''' <param name="tableName">テーブル名（ウィンドウタイトルに使用）</param>
-    Public Sub New(tableData As List(Of Dictionary(Of String, Object)), columnNames As List(Of String), tableName As String)
+    Public Sub New(tableData As List(Of String()), columnNames As List(Of String), tableName As String)
         ' デザイナーで定義されたコンポーネントを初期化
         InitializeComponent()
 
         ' パラメータを保存
         _tableData = tableData
         _columnNames = columnNames
-        _filteredData = New List(Of Dictionary(Of String, Object))(_tableData)
+        _filteredData = New List(Of String())(_tableData)
         _totalRows = _tableData.Count
+
+        ' 列名→インデックス逆引きマップを構築（1回だけ、O(n)）
+        _columnIndexMap = New Dictionary(Of String, Integer)(_columnNames.Count)
+        For i As Integer = 0 To _columnNames.Count - 1
+            _columnIndexMap(_columnNames(i)) = i
+        Next
 
         ' フォームタイトルを設定
         Me.Text = $"テーブルデータプレビュー - {tableName}"
@@ -240,7 +249,7 @@ Public Class TablePreview
     ''' </summary>
     Private Sub buttonReset_Click(sender As Object, e As EventArgs) Handles buttonReset.Click
         _currentPage = 1
-        _filteredData = New List(Of Dictionary(Of String, Object))(_tableData)
+        _filteredData = New List(Of String())(_tableData)
         _currentSearchCondition = Nothing
         _lastSearchCondition = Nothing
         UpdateDataDisplay()
@@ -269,14 +278,19 @@ Public Class TablePreview
         Dim numKeys(count - 1) As Double
         Dim strKeys(count - 1) As String
 
+        Dim colIndex As Integer = -1
+        If _columnIndexMap.ContainsKey(clickedColName) Then colIndex = _columnIndexMap(clickedColName)
+
         For i = 0 To count - 1
-            Dim val As Object = Nothing
-            _filteredData(i).TryGetValue(clickedColName, val)
+            Dim val As String = Nothing
+            If colIndex >= 0 AndAlso colIndex < _filteredData(i).Length Then
+                val = _filteredData(i)(colIndex)
+            End If
             If val Is Nothing Then
                 strKeys(i) = Nothing
                 numKeys(i) = Double.MinValue
             Else
-                strKeys(i) = val.ToString()
+                strKeys(i) = val
                 If isNumeric Then
                     If Not Double.TryParse(strKeys(i), numKeys(i)) Then
                         isNumeric = False
@@ -318,7 +332,7 @@ Public Class TablePreview
         End If
 
         ' ソート結果で _filteredData を並べ替え
-        Dim sorted = New List(Of Dictionary(Of String, Object))(count)
+        Dim sorted = New List(Of String())(count)
         For Each idx In indices
             sorted.Add(_filteredData(idx))
         Next
@@ -371,7 +385,7 @@ Public Class TablePreview
     ''' </summary>
     Private Sub numericUpDownPageSize_ValueChanged(sender As Object, e As EventArgs) Handles numericUpDownPageCount.ValueChanged
         If Not _isInitializing Then
-            _pageCount = CInt(numericUpDownPageCount.Value)
+            _pageCount = CInt(Math.Min(numericUpDownPageCount.Value, Integer.MaxValue))
             _currentPage = 1
             UpdateDataDisplay()
         End If
@@ -443,7 +457,7 @@ Public Class TablePreview
         ' 高度な検索が有効な場合
         If _currentSearchCondition IsNot Nothing Then
             _filteredData = _tableData.Where(Function(row)
-                                                 Return _currentSearchCondition.Evaluate(row)
+                                                 Return _currentSearchCondition.Evaluate(row, _columnIndexMap)
                                              End Function).ToList()
             Return
         End If
@@ -453,16 +467,19 @@ Public Class TablePreview
         Dim searchValue As String = textBoxSearchValue.Text.Trim()
 
         If String.IsNullOrEmpty(columnName) OrElse String.IsNullOrEmpty(searchValue) Then
-            _filteredData = New List(Of Dictionary(Of String, Object))(_tableData)
+            _filteredData = New List(Of String())(_tableData)
             Return
         End If
 
         ' フィルタリング処理（大文字小文字区別しない部分一致）
+        Dim searchColIndex As Integer = -1
+        If _columnIndexMap.ContainsKey(columnName) Then searchColIndex = _columnIndexMap(columnName)
+
         _filteredData = _tableData.Where(Function(row)
-                                             If row.ContainsKey(columnName) Then
-                                                 Dim cellValue = row(columnName)
+                                             If searchColIndex >= 0 AndAlso searchColIndex < row.Length Then
+                                                 Dim cellValue = row(searchColIndex)
                                                  If cellValue IsNot Nothing Then
-                                                     Return cellValue.ToString().Contains(searchValue, StringComparison.OrdinalIgnoreCase)
+                                                     Return cellValue.Contains(searchValue, StringComparison.OrdinalIgnoreCase)
                                                  End If
                                              End If
                                              Return False
@@ -523,10 +540,8 @@ Public Class TablePreview
         If e.ColumnIndex < 0 OrElse e.ColumnIndex >= _columnNames.Count Then Return
 
         Dim row = _filteredData(dataIndex)
-        Dim colName = _columnNames(e.ColumnIndex)
-        Dim val As Object = Nothing
-        If row.TryGetValue(colName, val) Then
-            e.Value = If(val, String.Empty)
+        If e.ColumnIndex < row.Length Then
+            e.Value = If(row(e.ColumnIndex), String.Empty)
         Else
             e.Value = String.Empty
         End If

@@ -10,7 +10,7 @@
   <a href="https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases"><img src="https://img.shields.io/github/v/release/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer?label=%E6%9C%80%E6%96%B0%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3&style=flat-square" alt="Release"></a>
   <img src="https://img.shields.io/badge/platform-Windows%20x64-blue?style=flat-square" alt="Platform">
   <img src="https://img.shields.io/badge/runtime-.NET%2010.0-purple?style=flat-square" alt=".NET 10">
-  <a href="https://odv.ta-yan.ai/"><img src="https://img.shields.io/badge/%E3%83%A9%E3%82%A4%E3%82%BB%E3%83%B3%E3%82%B9-odv.ta--yan.ai-green?style=flat-square" alt="License"></a>
+  <a href="https://www.odv.dev/"><img src="https://img.shields.io/badge/%E3%83%A9%E3%82%A4%E3%82%BB%E3%83%B3%E3%82%B9-www.odv.dev-green?style=flat-square" alt="License"></a>
 </p>
 
 ---
@@ -98,7 +98,7 @@ NUMBER / DATE / TIMESTAMP / VARCHAR2 / CHAR / CLOB / BINARY_FLOAT / BINARY_DOUBL
 
 ### 料金プラン
 
-ライセンスは **[https://odv.ta-yan.ai/](https://odv.ta-yan.ai/)** から取得できます。
+ライセンスは **[https://www.odv.dev/](https://www.odv.dev/)** から取得できます。
 
 | プラン | 価格 | 対象 |
 |---|---|---|
@@ -111,7 +111,7 @@ NUMBER / DATE / TIMESTAMP / VARCHAR2 / CHAR / CLOB / BINARY_FLOAT / BINARY_DOUBL
 ### 認証手順
 
 ```
-1. https://odv.ta-yan.ai/ でライセンスを申請
+1. https://www.odv.dev/ でライセンスを申請
 2. ライセンスファイル (.lic.json) をダウンロード
 3. アプリケーションを起動 → 認証ダイアログが表示
 4. 「はい」を選択 → .lic.json ファイルを指定
@@ -173,7 +173,7 @@ dotnet build "OraDB DUMP Viewer.vbproj"
 
 | 条件 | 内容 |
 |---|---|
-| 利用条件 | 有効なライセンスが必要 ([取得はこちら](https://odv.ta-yan.ai/)) |
+| 利用条件 | 有効なライセンスが必要 ([取得はこちら](https://www.odv.dev/)) |
 | 利用範囲 | ライセンス取得者本人 (または取得法人) のみ |
 | 譲渡・再配布 | 禁止 |
 
@@ -207,5 +207,5 @@ dotnet build "OraDB DUMP Viewer.vbproj"
 
 <p align="center">
   <strong>YANAI Taketo</strong><br>
-  <a href="https://odv.ta-yan.ai/">https://odv.ta-yan.ai/</a>
+  <a href="https://www.odv.dev/">https://www.odv.dev/</a>
 </p>

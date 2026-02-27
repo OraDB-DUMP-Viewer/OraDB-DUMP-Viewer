@@ -58,7 +58,7 @@ Public Class OraDB_DUMP_Viewer
                 If Not File.Exists(statusPath) Then
                     msg = "ライセンスが登録されていません。" & vbCrLf & vbCrLf &
                           "ライセンスの取得は下記サイトから行えます。" & vbCrLf &
-                          "https://odv.ta-yan.ai/" & vbCrLf & vbCrLf &
+                          "https://www.odv.dev/" & vbCrLf & vbCrLf &
                           "ライセンスファイル (.lic.json) を選択して認証しますか？"
                 Else
                     Dim errMsg As String = String.Empty

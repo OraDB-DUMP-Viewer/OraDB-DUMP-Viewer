@@ -38,7 +38,7 @@
 | 教育機関 | 無料 | 学校・教育機関 |
 | 法人利用 | 9,800円 / ライセンス / 年（税別） | 企業・商用利用 |
 
-ライセンスは [https://odv.ta-yan.ai/](https://odv.ta-yan.ai/) から取得できます。
+ライセンスは [https://www.odv.dev/](https://www.odv.dev/) から取得できます。
 
 ### 4. 使用制限
 
@@ -131,6 +131,6 @@
 
 <p align="center">
   <strong>YANAI Taketo</strong><br>
-  <a href="https://odv.ta-yan.ai/">https://odv.ta-yan.ai/</a> |
+  <a href="https://www.odv.dev/">https://www.odv.dev/</a> |
   <a href="https://www.ta-yan.ai/rules">利用規約・プライバシーポリシー</a>
 </p>

@@ -142,7 +142,7 @@ dotnet build "OraDB DUMP Viewer.vbproj"
 | 教育機関 | 無料 | 学校・教育機関 |
 | 法人利用 | 9,800円/ライセンス/年（税別） | 企業・商用利用 |
 
-ライセンス取得: [https://odv.ta-yan.ai/](https://odv.ta-yan.ai/)
+ライセンス取得: [https://www.odv.dev/](https://www.odv.dev/)
 
 **実装場所**: `Logics/LICENSE.vb`, `HMI/OraDB DUMP Viewer/OraDB_DUMP_Viewer.vb`
 
@@ -199,6 +199,6 @@ dotnet build "OraDB DUMP Viewer.vbproj"
 
 ## Contact & Support
 
-- ライセンス: [https://odv.ta-yan.ai/](https://odv.ta-yan.ai/)
+- ライセンス: [https://www.odv.dev/](https://www.odv.dev/)
 - セキュリティ報告: inquiry@ta-yan.ai
 - バグレポート・機能リクエスト: [GitHub Issues](https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/issues)

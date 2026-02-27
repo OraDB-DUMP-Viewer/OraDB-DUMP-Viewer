@@ -59,6 +59,12 @@ Public Class TablePreview
     ''' <summary>前回の検索条件（次回フォーム起動時に復元用）</summary>
     Private _lastSearchCondition As SearchCondition.ComplexSearchCondition
 
+    ''' <summary>現在のソート列名（Nothing=ソートなし）</summary>
+    Private _sortColumnName As String = Nothing
+
+    ''' <summary>現在のソート方向</summary>
+    Private _sortAscending As Boolean = True
+
     ''' <summary>
     ''' コンストラクタ
     ''' 
@@ -241,6 +247,64 @@ Public Class TablePreview
     End Sub
 
     ''' <summary>
+    ''' 列ヘッダクリック時のソートイベントハンドラー
+    '''
+    ''' 全データ (_filteredData) をソートしてからページを再描画する。
+    ''' 同じ列を再クリックすると昇順/降順を切り替える。
+    ''' </summary>
+    Private Sub dataGridViewData_ColumnHeaderMouseClick(sender As Object, e As DataGridViewCellMouseEventArgs) Handles dataGridViewData.ColumnHeaderMouseClick
+        Dim clickedColName = dataGridViewData.Columns(e.ColumnIndex).Name
+
+        ' 同じ列なら方向を反転、別の列なら昇順にリセット
+        If clickedColName = _sortColumnName Then
+            _sortAscending = Not _sortAscending
+        Else
+            _sortColumnName = clickedColName
+            _sortAscending = True
+        End If
+
+        ' 全データをソート
+        _filteredData.Sort(Function(a, b)
+                               Dim valA As Object = Nothing
+                               Dim valB As Object = Nothing
+                               a.TryGetValue(clickedColName, valA)
+                               b.TryGetValue(clickedColName, valB)
+
+                               Dim result As Integer
+                               If valA Is Nothing AndAlso valB Is Nothing Then
+                                   result = 0
+                               ElseIf valA Is Nothing Then
+                                   result = -1
+                               ElseIf valB Is Nothing Then
+                                   result = 1
+                               Else
+                                   ' 数値として比較を試みる
+                                   Dim numA As Double, numB As Double
+                                   If Double.TryParse(valA.ToString(), numA) AndAlso
+                                      Double.TryParse(valB.ToString(), numB) Then
+                                       result = numA.CompareTo(numB)
+                                   Else
+                                       result = String.Compare(valA.ToString(), valB.ToString(), StringComparison.OrdinalIgnoreCase)
+                                   End If
+                               End If
+
+                               If Not _sortAscending Then result = -result
+                               Return result
+                           End Function)
+
+        ' ソート方向のグリフを表示
+        For Each col As DataGridViewColumn In dataGridViewData.Columns
+            col.HeaderCell.SortGlyphDirection = SortOrder.None
+        Next
+        dataGridViewData.Columns(e.ColumnIndex).HeaderCell.SortGlyphDirection =
+            If(_sortAscending, SortOrder.Ascending, SortOrder.Descending)
+
+        ' 1ページ目に戻して再描画
+        _currentPage = 1
+        UpdateDataDisplay()
+    End Sub
+
+    ''' <summary>
     ''' 「前へ」ボタンのクリックイベントハンドラー
     ''' 
     ''' 前のページに移動（ページ番号が1より大きい場合のみ）
@@ -309,9 +373,13 @@ Public Class TablePreview
     Private Sub SetupDataGridView()
         dataGridViewData.Columns.Clear()
 
-        ' 列を追加
+        ' 列を追加（ソートはプログラム制御で行うため Programmatic に設定）
         For Each colName In _columnNames
-            dataGridViewData.Columns.Add(colName, colName)
+            Dim col = New DataGridViewTextBoxColumn()
+            col.Name = colName
+            col.HeaderText = colName
+            col.SortMode = DataGridViewColumnSortMode.Programmatic
+            dataGridViewData.Columns.Add(col)
         Next
 
         ' 列の幅を自動調整（最小100、最大200）

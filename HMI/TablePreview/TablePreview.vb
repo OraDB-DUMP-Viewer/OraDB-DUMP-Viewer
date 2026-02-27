@@ -263,34 +263,66 @@ Public Class TablePreview
             _sortAscending = True
         End If
 
-        ' 全データをソート
-        _filteredData.Sort(Function(a, b)
-                               Dim valA As Object = Nothing
-                               Dim valB As Object = Nothing
-                               a.TryGetValue(clickedColName, valA)
-                               b.TryGetValue(clickedColName, valB)
+        ' ソートキーを事前計算（比較のたびに TryParse するのを回避）
+        Dim count = _filteredData.Count
+        Dim isNumeric = True
+        Dim numKeys(count - 1) As Double
+        Dim strKeys(count - 1) As String
 
-                               Dim result As Integer
-                               If valA Is Nothing AndAlso valB Is Nothing Then
-                                   result = 0
-                               ElseIf valA Is Nothing Then
-                                   result = -1
-                               ElseIf valB Is Nothing Then
-                                   result = 1
-                               Else
-                                   ' 数値として比較を試みる
-                                   Dim numA As Double, numB As Double
-                                   If Double.TryParse(valA.ToString(), numA) AndAlso
-                                      Double.TryParse(valB.ToString(), numB) Then
-                                       result = numA.CompareTo(numB)
-                                   Else
-                                       result = String.Compare(valA.ToString(), valB.ToString(), StringComparison.OrdinalIgnoreCase)
-                                   End If
-                               End If
+        For i = 0 To count - 1
+            Dim val As Object = Nothing
+            _filteredData(i).TryGetValue(clickedColName, val)
+            If val Is Nothing Then
+                strKeys(i) = Nothing
+                numKeys(i) = Double.MinValue
+            Else
+                strKeys(i) = val.ToString()
+                If isNumeric Then
+                    If Not Double.TryParse(strKeys(i), numKeys(i)) Then
+                        isNumeric = False
+                    End If
+                End If
+            End If
+        Next
 
-                               If Not _sortAscending Then result = -result
-                               Return result
-                           End Function)
+        ' インデックス配列でソート（元データの並びを維持しつつ高速）
+        Dim indices(count - 1) As Integer
+        For i = 0 To count - 1
+            indices(i) = i
+        Next
+
+        Dim asc = _sortAscending
+        If isNumeric Then
+            Array.Sort(indices, Function(a, b)
+                                    Dim r = numKeys(a).CompareTo(numKeys(b))
+                                    If Not asc Then r = -r
+                                    Return r
+                                End Function)
+        Else
+            Array.Sort(indices, Function(a, b)
+                                    Dim sa = strKeys(a)
+                                    Dim sb = strKeys(b)
+                                    Dim r As Integer
+                                    If sa Is Nothing AndAlso sb Is Nothing Then
+                                        r = 0
+                                    ElseIf sa Is Nothing Then
+                                        r = -1
+                                    ElseIf sb Is Nothing Then
+                                        r = 1
+                                    Else
+                                        r = String.Compare(sa, sb, StringComparison.OrdinalIgnoreCase)
+                                    End If
+                                    If Not asc Then r = -r
+                                    Return r
+                                End Function)
+        End If
+
+        ' ソート結果で _filteredData を並べ替え
+        Dim sorted = New List(Of Dictionary(Of String, Object))(count)
+        For Each idx In indices
+            sorted.Add(_filteredData(idx))
+        Next
+        _filteredData = sorted
 
         ' ソート方向のグリフを表示
         For Each col As DataGridViewColumn In dataGridViewData.Columns
@@ -373,6 +405,9 @@ Public Class TablePreview
     Private Sub SetupDataGridView()
         dataGridViewData.Columns.Clear()
 
+        ' VirtualMode を有効化（大量データでも高速描画）
+        dataGridViewData.VirtualMode = True
+
         ' 列を追加（ソートはプログラム制御で行うため Programmatic に設定）
         For Each colName In _columnNames
             Dim col = New DataGridViewTextBoxColumn()
@@ -451,34 +486,23 @@ Public Class TablePreview
     ''' - ページ2: startRow=100, endRow=200
     ''' - ページ3: startRow=200, endRow=250（最終ページ）
     ''' </summary>
+    ''' <summary>現在のページの開始行インデックス（VirtualMode 用）</summary>
+    Private _displayStartRow As Integer = 0
+
     Private Sub UpdateDataDisplay()
         ' 総ページ数を計算（データが0件の場合は1を使用）
-        Dim totalPages As Integer = Math.Ceiling(If(_filteredData.Count = 0, 1, _filteredData.Count / _pageCount))
+        Dim totalPages As Integer = CInt(Math.Ceiling(If(_filteredData.Count = 0, 1, CDbl(_filteredData.Count) / _pageCount)))
 
         ' 現在のページの開始行と終了行を計算
-        Dim startRow As Integer = (_currentPage - 1) * _pageCount
-        Dim endRow As Integer = Math.Min(startRow + _pageCount, _filteredData.Count)
+        _displayStartRow = (_currentPage - 1) * _pageCount
+        Dim displayRowCount As Integer = Math.Min(_pageCount, _filteredData.Count - _displayStartRow)
+        If displayRowCount < 0 Then displayRowCount = 0
 
-        ' DataGridView をクリア
-        dataGridViewData.Rows.Clear()
+        ' VirtualMode: RowCount を設定するだけで描画される（Rows.Add 不要）
+        dataGridViewData.RowCount = displayRowCount
 
-        ' 現在のページのデータを DataGridView に追加
-        For i As Integer = startRow To endRow - 1
-            Dim row = _filteredData(i)
-            Dim cells As New List(Of Object)
-
-            ' 各列の値をセル配列に格納
-            For Each colName In _columnNames
-                If row.ContainsKey(colName) Then
-                    cells.Add(If(row(colName), String.Empty))
-                Else
-                    cells.Add(String.Empty)
-                End If
-            Next
-
-            ' DataGridView に行を追加
-            dataGridViewData.Rows.Add(cells.ToArray())
-        Next
+        ' DataGridView を再描画
+        dataGridViewData.Invalidate()
 
         ' UI 要素を更新
         labelPageInfo.Text = $"ページ: {_currentPage}/{totalPages}"
@@ -487,6 +511,25 @@ Public Class TablePreview
         ' ナビゲーションボタンの有効/無効を制御
         buttonPrev.Enabled = _currentPage > 1
         buttonNext.Enabled = _currentPage < totalPages
+    End Sub
+
+    ''' <summary>
+    ''' VirtualMode 用: セル値をオンデマンドで返す
+    ''' DataGridView が表示に必要なセルだけを要求するため、メモリ効率が高い
+    ''' </summary>
+    Private Sub dataGridViewData_CellValueNeeded(sender As Object, e As DataGridViewCellValueEventArgs) Handles dataGridViewData.CellValueNeeded
+        Dim dataIndex = _displayStartRow + e.RowIndex
+        If dataIndex < 0 OrElse dataIndex >= _filteredData.Count Then Return
+        If e.ColumnIndex < 0 OrElse e.ColumnIndex >= _columnNames.Count Then Return
+
+        Dim row = _filteredData(dataIndex)
+        Dim colName = _columnNames(e.ColumnIndex)
+        Dim val As Object = Nothing
+        If row.TryGetValue(colName, val) Then
+            e.Value = If(val, String.Empty)
+        Else
+            e.Value = String.Empty
+        End If
     End Sub
 
 #End Region

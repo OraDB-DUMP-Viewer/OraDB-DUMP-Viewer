@@ -70,8 +70,9 @@ Public Class AnalyzeLogic
     ''' </summary>
     ''' <param name="filePath">ダンプファイルのパス</param>
     ''' <param name="columnNamesMap">テーブルごとのカラム名辞書 (キー: "schema.table")</param>
+    ''' <param name="columnTypesMap">テーブルごとのカラム型辞書 (キー: "schema.table")</param>
     ''' <returns>テーブル情報のリスト (スキーマ名, テーブル名, カラム数, 行数, データオフセット)</returns>
-    Public Shared Function ListTables(filePath As String, Optional ByRef columnNamesMap As Dictionary(Of String, String()) = Nothing) As List(Of Tuple(Of String, String, Integer, Long, Long))
+    Public Shared Function ListTables(filePath As String, Optional ByRef columnNamesMap As Dictionary(Of String, String()) = Nothing, Optional ByRef columnTypesMap As Dictionary(Of String, String()) = Nothing) As List(Of Tuple(Of String, String, Integer, Long, Long))
         Try
             ValidateFilePath(filePath)
 
@@ -79,7 +80,7 @@ Public Class AnalyzeLogic
             COMMON.Set_StatusLavel("テーブル一覧を取得中...")
 
             Dim startTime As DateTime = DateTime.Now
-            Dim tables = OraDB_NativeParser.ListTables(filePath, columnNamesMap)
+            Dim tables = OraDB_NativeParser.ListTables(filePath, columnNamesMap, columnTypesMap)
             Dim elapsed As TimeSpan = DateTime.Now - startTime
 
             COMMON.ResetProgressBar()

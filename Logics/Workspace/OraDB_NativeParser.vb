@@ -225,6 +225,8 @@ Public Class OraDB_NativeParser
         Public Tables As List(Of Tuple(Of String, String, Integer, Long, Long))
         ''' <summary>テーブルごとのカラム名 (キー: "schema.table")</summary>
         Public ColumnNames As New Dictionary(Of String, String())
+        ''' <summary>テーブルごとのカラム型 (キー: "schema.table")</summary>
+        Public ColumnTypes As New Dictionary(Of String, String())
     End Class
 #End Region
 
@@ -345,7 +347,7 @@ Public Class OraDB_NativeParser
     ''' </summary>
     ''' <param name="filePath">ダンプファイルのパス</param>
     ''' <param name="columnNamesMap">テーブルごとのカラム名辞書 (キー: "schema.table")</param>
-    Public Shared Function ListTables(filePath As String, Optional ByRef columnNamesMap As Dictionary(Of String, String()) = Nothing) As List(Of Tuple(Of String, String, Integer, Long, Long))
+    Public Shared Function ListTables(filePath As String, Optional ByRef columnNamesMap As Dictionary(Of String, String()) = Nothing, Optional ByRef columnTypesMap As Dictionary(Of String, String()) = Nothing) As List(Of Tuple(Of String, String, Integer, Long, Long))
         Dim session As IntPtr = IntPtr.Zero
         Dim ctx As New ListTablesContext()
         ctx.Tables = New List(Of Tuple(Of String, String, Integer, Long, Long))
@@ -366,6 +368,7 @@ Public Class OraDB_NativeParser
 
             odv_list_tables(session)
             columnNamesMap = ctx.ColumnNames
+            columnTypesMap = ctx.ColumnTypes
             Return ctx.Tables
 
         Finally
@@ -539,6 +542,11 @@ Public Class OraDB_NativeParser
             ' カラム名を保持（0行テーブルでも列ヘッダーを表示するため）
             If colCount > 0 AndAlso colNamesPtr <> IntPtr.Zero Then
                 ctx.ColumnNames($"{schema}.{table}") = PtrArrayToStrings(colNamesPtr, colCount)
+            End If
+
+            ' カラム型を保持
+            If colCount > 0 AndAlso colTypesPtr <> IntPtr.Zero Then
+                ctx.ColumnTypes($"{schema}.{table}") = PtrArrayToStrings(colTypesPtr, colCount)
             End If
 
         Catch

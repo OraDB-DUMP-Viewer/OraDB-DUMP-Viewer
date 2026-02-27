@@ -205,6 +205,29 @@ Public Class OraDB_DUMP_Viewer
     End Sub
 #End Region
 
+#Region "メニューイベント: テーブルプロパティ"
+    ''' <summary>
+    ''' テーブルプロパティを表示する共通処理
+    ''' アクティブなWorkspaceフォームの選択テーブルのプロパティを表示
+    ''' </summary>
+    Private Sub ShowTableProperty()
+        Dim activeChild = TryCast(Me.ActiveMdiChild, Workspace)
+        If activeChild Is Nothing Then
+            MessageBox.Show("ワークスペースが開かれていません。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Return
+        End If
+        activeChild.ShowTableProperty()
+    End Sub
+
+    Private Sub プロパティPToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles プロパティPToolStripMenuItem.Click
+        ShowTableProperty()
+    End Sub
+
+    Private Sub ToolStripButton2_Click(sender As Object, e As EventArgs) Handles tolTablPproperty.Click
+        ShowTableProperty()
+    End Sub
+#End Region
+
 #Region "メニューイベント: 終了"
     Private Sub 終了XToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles 終了XToolStripMenuItem.Click
         'アプリケーションを終了する

@@ -10,6 +10,8 @@ Public Class Workspace
     Private _tableList As New Dictionary(Of String, List(Of Tuple(Of String, Long, Long)))
     ''' <summary>テーブルごとのカラム名 (キー: "schema.table")</summary>
     Private _columnNamesMap As New Dictionary(Of String, String())
+    ''' <summary>テーブルごとのカラム型 (キー: "schema.table")</summary>
+    Private _columnTypesMap As New Dictionary(Of String, String())
     Private _currentSchema As String = String.Empty
 
     ' 引数ありコンストラクタ
@@ -24,8 +26,10 @@ Public Class Workspace
     Private Sub Workspace_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ' フェーズ1: テーブル一覧のみ取得（高速・メモリ軽量）
         Dim colMap As Dictionary(Of String, String()) = Nothing
-        Dim tables = AnalyzeLogic.ListTables(DumpFilePath, colMap)
+        Dim typeMap As Dictionary(Of String, String()) = Nothing
+        Dim tables = AnalyzeLogic.ListTables(DumpFilePath, colMap, typeMap)
         If colMap IsNot Nothing Then _columnNamesMap = colMap
+        If typeMap IsNot Nothing Then _columnTypesMap = typeMap
 
         ' テーブル一覧をスキーマ別に整理
         _tableList.Clear()
@@ -48,6 +52,19 @@ Public Class Workspace
 
         ' ListViewのダブルクリック時のイベント設定
         AddHandler lstTableList.DoubleClick, AddressOf LstTableList_DoubleClick
+
+        ' テーブル検索テキストボックスのイベント設定
+        AddHandler txtTableSearch.TextChanged, AddressOf TxtTableSearch_TextChanged
+    End Sub
+
+    ''' <summary>
+    ''' テーブル検索テキストボックスの入力変更時のイベント
+    ''' 入力文字列で現在のスキーマのテーブル一覧を絞り込む
+    ''' </summary>
+    Private Sub TxtTableSearch_TextChanged(sender As Object, e As EventArgs)
+        If Not String.IsNullOrEmpty(_currentSchema) Then
+            DisplayTablesForSchema(_currentSchema)
+        End If
     End Sub
 
     ''' <summary>
@@ -144,6 +161,51 @@ Public Class Workspace
     End Sub
 #End Region
 
+#Region "テーブルプロパティ"
+    ''' <summary>
+    ''' 選択中のテーブルのプロパティダイアログを表示する
+    ''' メインフォームのメニュー/ツールバーから呼び出される
+    ''' </summary>
+    Public Sub ShowTableProperty()
+        If lstTableList.SelectedItems.Count = 0 Then
+            MessageBox.Show("テーブルが選択されていません。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Return
+        End If
+
+        Dim selectedItem = lstTableList.SelectedItems(0)
+        Dim tableName As String = selectedItem.Text
+
+        If String.IsNullOrEmpty(_currentSchema) Then
+            MessageBox.Show("スキーマが選択されていません。", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return
+        End If
+
+        ' 行数を取得
+        Dim rowCount As Long = 0
+        If _tableList.ContainsKey(_currentSchema) Then
+            Dim entry = _tableList(_currentSchema).Find(Function(x) x.Item1 = tableName)
+            If entry IsNot Nothing Then
+                rowCount = entry.Item2
+            End If
+        End If
+
+        ' カラム名・カラム型を取得
+        Dim tableKey = $"{_currentSchema}.{tableName}"
+        Dim columnNames As String() = Nothing
+        Dim columnTypes As String() = Nothing
+        If _columnNamesMap.ContainsKey(tableKey) Then
+            columnNames = _columnNamesMap(tableKey)
+        End If
+        If _columnTypesMap.ContainsKey(tableKey) Then
+            columnTypes = _columnTypesMap(tableKey)
+        End If
+
+        ' プロパティダイアログを表示
+        Dim dlg As New TablePropertyDialog(_currentSchema, tableName, columnNames, columnTypes, rowCount)
+        dlg.ShowDialog(Me)
+    End Sub
+#End Region
+
 #Region "データ表示処理"
     ''' <summary>
     ''' TreeViewにスキーマ一覧のみを表示
@@ -209,9 +271,19 @@ Public Class Workspace
                 Return
             End If
 
+            ' テーブル検索フィルタ（大文字小文字区別しない部分一致）
+            Dim searchText = txtTableSearch.Text.Trim()
+
             For Each tableInfo In tables
                 Dim tableName = tableInfo.Item1
                 Dim rowCount = tableInfo.Item2
+
+                ' フィルタ: 検索文字列が空でなければ部分一致でスキップ判定
+                If searchText.Length > 0 AndAlso
+                   Not tableName.Contains(searchText, StringComparison.OrdinalIgnoreCase) Then
+                    Continue For
+                End If
+
                 ' ListViewItemを作成
                 Dim item As New ListViewItem(tableName)
                 item.SubItems.Add(schemaName)       ' 所有者

@@ -90,7 +90,7 @@ Partial Class OraDB_DUMP_Viewer
         ToolStripProgressBar = New ToolStripProgressBar()
         ToolStripStatusLabel = New ToolStripStatusLabel()
         ToolExport = New ToolStrip()
-        ToolStripButton2 = New ToolStripButton()
+        tolTablPproperty = New ToolStripButton()
         ToolStripButton1 = New ToolStripButton()
         ToolStripSeparator11 = New ToolStripSeparator()
         ToolStripButton5 = New ToolStripButton()
@@ -113,7 +113,8 @@ Partial Class OraDB_DUMP_Viewer
         MenuStrip.Location = New Point(0, 0)
         MenuStrip.MdiWindowListItem = ウィンドウWToolStripMenuItem
         MenuStrip.Name = "MenuStrip"
-        MenuStrip.Size = New Size(1607, 33)
+        MenuStrip.Padding = New Padding(4, 1, 0, 1)
+        MenuStrip.Size = New Size(1125, 24)
         MenuStrip.TabIndex = 0
         MenuStrip.Text = "MenuStrip1"
         ' 
@@ -121,14 +122,14 @@ Partial Class OraDB_DUMP_Viewer
         ' 
         ファイルFToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {開くToolStripMenuItem, 閉じるCToolStripMenuItem, ToolStripSeparator1, ワークスペースの保存SToolStripMenuItem, 名前を付けてワークスペースを保存AToolStripMenuItem, ワークスペースを閉じるLToolStripMenuItem, ToolStripSeparator2, ダンプファイルの作成GToolStripMenuItem, ToolStripSeparator3, 最近使ったワークスペースWToolStripMenuItem, 最近使ったダンプファイルDToolStripMenuItem, 終了XToolStripMenuItem})
         ファイルFToolStripMenuItem.Name = "ファイルFToolStripMenuItem"
-        ファイルFToolStripMenuItem.Size = New Size(98, 29)
+        ファイルFToolStripMenuItem.Size = New Size(67, 22)
         ファイルFToolStripMenuItem.Text = "ファイル(F)"
         ' 
         ' 開くToolStripMenuItem
         ' 
         開くToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {ワークスペースToolStripMenuItem, ダンプファイルDToolStripMenuItem})
         開くToolStripMenuItem.Name = "開くToolStripMenuItem"
-        開くToolStripMenuItem.Size = New Size(387, 34)
+        開くToolStripMenuItem.Size = New Size(257, 22)
         開くToolStripMenuItem.Text = "開く(&O)"
         ' 
         ' ワークスペースToolStripMenuItem
@@ -136,92 +137,92 @@ Partial Class OraDB_DUMP_Viewer
         ワークスペースToolStripMenuItem.Enabled = False
         ワークスペースToolStripMenuItem.Name = "ワークスペースToolStripMenuItem"
         ワークスペースToolStripMenuItem.ShortcutKeys = Keys.Control Or Keys.Shift Or Keys.O
-        ワークスペースToolStripMenuItem.Size = New Size(360, 34)
+        ワークスペースToolStripMenuItem.Size = New Size(238, 22)
         ワークスペースToolStripMenuItem.Text = "ワークスペース(&W)..."
         ' 
         ' ダンプファイルDToolStripMenuItem
         ' 
         ダンプファイルDToolStripMenuItem.Name = "ダンプファイルDToolStripMenuItem"
         ダンプファイルDToolStripMenuItem.ShortcutKeys = Keys.Control Or Keys.O
-        ダンプファイルDToolStripMenuItem.Size = New Size(360, 34)
+        ダンプファイルDToolStripMenuItem.Size = New Size(238, 22)
         ダンプファイルDToolStripMenuItem.Text = "ダンプファイル(&D)..."
         ' 
         ' 閉じるCToolStripMenuItem
         ' 
         閉じるCToolStripMenuItem.Name = "閉じるCToolStripMenuItem"
-        閉じるCToolStripMenuItem.Size = New Size(387, 34)
+        閉じるCToolStripMenuItem.Size = New Size(257, 22)
         閉じるCToolStripMenuItem.Text = "閉じる(&C)"
         ' 
         ' ToolStripSeparator1
         ' 
         ToolStripSeparator1.Name = "ToolStripSeparator1"
-        ToolStripSeparator1.Size = New Size(384, 6)
+        ToolStripSeparator1.Size = New Size(254, 6)
         ' 
         ' ワークスペースの保存SToolStripMenuItem
         ' 
         ワークスペースの保存SToolStripMenuItem.Enabled = False
         ワークスペースの保存SToolStripMenuItem.Name = "ワークスペースの保存SToolStripMenuItem"
         ワークスペースの保存SToolStripMenuItem.ShortcutKeys = Keys.Control Or Keys.S
-        ワークスペースの保存SToolStripMenuItem.Size = New Size(387, 34)
+        ワークスペースの保存SToolStripMenuItem.Size = New Size(257, 22)
         ワークスペースの保存SToolStripMenuItem.Text = "ワークスペースの保存(&S)"
         ' 
         ' 名前を付けてワークスペースを保存AToolStripMenuItem
         ' 
         名前を付けてワークスペースを保存AToolStripMenuItem.Enabled = False
         名前を付けてワークスペースを保存AToolStripMenuItem.Name = "名前を付けてワークスペースを保存AToolStripMenuItem"
-        名前を付けてワークスペースを保存AToolStripMenuItem.Size = New Size(387, 34)
+        名前を付けてワークスペースを保存AToolStripMenuItem.Size = New Size(257, 22)
         名前を付けてワークスペースを保存AToolStripMenuItem.Text = "名前を付けてワークスペースを保存(&A)..."
         ' 
         ' ワークスペースを閉じるLToolStripMenuItem
         ' 
         ワークスペースを閉じるLToolStripMenuItem.Enabled = False
         ワークスペースを閉じるLToolStripMenuItem.Name = "ワークスペースを閉じるLToolStripMenuItem"
-        ワークスペースを閉じるLToolStripMenuItem.Size = New Size(387, 34)
+        ワークスペースを閉じるLToolStripMenuItem.Size = New Size(257, 22)
         ワークスペースを閉じるLToolStripMenuItem.Text = "ワークスペースを閉じる(&L)"
         ' 
         ' ToolStripSeparator2
         ' 
         ToolStripSeparator2.Name = "ToolStripSeparator2"
-        ToolStripSeparator2.Size = New Size(384, 6)
+        ToolStripSeparator2.Size = New Size(254, 6)
         ' 
         ' ダンプファイルの作成GToolStripMenuItem
         ' 
         ダンプファイルの作成GToolStripMenuItem.Enabled = False
         ダンプファイルの作成GToolStripMenuItem.Name = "ダンプファイルの作成GToolStripMenuItem"
         ダンプファイルの作成GToolStripMenuItem.ShowShortcutKeys = False
-        ダンプファイルの作成GToolStripMenuItem.Size = New Size(387, 34)
+        ダンプファイルの作成GToolStripMenuItem.Size = New Size(257, 22)
         ダンプファイルの作成GToolStripMenuItem.Text = "ダンプファイルの作成(&G)..."
         ' 
         ' ToolStripSeparator3
         ' 
         ToolStripSeparator3.Name = "ToolStripSeparator3"
-        ToolStripSeparator3.Size = New Size(384, 6)
+        ToolStripSeparator3.Size = New Size(254, 6)
         ' 
         ' 最近使ったワークスペースWToolStripMenuItem
         ' 
         最近使ったワークスペースWToolStripMenuItem.Enabled = False
         最近使ったワークスペースWToolStripMenuItem.Name = "最近使ったワークスペースWToolStripMenuItem"
-        最近使ったワークスペースWToolStripMenuItem.Size = New Size(387, 34)
+        最近使ったワークスペースWToolStripMenuItem.Size = New Size(257, 22)
         最近使ったワークスペースWToolStripMenuItem.Text = "最近使ったワークスペース(&W)"
         ' 
         ' 最近使ったダンプファイルDToolStripMenuItem
         ' 
         最近使ったダンプファイルDToolStripMenuItem.Enabled = False
         最近使ったダンプファイルDToolStripMenuItem.Name = "最近使ったダンプファイルDToolStripMenuItem"
-        最近使ったダンプファイルDToolStripMenuItem.Size = New Size(387, 34)
+        最近使ったダンプファイルDToolStripMenuItem.Size = New Size(257, 22)
         最近使ったダンプファイルDToolStripMenuItem.Text = "最近使ったダンプファイル(&D)"
         ' 
         ' 終了XToolStripMenuItem
         ' 
         終了XToolStripMenuItem.Name = "終了XToolStripMenuItem"
-        終了XToolStripMenuItem.Size = New Size(387, 34)
+        終了XToolStripMenuItem.Size = New Size(257, 22)
         終了XToolStripMenuItem.Text = "終了(&X)"
         ' 
         ' 編集EToolStripMenuItem
         ' 
         編集EToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {元に戻すUToolStripMenuItem, やり直しRToolStripMenuItem, コピーCToolStripMenuItem, 切り取りTToolStripMenuItem, ToolStripMenuItem1, 貼り付けPToolStripMenuItem, すべて選択AToolStripMenuItem, すべて選択AToolStripMenuItem1})
         編集EToolStripMenuItem.Name = "編集EToolStripMenuItem"
-        編集EToolStripMenuItem.Size = New Size(83, 29)
+        編集EToolStripMenuItem.Size = New Size(57, 22)
         編集EToolStripMenuItem.Text = "編集(E)"
         ' 
         ' 元に戻すUToolStripMenuItem
@@ -229,7 +230,7 @@ Partial Class OraDB_DUMP_Viewer
         元に戻すUToolStripMenuItem.Enabled = False
         元に戻すUToolStripMenuItem.Name = "元に戻すUToolStripMenuItem"
         元に戻すUToolStripMenuItem.ShortcutKeys = Keys.Control Or Keys.Z
-        元に戻すUToolStripMenuItem.Size = New Size(278, 34)
+        元に戻すUToolStripMenuItem.Size = New Size(184, 22)
         元に戻すUToolStripMenuItem.Text = "元に戻す(&U)"
         ' 
         ' やり直しRToolStripMenuItem
@@ -237,20 +238,20 @@ Partial Class OraDB_DUMP_Viewer
         やり直しRToolStripMenuItem.Enabled = False
         やり直しRToolStripMenuItem.Name = "やり直しRToolStripMenuItem"
         やり直しRToolStripMenuItem.ShortcutKeys = Keys.Control Or Keys.Y
-        やり直しRToolStripMenuItem.Size = New Size(278, 34)
+        やり直しRToolStripMenuItem.Size = New Size(184, 22)
         やり直しRToolStripMenuItem.Text = "やり直し(&R)"
         ' 
         ' コピーCToolStripMenuItem
         ' 
         コピーCToolStripMenuItem.Name = "コピーCToolStripMenuItem"
-        コピーCToolStripMenuItem.Size = New Size(275, 6)
+        コピーCToolStripMenuItem.Size = New Size(181, 6)
         ' 
         ' 切り取りTToolStripMenuItem
         ' 
         切り取りTToolStripMenuItem.Enabled = False
         切り取りTToolStripMenuItem.Name = "切り取りTToolStripMenuItem"
         切り取りTToolStripMenuItem.ShortcutKeys = Keys.Control Or Keys.X
-        切り取りTToolStripMenuItem.Size = New Size(278, 34)
+        切り取りTToolStripMenuItem.Size = New Size(184, 22)
         切り取りTToolStripMenuItem.Text = "切り取り(&T)"
         ' 
         ' ToolStripMenuItem1
@@ -258,7 +259,7 @@ Partial Class OraDB_DUMP_Viewer
         ToolStripMenuItem1.Enabled = False
         ToolStripMenuItem1.Name = "ToolStripMenuItem1"
         ToolStripMenuItem1.ShortcutKeys = Keys.Control Or Keys.C
-        ToolStripMenuItem1.Size = New Size(278, 34)
+        ToolStripMenuItem1.Size = New Size(184, 22)
         ToolStripMenuItem1.Text = "コピー(&C)"
         ' 
         ' 貼り付けPToolStripMenuItem
@@ -266,34 +267,34 @@ Partial Class OraDB_DUMP_Viewer
         貼り付けPToolStripMenuItem.Enabled = False
         貼り付けPToolStripMenuItem.Name = "貼り付けPToolStripMenuItem"
         貼り付けPToolStripMenuItem.ShortcutKeys = Keys.Control Or Keys.V
-        貼り付けPToolStripMenuItem.Size = New Size(278, 34)
+        貼り付けPToolStripMenuItem.Size = New Size(184, 22)
         貼り付けPToolStripMenuItem.Text = "貼り付け(&P)"
         ' 
         ' すべて選択AToolStripMenuItem
         ' 
         すべて選択AToolStripMenuItem.Name = "すべて選択AToolStripMenuItem"
-        すべて選択AToolStripMenuItem.Size = New Size(275, 6)
+        すべて選択AToolStripMenuItem.Size = New Size(181, 6)
         ' 
         ' すべて選択AToolStripMenuItem1
         ' 
         すべて選択AToolStripMenuItem1.Enabled = False
         すべて選択AToolStripMenuItem1.Name = "すべて選択AToolStripMenuItem1"
         すべて選択AToolStripMenuItem1.ShortcutKeys = Keys.Control Or Keys.A
-        すべて選択AToolStripMenuItem1.Size = New Size(278, 34)
+        すべて選択AToolStripMenuItem1.Size = New Size(184, 22)
         すべて選択AToolStripMenuItem1.Text = "すべて選択(&A)"
         ' 
         ' 表示VToolStripMenuItem
         ' 
         表示VToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {ツールバーTToolStripMenuItem, ステータスバーSToolStripMenuItem, ToolStripSeparator4, 最新の情報に更新RToolStripMenuItem})
         表示VToolStripMenuItem.Name = "表示VToolStripMenuItem"
-        表示VToolStripMenuItem.Size = New Size(85, 29)
+        表示VToolStripMenuItem.Size = New Size(58, 22)
         表示VToolStripMenuItem.Text = "表示(&V)"
         ' 
         ' ツールバーTToolStripMenuItem
         ' 
         ツールバーTToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {エクスポートToolStripMenuItem})
         ツールバーTToolStripMenuItem.Name = "ツールバーTToolStripMenuItem"
-        ツールバーTToolStripMenuItem.Size = New Size(303, 34)
+        ツールバーTToolStripMenuItem.Size = New Size(199, 22)
         ツールバーTToolStripMenuItem.Text = "ツールバー(&T)"
         ' 
         ' エクスポートToolStripMenuItem
@@ -301,7 +302,7 @@ Partial Class OraDB_DUMP_Viewer
         エクスポートToolStripMenuItem.Checked = True
         エクスポートToolStripMenuItem.CheckState = CheckState.Checked
         エクスポートToolStripMenuItem.Name = "エクスポートToolStripMenuItem"
-        エクスポートToolStripMenuItem.Size = New Size(270, 34)
+        エクスポートToolStripMenuItem.Size = New Size(127, 22)
         エクスポートToolStripMenuItem.Text = "エクスポート"
         ' 
         ' ステータスバーSToolStripMenuItem
@@ -309,252 +310,253 @@ Partial Class OraDB_DUMP_Viewer
         ステータスバーSToolStripMenuItem.Checked = True
         ステータスバーSToolStripMenuItem.CheckState = CheckState.Checked
         ステータスバーSToolStripMenuItem.Name = "ステータスバーSToolStripMenuItem"
-        ステータスバーSToolStripMenuItem.Size = New Size(303, 34)
+        ステータスバーSToolStripMenuItem.Size = New Size(199, 22)
         ステータスバーSToolStripMenuItem.Text = "ステータスバー(&S)"
         ' 
         ' ToolStripSeparator4
         ' 
         ToolStripSeparator4.Name = "ToolStripSeparator4"
-        ToolStripSeparator4.Size = New Size(300, 6)
+        ToolStripSeparator4.Size = New Size(196, 6)
         ' 
         ' 最新の情報に更新RToolStripMenuItem
         ' 
         最新の情報に更新RToolStripMenuItem.Name = "最新の情報に更新RToolStripMenuItem"
         最新の情報に更新RToolStripMenuItem.ShortcutKeys = Keys.F5
-        最新の情報に更新RToolStripMenuItem.Size = New Size(303, 34)
+        最新の情報に更新RToolStripMenuItem.Size = New Size(199, 22)
         最新の情報に更新RToolStripMenuItem.Text = "最新の情報に更新(&R)"
         ' 
         ' オブジェクトOToolStripMenuItem
         ' 
         オブジェクトOToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {開くToolStripMenuItem1, ToolStripSeparator5, すべてのフィルタをクリアFToolStripMenuItem, ToolStripSeparator6, 削除DToolStripMenuItem, 更新の取り消しCToolStripMenuItem, プロパティPToolStripMenuItem, ToolStripSeparator7, エクスポートToolStripMenuItem1, レポート出力RToolStripMenuItem})
         オブジェクトOToolStripMenuItem.Name = "オブジェクトOToolStripMenuItem"
-        オブジェクトOToolStripMenuItem.Size = New Size(131, 29)
+        オブジェクトOToolStripMenuItem.Size = New Size(88, 22)
         オブジェクトOToolStripMenuItem.Text = "オブジェクト(&O)"
         ' 
         ' 開くToolStripMenuItem1
         ' 
         開くToolStripMenuItem1.Name = "開くToolStripMenuItem1"
-        開くToolStripMenuItem1.Size = New Size(298, 34)
+        開くToolStripMenuItem1.Size = New Size(196, 22)
         開くToolStripMenuItem1.Text = "開く(&O)"
         ' 
         ' ToolStripSeparator5
         ' 
         ToolStripSeparator5.Name = "ToolStripSeparator5"
-        ToolStripSeparator5.Size = New Size(295, 6)
+        ToolStripSeparator5.Size = New Size(193, 6)
         ' 
         ' すべてのフィルタをクリアFToolStripMenuItem
         ' 
         すべてのフィルタをクリアFToolStripMenuItem.Name = "すべてのフィルタをクリアFToolStripMenuItem"
-        すべてのフィルタをクリアFToolStripMenuItem.Size = New Size(298, 34)
+        すべてのフィルタをクリアFToolStripMenuItem.Size = New Size(196, 22)
         すべてのフィルタをクリアFToolStripMenuItem.Text = "すべてのフィルタをクリア(&F)"
         ' 
         ' ToolStripSeparator6
         ' 
         ToolStripSeparator6.Name = "ToolStripSeparator6"
-        ToolStripSeparator6.Size = New Size(295, 6)
+        ToolStripSeparator6.Size = New Size(193, 6)
         ' 
         ' 削除DToolStripMenuItem
         ' 
         削除DToolStripMenuItem.Name = "削除DToolStripMenuItem"
         削除DToolStripMenuItem.ShortcutKeys = Keys.Delete
-        削除DToolStripMenuItem.Size = New Size(298, 34)
+        削除DToolStripMenuItem.Size = New Size(196, 22)
         削除DToolStripMenuItem.Text = "削除(&D)"
         ' 
         ' 更新の取り消しCToolStripMenuItem
         ' 
         更新の取り消しCToolStripMenuItem.Name = "更新の取り消しCToolStripMenuItem"
-        更新の取り消しCToolStripMenuItem.Size = New Size(298, 34)
+        更新の取り消しCToolStripMenuItem.Size = New Size(196, 22)
         更新の取り消しCToolStripMenuItem.Text = "更新の取り消し(&C)"
         ' 
         ' プロパティPToolStripMenuItem
         ' 
         プロパティPToolStripMenuItem.Name = "プロパティPToolStripMenuItem"
-        プロパティPToolStripMenuItem.Size = New Size(298, 34)
+        プロパティPToolStripMenuItem.Size = New Size(196, 22)
         プロパティPToolStripMenuItem.Text = "プロパティ(&P)"
         ' 
         ' ToolStripSeparator7
         ' 
         ToolStripSeparator7.Name = "ToolStripSeparator7"
-        ToolStripSeparator7.Size = New Size(295, 6)
+        ToolStripSeparator7.Size = New Size(193, 6)
         ' 
         ' エクスポートToolStripMenuItem1
         ' 
         エクスポートToolStripMenuItem1.DropDownItems.AddRange(New ToolStripItem() {スクリプトWSToolStripMenuItem, データDToolStripMenuItem})
         エクスポートToolStripMenuItem1.Name = "エクスポートToolStripMenuItem1"
-        エクスポートToolStripMenuItem1.Size = New Size(298, 34)
+        エクスポートToolStripMenuItem1.Size = New Size(196, 22)
         エクスポートToolStripMenuItem1.Text = "エクスポート(&E)"
         ' 
         ' スクリプトWSToolStripMenuItem
         ' 
         スクリプトWSToolStripMenuItem.Name = "スクリプトWSToolStripMenuItem"
-        スクリプトWSToolStripMenuItem.Size = New Size(201, 34)
+        スクリプトWSToolStripMenuItem.Size = New Size(131, 22)
         スクリプトWSToolStripMenuItem.Text = "スクリプト(&S)"
         ' 
         ' データDToolStripMenuItem
         ' 
         データDToolStripMenuItem.Name = "データDToolStripMenuItem"
-        データDToolStripMenuItem.Size = New Size(201, 34)
+        データDToolStripMenuItem.Size = New Size(131, 22)
         データDToolStripMenuItem.Text = "データ(&D)"
         ' 
         ' レポート出力RToolStripMenuItem
         ' 
         レポート出力RToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {オブジェクト一覧ToolStripMenuItem, テーブル定義ToolStripMenuItem})
         レポート出力RToolStripMenuItem.Name = "レポート出力RToolStripMenuItem"
-        レポート出力RToolStripMenuItem.Size = New Size(298, 34)
+        レポート出力RToolStripMenuItem.Size = New Size(196, 22)
         レポート出力RToolStripMenuItem.Text = "レポート出力(&R)"
         ' 
         ' オブジェクト一覧ToolStripMenuItem
         ' 
         オブジェクト一覧ToolStripMenuItem.Name = "オブジェクト一覧ToolStripMenuItem"
-        オブジェクト一覧ToolStripMenuItem.Size = New Size(229, 34)
+        オブジェクト一覧ToolStripMenuItem.Size = New Size(150, 22)
         オブジェクト一覧ToolStripMenuItem.Text = "オブジェクト一覧"
         ' 
         ' テーブル定義ToolStripMenuItem
         ' 
         テーブル定義ToolStripMenuItem.Name = "テーブル定義ToolStripMenuItem"
-        テーブル定義ToolStripMenuItem.Size = New Size(229, 34)
+        テーブル定義ToolStripMenuItem.Size = New Size(150, 22)
         テーブル定義ToolStripMenuItem.Text = "テーブル定義"
         ' 
         ' ツールTToolStripMenuItem
         ' 
         ツールTToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {ファイルの取り出しFToolStripMenuItem, ToolStripSeparator8, レポート定義DToolStripMenuItem, オプションOToolStripMenuItem})
         ツールTToolStripMenuItem.Name = "ツールTToolStripMenuItem"
-        ツールTToolStripMenuItem.Size = New Size(87, 29)
+        ツールTToolStripMenuItem.Size = New Size(60, 22)
         ツールTToolStripMenuItem.Text = "ツール(&T)"
         ' 
         ' ファイルの取り出しFToolStripMenuItem
         ' 
         ファイルの取り出しFToolStripMenuItem.Name = "ファイルの取り出しFToolStripMenuItem"
-        ファイルの取り出しFToolStripMenuItem.Size = New Size(260, 34)
+        ファイルの取り出しFToolStripMenuItem.Size = New Size(172, 22)
         ファイルの取り出しFToolStripMenuItem.Text = "ファイルの取り出し(&F)"
         ' 
         ' ToolStripSeparator8
         ' 
         ToolStripSeparator8.Name = "ToolStripSeparator8"
-        ToolStripSeparator8.Size = New Size(257, 6)
+        ToolStripSeparator8.Size = New Size(169, 6)
         ' 
         ' レポート定義DToolStripMenuItem
         ' 
         レポート定義DToolStripMenuItem.Name = "レポート定義DToolStripMenuItem"
-        レポート定義DToolStripMenuItem.Size = New Size(260, 34)
+        レポート定義DToolStripMenuItem.Size = New Size(172, 22)
         レポート定義DToolStripMenuItem.Text = "レポート定義(&D)"
         ' 
         ' オプションOToolStripMenuItem
         ' 
         オプションOToolStripMenuItem.Name = "オプションOToolStripMenuItem"
-        オプションOToolStripMenuItem.Size = New Size(260, 34)
+        オプションOToolStripMenuItem.Size = New Size(172, 22)
         オプションOToolStripMenuItem.Text = "オプション(&O)"
         ' 
         ' ウィンドウWToolStripMenuItem
         ' 
         ウィンドウWToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {重ねて表示CToolStripMenuItem, 並べて表示TToolStripMenuItem, アイコンの整列IToolStripMenuItem, ToolStripSeparator13})
         ウィンドウWToolStripMenuItem.Name = "ウィンドウWToolStripMenuItem"
-        ウィンドウWToolStripMenuItem.Size = New Size(118, 29)
+        ウィンドウWToolStripMenuItem.Size = New Size(80, 22)
         ウィンドウWToolStripMenuItem.Text = "ウィンドウ(&W)"
         ' 
         ' 重ねて表示CToolStripMenuItem
         ' 
         重ねて表示CToolStripMenuItem.Name = "重ねて表示CToolStripMenuItem"
-        重ねて表示CToolStripMenuItem.Size = New Size(233, 34)
+        重ねて表示CToolStripMenuItem.Size = New Size(154, 22)
         重ねて表示CToolStripMenuItem.Text = "重ねて表示(&C)"
         ' 
         ' 並べて表示TToolStripMenuItem
         ' 
         並べて表示TToolStripMenuItem.Name = "並べて表示TToolStripMenuItem"
-        並べて表示TToolStripMenuItem.Size = New Size(233, 34)
+        並べて表示TToolStripMenuItem.Size = New Size(154, 22)
         並べて表示TToolStripMenuItem.Text = "並べて表示($T)"
         ' 
         ' アイコンの整列IToolStripMenuItem
         ' 
         アイコンの整列IToolStripMenuItem.Name = "アイコンの整列IToolStripMenuItem"
-        アイコンの整列IToolStripMenuItem.Size = New Size(233, 34)
+        アイコンの整列IToolStripMenuItem.Size = New Size(154, 22)
         アイコンの整列IToolStripMenuItem.Text = "アイコンの整列(&I)"
         ' 
         ' ToolStripSeparator13
         ' 
         ToolStripSeparator13.Name = "ToolStripSeparator13"
-        ToolStripSeparator13.Size = New Size(230, 6)
+        ToolStripSeparator13.Size = New Size(151, 6)
         ' 
         ' ヘルプHToolStripMenuItem
         ' 
         ヘルプHToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {MokujiToolStripMenuItem, ToolStripSeparator9, エラー報告RToolStripMenuItem, ToolStripSeparator10, ライセンス認証ToolStripMenuItem, バージョン情報AToolStripMenuItem})
         ヘルプHToolStripMenuItem.Name = "ヘルプHToolStripMenuItem"
-        ヘルプHToolStripMenuItem.Size = New Size(95, 29)
+        ヘルプHToolStripMenuItem.Size = New Size(65, 22)
         ヘルプHToolStripMenuItem.Text = "ヘルプ(&H)"
         ' 
         ' MokujiToolStripMenuItem
         ' 
         MokujiToolStripMenuItem.Name = "MokujiToolStripMenuItem"
-        MokujiToolStripMenuItem.Size = New Size(238, 34)
+        MokujiToolStripMenuItem.Size = New Size(158, 22)
         MokujiToolStripMenuItem.Text = "目次(&I)"
         ' 
         ' ToolStripSeparator9
         ' 
         ToolStripSeparator9.Name = "ToolStripSeparator9"
-        ToolStripSeparator9.Size = New Size(235, 6)
+        ToolStripSeparator9.Size = New Size(155, 6)
         ' 
         ' エラー報告RToolStripMenuItem
         ' 
         エラー報告RToolStripMenuItem.Name = "エラー報告RToolStripMenuItem"
-        エラー報告RToolStripMenuItem.Size = New Size(238, 34)
+        エラー報告RToolStripMenuItem.Size = New Size(158, 22)
         エラー報告RToolStripMenuItem.Text = "エラー報告(&R)"
         ' 
         ' ToolStripSeparator10
         ' 
         ToolStripSeparator10.Name = "ToolStripSeparator10"
-        ToolStripSeparator10.Size = New Size(235, 6)
+        ToolStripSeparator10.Size = New Size(155, 6)
         ' 
         ' ライセンス認証ToolStripMenuItem
         ' 
         ライセンス認証ToolStripMenuItem.Name = "ライセンス認証ToolStripMenuItem"
-        ライセンス認証ToolStripMenuItem.Size = New Size(238, 34)
+        ライセンス認証ToolStripMenuItem.Size = New Size(158, 22)
         ライセンス認証ToolStripMenuItem.Text = "ライセンス認証(&L)"
         ' 
         ' バージョン情報AToolStripMenuItem
         ' 
         バージョン情報AToolStripMenuItem.Name = "バージョン情報AToolStripMenuItem"
-        バージョン情報AToolStripMenuItem.Size = New Size(238, 34)
+        バージョン情報AToolStripMenuItem.Size = New Size(158, 22)
         バージョン情報AToolStripMenuItem.Text = "バージョン情報(&A)"
         ' 
         ' StatusStrip
         ' 
         StatusStrip.ImageScalingSize = New Size(24, 24)
         StatusStrip.Items.AddRange(New ToolStripItem() {ToolStripProgressBar, ToolStripStatusLabel})
-        StatusStrip.Location = New Point(0, 1027)
+        StatusStrip.Location = New Point(0, 613)
         StatusStrip.Name = "StatusStrip"
-        StatusStrip.Size = New Size(1607, 32)
+        StatusStrip.Padding = New Padding(1, 0, 10, 0)
+        StatusStrip.Size = New Size(1125, 22)
         StatusStrip.TabIndex = 1
         StatusStrip.Text = "StatusStrip1"
         ' 
         ' ToolStripProgressBar
         ' 
         ToolStripProgressBar.Name = "ToolStripProgressBar"
-        ToolStripProgressBar.Size = New Size(100, 24)
+        ToolStripProgressBar.Size = New Size(70, 16)
         ' 
         ' ToolStripStatusLabel
         ' 
         ToolStripStatusLabel.Name = "ToolStripStatusLabel"
-        ToolStripStatusLabel.Size = New Size(175, 25)
+        ToolStripStatusLabel.Size = New Size(116, 17)
         ToolStripStatusLabel.Text = "OraDB DUMP Viewer"
         ' 
         ' ToolExport
         ' 
         ToolExport.ImageScalingSize = New Size(24, 24)
-        ToolExport.Items.AddRange(New ToolStripItem() {ToolStripButton2, ToolStripButton1, ToolStripSeparator11, ToolStripButton5, ToolStripButton6, ToolStripSeparator12, ToolStripButton7, ToolStripButton8, ToolStripButton10, ToolStripButton9, ToolStripButton3})
-        ToolExport.Location = New Point(0, 33)
+        ToolExport.Items.AddRange(New ToolStripItem() {tolTablPproperty, ToolStripButton1, ToolStripSeparator11, ToolStripButton5, ToolStripButton6, ToolStripSeparator12, ToolStripButton7, ToolStripButton8, ToolStripButton10, ToolStripButton9, ToolStripButton3})
+        ToolExport.Location = New Point(0, 24)
         ToolExport.Name = "ToolExport"
-        ToolExport.Size = New Size(1607, 33)
+        ToolExport.Size = New Size(1125, 31)
         ToolExport.TabIndex = 4
         ToolExport.Text = "ToolStrip2"
         ' 
-        ' ToolStripButton2
+        ' tolTablPproperty
         ' 
-        ToolStripButton2.DisplayStyle = ToolStripItemDisplayStyle.Image
-        ToolStripButton2.Image = CType(resources.GetObject("ToolStripButton2.Image"), Image)
-        ToolStripButton2.ImageTransparentColor = Color.Magenta
-        ToolStripButton2.Name = "ToolStripButton2"
-        ToolStripButton2.Size = New Size(34, 28)
-        ToolStripButton2.Text = "プロパティ"
+        tolTablPproperty.DisplayStyle = ToolStripItemDisplayStyle.Image
+        tolTablPproperty.Image = CType(resources.GetObject("tolTablPproperty.Image"), Image)
+        tolTablPproperty.ImageTransparentColor = Color.Magenta
+        tolTablPproperty.Name = "tolTablPproperty"
+        tolTablPproperty.Size = New Size(28, 28)
+        tolTablPproperty.Text = "プロパティ"
         ' 
         ' ToolStripButton1
         ' 
@@ -562,13 +564,13 @@ Partial Class OraDB_DUMP_Viewer
         ToolStripButton1.Image = CType(resources.GetObject("ToolStripButton1.Image"), Image)
         ToolStripButton1.ImageTransparentColor = Color.Magenta
         ToolStripButton1.Name = "ToolStripButton1"
-        ToolStripButton1.Size = New Size(34, 28)
+        ToolStripButton1.Size = New Size(28, 28)
         ToolStripButton1.Text = "削除"
         ' 
         ' ToolStripSeparator11
         ' 
         ToolStripSeparator11.Name = "ToolStripSeparator11"
-        ToolStripSeparator11.Size = New Size(6, 33)
+        ToolStripSeparator11.Size = New Size(6, 31)
         ' 
         ' ToolStripButton5
         ' 
@@ -576,7 +578,7 @@ Partial Class OraDB_DUMP_Viewer
         ToolStripButton5.Image = CType(resources.GetObject("ToolStripButton5.Image"), Image)
         ToolStripButton5.ImageTransparentColor = Color.Magenta
         ToolStripButton5.Name = "ToolStripButton5"
-        ToolStripButton5.Size = New Size(34, 28)
+        ToolStripButton5.Size = New Size(28, 28)
         ToolStripButton5.Text = "スクリプト出力"
         ' 
         ' ToolStripButton6
@@ -585,13 +587,13 @@ Partial Class OraDB_DUMP_Viewer
         ToolStripButton6.Image = CType(resources.GetObject("ToolStripButton6.Image"), Image)
         ToolStripButton6.ImageTransparentColor = Color.Magenta
         ToolStripButton6.Name = "ToolStripButton6"
-        ToolStripButton6.Size = New Size(34, 28)
+        ToolStripButton6.Size = New Size(28, 28)
         ToolStripButton6.Text = "データ出力"
         ' 
         ' ToolStripSeparator12
         ' 
         ToolStripSeparator12.Name = "ToolStripSeparator12"
-        ToolStripSeparator12.Size = New Size(6, 33)
+        ToolStripSeparator12.Size = New Size(6, 31)
         ' 
         ' ToolStripButton7
         ' 
@@ -599,7 +601,7 @@ Partial Class OraDB_DUMP_Viewer
         ToolStripButton7.Image = CType(resources.GetObject("ToolStripButton7.Image"), Image)
         ToolStripButton7.ImageTransparentColor = Color.Magenta
         ToolStripButton7.Name = "ToolStripButton7"
-        ToolStripButton7.Size = New Size(34, 28)
+        ToolStripButton7.Size = New Size(28, 28)
         ToolStripButton7.Text = "Excel形式で出力"
         ' 
         ' ToolStripButton8
@@ -608,7 +610,7 @@ Partial Class OraDB_DUMP_Viewer
         ToolStripButton8.Image = CType(resources.GetObject("ToolStripButton8.Image"), Image)
         ToolStripButton8.ImageTransparentColor = Color.Magenta
         ToolStripButton8.Name = "ToolStripButton8"
-        ToolStripButton8.Size = New Size(34, 28)
+        ToolStripButton8.Size = New Size(28, 28)
         ToolStripButton8.Text = "Access形式で出力"
         ' 
         ' ToolStripButton10
@@ -617,7 +619,7 @@ Partial Class OraDB_DUMP_Viewer
         ToolStripButton10.Image = CType(resources.GetObject("ToolStripButton10.Image"), Image)
         ToolStripButton10.ImageTransparentColor = Color.Magenta
         ToolStripButton10.Name = "ToolStripButton10"
-        ToolStripButton10.Size = New Size(34, 28)
+        ToolStripButton10.Size = New Size(28, 28)
         ToolStripButton10.Text = "テキスト形式で出力"
         ' 
         ' ToolStripButton9
@@ -626,7 +628,7 @@ Partial Class OraDB_DUMP_Viewer
         ToolStripButton9.Image = CType(resources.GetObject("ToolStripButton9.Image"), Image)
         ToolStripButton9.ImageTransparentColor = Color.Magenta
         ToolStripButton9.Name = "ToolStripButton9"
-        ToolStripButton9.Size = New Size(34, 28)
+        ToolStripButton9.Size = New Size(28, 28)
         ToolStripButton9.Text = "SQL Serverへ出力"
         ' 
         ' ToolStripButton3
@@ -635,19 +637,20 @@ Partial Class OraDB_DUMP_Viewer
         ToolStripButton3.Image = CType(resources.GetObject("ToolStripButton3.Image"), Image)
         ToolStripButton3.ImageTransparentColor = Color.Magenta
         ToolStripButton3.Name = "ToolStripButton3"
-        ToolStripButton3.Size = New Size(34, 28)
+        ToolStripButton3.Size = New Size(28, 28)
         ToolStripButton3.Text = "ODBCで出力"
         ' 
         ' OraDB_DUMP_Viewer
         ' 
-        AutoScaleDimensions = New SizeF(10.0F, 25.0F)
+        AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(1607, 1059)
+        ClientSize = New Size(1125, 635)
         Controls.Add(ToolExport)
         Controls.Add(StatusStrip)
         Controls.Add(MenuStrip)
         IsMdiContainer = True
         MainMenuStrip = MenuStrip
+        Margin = New Padding(2, 2, 2, 2)
         Name = "OraDB_DUMP_Viewer"
         Text = "OraDB DUMP Viewer"
         MenuStrip.ResumeLayout(False)
@@ -734,7 +737,7 @@ Partial Class OraDB_DUMP_Viewer
     Friend WithEvents ToolStripButton10 As ToolStripButton
     Friend WithEvents ToolStripButton8 As ToolStripButton
     Friend WithEvents ToolStripButton9 As ToolStripButton
-    Friend WithEvents ToolStripButton2 As ToolStripButton
+    Friend WithEvents tolTablPproperty As ToolStripButton
     Friend WithEvents ToolStripButton1 As ToolStripButton
     Friend WithEvents ToolStripSeparator11 As ToolStripSeparator
     Friend WithEvents ToolStripButton3 As ToolStripButton

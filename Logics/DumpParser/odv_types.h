@@ -219,6 +219,7 @@ typedef struct {
     int     header_size;
     int     oracle_version;
     int     exp_mode;            /* EXP_MODE_TABLE etc. */
+    char    export_user[ODV_OBJNAME_LEN + 1]; /* Header record 1: export user/schema */
 } ODV_EXP_STATE;
 
 /* Forward declaration */

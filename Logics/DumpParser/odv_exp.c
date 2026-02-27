@@ -154,6 +154,12 @@ static int parse_exp_header(ODV_SESSION *s, FILE *fp)
                 else
                     s->exp_state.oracle_version = atoi((char *)&word[2]);
                 break;
+            case 1:
+                /* Record 1: Export user/schema (e.g. "DNO1CCUSER") */
+                if (word[0] != '\0')
+                    odv_strcpy(s->exp_state.export_user, (char *)word,
+                               ODV_OBJNAME_LEN);
+                break;
             case 2:
                 /* Record 2: Export mode */
                 if (memcmp(word, "RTABLES", 7) == 0)
@@ -964,6 +970,15 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
         /* Normal: start from beginning of file */
         odv_fseek(fp, 0, SEEK_SET);
         step = 0;
+
+        /* RTABLES (single-table export) has no CONNECT statement,
+           so current_schema would stay empty.  Pre-set it from the
+           export user stored in the header (record 1). */
+        if (s->exp_state.exp_mode == EXP_MODE_TABLE &&
+            s->exp_state.export_user[0] != '\0') {
+            odv_strcpy(current_schema, s->exp_state.export_user,
+                       ODV_OBJNAME_LEN);
+        }
     }
 
     data_step = 0;
@@ -989,11 +1004,15 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
             break;
 
         case 1: /* Export mode recognition */
-            /* Accumulate chars until \0 or \n terminator */
+            /* Accumulate chars until \0 or \n terminator.
+               After the 256-byte header, RTABLES dumps have ~1.75KB of 0x00
+               padding followed by binary metadata, then METRIC markers,
+               then DDL text.  We need to recognize METRIC markers to
+               properly transition to step 2 (DDL parsing). */
             if (c == 0x00 || c == 0x0a) {
                 if (wlen > 0) {
                     word[wlen] = '\0';
-                    /* Check if this looks like DDL — if so, transition */
+                    /* DDL keyword → immediate transition */
                     if (starts_with_ci(word, "CREATE ") ||
                         starts_with_ci(word, "CONNECT ") ||
                         starts_with_ci(word, "ALTER ") ||
@@ -1002,11 +1021,27 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                         step = 2;
                         goto handle_ddl;
                     }
+                    /* METRIC marker or INTERPRETED → transition to step 2.
+                       METRICST = table mode, METRICSU/METRICEU = user mode,
+                       METRICEE = database mode, INTERPRETED = direct export. */
+                    if (strcmp(word, "METRICST") == 0 ||
+                        strcmp(word, "METRICSU") == 0 ||
+                        strcmp(word, "METRICEU") == 0 ||
+                        strcmp(word, "METRICEE") == 0 ||
+                        strcmp(word, "INTERPRETED") == 0) {
+                        step = 2;
+                        wlen = 0;
+                        break;
+                    }
                     wlen = 0;
                 }
             } else {
-                if (wlen < EXP_DDL_BUF_SIZE - 2)
-                    word[wlen++] = (char)c;
+                /* Only accumulate printable ASCII to avoid binary noise
+                   from metadata blocks between header and DDL area */
+                if (c >= 0x20 && c <= 0x7e) {
+                    if (wlen < EXP_DDL_BUF_SIZE - 2)
+                        word[wlen++] = (char)c;
+                }
             }
             break;
 

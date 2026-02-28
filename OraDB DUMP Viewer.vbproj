@@ -10,6 +10,7 @@
     <Version>0.1.2</Version>
     <Authors>YANAI Taketo</Authors>
     <Company>YANAI Taketo</Company>
+    <ApplicationIcon>app.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

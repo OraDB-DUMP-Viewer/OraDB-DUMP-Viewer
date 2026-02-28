@@ -295,3 +295,14 @@ jobs:
             ./publish/OraDBDumpViewer_v${{ steps.get_version.outputs.VERSION }}_installer.msi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ─────────────────────────────────────
+      # 16. Winget パッケージマニフェストの自動PR
+      #     microsoft/winget-pkgs へ PR を送信
+      # ─────────────────────────────────────
+      - name: Publish to Winget
+        uses: vedantmgoyal9/winget-releaser@v2
+        with:
+          identifier: OraDBDumpViewer.OraDBDumpViewer
+          installers-regex: '\.msi$'
+          token: ${{ secrets.WINGET_TOKEN }}

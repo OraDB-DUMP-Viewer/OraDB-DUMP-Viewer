@@ -125,15 +125,15 @@ jobs:
             --output ./publish/portable
 
       # ─────────────────────────────────────
-      # 8b. MSI 用ビルド (Framework-dependent)
-      #     .NET ランタイムは別途インストール → 軽量
+      # 8b. MSI 用ビルド (Self-contained)
+      #     .NET ランタイム同梱 → Winget 検証対応
       # ─────────────────────────────────────
-      - name: Build for MSI (framework-dependent)
+      - name: Build for MSI (self-contained)
         run: |
           dotnet publish "OraDB DUMP Viewer.vbproj" `
             --configuration Release `
             --runtime win-x64 `
-            --self-contained false `
+            --self-contained true `
             --output ./publish/msi
 
       # ─────────────────────────────────────
@@ -197,12 +197,6 @@ jobs:
 
               <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
               <MediaTemplate EmbedCab="yes" />
-
-              <!-- .NET 10.0 ランタイムの存在チェックと案内 -->
-              <Property Id="DOTNET_INSTALLED">
-                <RegistrySearch Id="CheckDotNet10Runtime" Root="HKLM" Key="SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedhost" Name="Version" Type="raw" />
-              </Property>
-              <Launch Condition="DOTNET_INSTALLED" Message=".NET 10.0 ランタイムが必要です。インストールしてから再度セットアップを実行してください。&#10;&#10;ダウンロード: https://dotnet.microsoft.com/ja-jp/download/dotnet/10.0" />
 
               <ui:WixUI Id="WixUI_InstallDir" />
               <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
@@ -339,10 +333,6 @@ jobs:
           - Architecture: x64
             InstallerUrl: $msiUrl
             InstallerSha256: $hash
-          Dependencies:
-            PackageDependencies:
-            - PackageIdentifier: Microsoft.DotNet.DesktopRuntime.10
-              MinimumVersion: "10.0.0"
           ManifestType: installer
           ManifestVersion: 1.6.0
           "@ -replace '(?m)^          ', '' | Set-Content "$dir/OraDBDumpViewer.OraDBDumpViewer.installer.yaml" -NoNewline

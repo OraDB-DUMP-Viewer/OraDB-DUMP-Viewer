@@ -228,6 +228,13 @@ Public Class OraDB_DUMP_Viewer
     End Sub
 #End Region
 
+#Region "メニューイベント: バージョン情報"
+    Private Sub バージョン情報AToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles バージョン情報AToolStripMenuItem.Click
+        Dim dlg As New AboutDialog()
+        dlg.ShowDialog(Me)
+    End Sub
+#End Region
+
 #Region "メニューイベント: 終了"
     Private Sub 終了XToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles 終了XToolStripMenuItem.Click
         'アプリケーションを終了する

@@ -113,28 +113,23 @@ jobs:
         run: dotnet restore "OraDB DUMP Viewer.vbproj"
 
       # ─────────────────────────────────────
-      # 8a. ポータブル版ビルド (Self-contained)
-      #     .NET ランタイム同梱 → 解凍してすぐ使える
+      # 8. アプリビルド (Self-contained)
+      #    .NET ランタイム同梱
+      #    ポータブル版 (ZIP) と MSI で共用
       # ─────────────────────────────────────
-      - name: Build portable (self-contained)
+      - name: Build application (self-contained)
         run: |
           dotnet publish "OraDB DUMP Viewer.vbproj" `
             --configuration Release `
             --runtime win-x64 `
             --self-contained true `
-            --output ./publish/portable
+            --output ./publish/app
 
-      # ─────────────────────────────────────
-      # 8b. MSI 用ビルド (Self-contained)
-      #     .NET ランタイム同梱 → Winget 検証対応
-      # ─────────────────────────────────────
-      - name: Build for MSI (self-contained)
+      - name: Copy build output for portable and MSI
+        shell: pwsh
         run: |
-          dotnet publish "OraDB DUMP Viewer.vbproj" `
-            --configuration Release `
-            --runtime win-x64 `
-            --self-contained true `
-            --output ./publish/msi
+          Copy-Item -Path "./publish/app/*" -Destination "./publish/portable" -Recurse -Force
+          Copy-Item -Path "./publish/app/*" -Destination "./publish/msi" -Recurse -Force
 
       # ─────────────────────────────────────
       # 9. DLL が出力に含まれていることを検証
@@ -142,13 +137,11 @@ jobs:
       - name: Verify native DLL in output
         shell: pwsh
         run: |
-          foreach ($dir in @("./publish/portable", "./publish/msi")) {
-            if (-not (Test-Path "$dir/OraDB_DumpParser.dll")) {
-              Write-Error "OraDB_DumpParser.dll が $dir に含まれていません"
-              exit 1
-            }
+          if (-not (Test-Path "./publish/app/OraDB_DumpParser.dll")) {
+            Write-Error "OraDB_DumpParser.dll がビルド出力に含まれていません"
+            exit 1
           }
-          Write-Host "OraDB_DumpParser.dll found in both outputs"
+          Write-Host "OraDB_DumpParser.dll found in build output"
 
       # ─────────────────────────────────────
       # 10. ポータブル版を ZIP に圧縮
@@ -293,7 +286,6 @@ jobs:
       # ─────────────────────────────────────
       # 16. Winget パッケージマニフェストの自動PR
       #     microsoft/winget-pkgs へ PR を送信
-      #     .NET 10 Desktop Runtime を依存関係に指定
       # ─────────────────────────────────────
       - name: Publish to Winget
         shell: pwsh
@@ -316,7 +308,7 @@ jobs:
           ManifestVersion: 1.6.0
           "@ -replace '(?m)^          ', '' | Set-Content "$dir/OraDBDumpViewer.OraDBDumpViewer.yaml" -NoNewline
 
-          # インストーラーマニフェスト（.NET 10 依存を含む）
+          # インストーラーマニフェスト
           @"
           PackageIdentifier: OraDBDumpViewer.OraDBDumpViewer
           PackageVersion: $version

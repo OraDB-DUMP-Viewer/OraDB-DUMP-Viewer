@@ -299,10 +299,74 @@ jobs:
       # ─────────────────────────────────────
       # 16. Winget パッケージマニフェストの自動PR
       #     microsoft/winget-pkgs へ PR を送信
+      #     .NET 10 Desktop Runtime を依存関係に指定
       # ─────────────────────────────────────
       - name: Publish to Winget
-        uses: vedantmgoyal9/winget-releaser@v2
-        with:
-          identifier: OraDBDumpViewer.OraDBDumpViewer
-          installers-regex: '\.msi$'
-          token: ${{ secrets.WINGET_TOKEN }}
+        shell: pwsh
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}"
+          $msiPath = "./publish/OraDBDumpViewer_v${version}_installer.msi"
+          $msiUrl = "https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases/download/v${version}/OraDBDumpViewer_v${version}_installer.msi"
+          $hash = (Get-FileHash $msiPath -Algorithm SHA256).Hash
+
+          # マニフェストディレクトリ作成
+          $dir = "manifests/o/OraDBDumpViewer/OraDBDumpViewer/$version"
+          New-Item -ItemType Directory -Path $dir -Force
+
+          # バージョンマニフェスト
+          @"
+          PackageIdentifier: OraDBDumpViewer.OraDBDumpViewer
+          PackageVersion: $version
+          DefaultLocale: ja-JP
+          ManifestType: version
+          ManifestVersion: 1.6.0
+          "@ -replace '(?m)^          ', '' | Set-Content "$dir/OraDBDumpViewer.OraDBDumpViewer.yaml" -NoNewline
+
+          # インストーラーマニフェスト（.NET 10 依存を含む）
+          @"
+          PackageIdentifier: OraDBDumpViewer.OraDBDumpViewer
+          PackageVersion: $version
+          Platform:
+          - Windows.Desktop
+          MinimumOSVersion: 10.0.17763.0
+          InstallerType: msi
+          Scope: machine
+          InstallModes:
+          - interactive
+          - silent
+          - silentWithProgress
+          Installers:
+          - Architecture: x64
+            InstallerUrl: $msiUrl
+            InstallerSha256: $hash
+          Dependencies:
+            PackageDependencies:
+            - PackageIdentifier: Microsoft.DotNet.DesktopRuntime.10
+              MinimumVersion: "10.0.0"
+          ManifestType: installer
+          ManifestVersion: 1.6.0
+          "@ -replace '(?m)^          ', '' | Set-Content "$dir/OraDBDumpViewer.OraDBDumpViewer.installer.yaml" -NoNewline
+
+          # ロケールマニフェスト
+          @"
+          PackageIdentifier: OraDBDumpViewer.OraDBDumpViewer
+          PackageVersion: $version
+          PackageLocale: ja-JP
+          Publisher: YANAI Taketo
+          PublisherUrl: https://www.odv.dev/
+          PackageName: OraDB DUMP Viewer
+          PackageUrl: https://www.odv.dev/
+          License: Proprietary
+          ShortDescription: Oracle EXP/EXPDP DUMPファイルビューア
+          Tags:
+          - oracle
+          - dump
+          - viewer
+          - database
+          ManifestType: defaultLocale
+          ManifestVersion: 1.6.0
+          "@ -replace '(?m)^          ', '' | Set-Content "$dir/OraDBDumpViewer.OraDBDumpViewer.locale.ja-JP.yaml" -NoNewline
+
+          # wingetcreate で winget-pkgs へ PR 送信
+          Invoke-WebRequest -Uri "https://aka.ms/wingetcreate/latest" -OutFile wingetcreate.exe
+          .\wingetcreate.exe submit --token "${{ secrets.WINGET_TOKEN }}" $dir

@@ -228,6 +228,13 @@ Public Class OraDB_DUMP_Viewer
     End Sub
 #End Region
 
+#Region "メニューイベント: エラー報告"
+    Private Sub エラー報告RToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles エラー報告RToolStripMenuItem.Click
+        Dim dlg As New ErrorReportDialog()
+        dlg.ShowDialog(Me)
+    End Sub
+#End Region
+
 #Region "メニューイベント: バージョン情報"
     Private Sub バージョン情報AToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles バージョン情報AToolStripMenuItem.Click
         Dim dlg As New AboutDialog()

@@ -31,7 +31,6 @@ Partial Class TablePreview
         buttonSearch = New Button()
         buttonReset = New Button()
         buttonAdvancedSearch = New Button()
-        buttonExportCsv = New Button()
         labelRowCount = New Label()
         panelPaging = New Panel()
         labelPageSize = New Label()
@@ -69,7 +68,6 @@ Partial Class TablePreview
         panelSearch.Controls.Add(buttonSearch)
         panelSearch.Controls.Add(buttonReset)
         panelSearch.Controls.Add(buttonAdvancedSearch)
-        panelSearch.Controls.Add(buttonExportCsv)
         panelSearch.Controls.Add(labelRowCount)
         panelSearch.Location = New Point(20, 25)
         panelSearch.Margin = New Padding(5, 6, 5, 6)
@@ -144,16 +142,6 @@ Partial Class TablePreview
         buttonAdvancedSearch.TabIndex = 6
         buttonAdvancedSearch.Text = "高度な検索"
         buttonAdvancedSearch.UseVisualStyleBackColor = True
-        '
-        ' buttonExportCsv
-        '
-        buttonExportCsv.Location = New Point(528, 92)
-        buttonExportCsv.Margin = New Padding(5, 6, 5, 6)
-        buttonExportCsv.Name = "buttonExportCsv"
-        buttonExportCsv.Size = New Size(167, 48)
-        buttonExportCsv.TabIndex = 8
-        buttonExportCsv.Text = "CSV 出力"
-        buttonExportCsv.UseVisualStyleBackColor = True
         '
         ' labelRowCount
         '
@@ -262,7 +250,7 @@ Partial Class TablePreview
     Friend WithEvents labelRowCount As System.Windows.Forms.Label
     Friend WithEvents buttonReset As System.Windows.Forms.Button
     Friend WithEvents buttonAdvancedSearch As System.Windows.Forms.Button
-    Friend WithEvents buttonExportCsv As System.Windows.Forms.Button
+
     Friend WithEvents panelPaging As System.Windows.Forms.Panel
     Friend WithEvents labelPageInfo As System.Windows.Forms.Label
     Friend WithEvents buttonNext As System.Windows.Forms.Button

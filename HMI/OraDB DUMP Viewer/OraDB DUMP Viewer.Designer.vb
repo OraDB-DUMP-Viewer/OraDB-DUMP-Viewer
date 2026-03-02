@@ -629,15 +629,16 @@ Partial Class OraDB_DUMP_Viewer
         ToolStripButton3.Name = "ToolStripButton3"
         ToolStripButton3.Size = New Size(28, 28)
         ToolStripButton3.Text = "ODBC"
-        ' 
+        '
         ' OraDB_DUMP_Viewer
-        ' 
+        '
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(1125, 635)
         Controls.Add(ToolExport)
         Controls.Add(StatusStrip)
         Controls.Add(MenuStrip)
+        Icon = System.Drawing.Icon.ExtractAssociatedIcon(System.Reflection.Assembly.GetExecutingAssembly().Location)
         IsMdiContainer = True
         MainMenuStrip = MenuStrip
         Margin = New Padding(2, 2, 2, 2)

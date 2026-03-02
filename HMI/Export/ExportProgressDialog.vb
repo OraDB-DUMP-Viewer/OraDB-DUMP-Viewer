@@ -30,11 +30,24 @@ Public Class ExportProgressDialog
         Public Property TableName As String
         Public Property RowsProcessed As Long
         Public Property TotalRows As Long
+        ''' <summary>一括エクスポート時: 現在のテーブル番号 (1-based, 0=単一テーブル)</summary>
+        Public Property CurrentTableIndex As Integer = 0
+        ''' <summary>一括エクスポート時: 全テーブル数</summary>
+        Public Property TotalTableCount As Integer = 0
 
         Public Sub New(tableName As String, rowsProcessed As Long, totalRows As Long)
             Me.TableName = tableName
             Me.RowsProcessed = rowsProcessed
             Me.TotalRows = totalRows
+        End Sub
+
+        Public Sub New(tableName As String, rowsProcessed As Long, totalRows As Long,
+                       currentTableIndex As Integer, totalTableCount As Integer)
+            Me.TableName = tableName
+            Me.RowsProcessed = rowsProcessed
+            Me.TotalRows = totalRows
+            Me.CurrentTableIndex = currentTableIndex
+            Me.TotalTableCount = totalTableCount
         End Sub
     End Class
 #End Region
@@ -107,7 +120,11 @@ Public Class ExportProgressDialog
         ' 詳細情報更新
         Dim info = TryCast(e.UserState, ProgressInfo)
         If info IsNot Nothing Then
-            lblTable.Text = $"テーブル: {info.TableName}"
+            If info.TotalTableCount > 0 Then
+                lblTable.Text = $"テーブル {info.CurrentTableIndex}/{info.TotalTableCount}: {info.TableName}"
+            Else
+                lblTable.Text = $"テーブル: {info.TableName}"
+            End If
             If info.TotalRows > 0 Then
                 lblRows.Text = $"処理行数: {info.RowsProcessed:N0} / {info.TotalRows:N0}"
             Else

@@ -242,149 +242,245 @@ Public Class OraDB_DUMP_Viewer
     End Sub
 #End Region
 
+#Region "ツールバーイベント: テーブル除外"
+    Private Sub ToolStripButton1_Click(sender As Object, e As EventArgs) Handles ToolStripButton1.Click
+        Dim workspace = ExportHelper.GetActiveWorkspace()
+        If workspace Is Nothing Then
+            MessageBox.Show("ワークスペースを開いてください。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Return
+        End If
+        workspace.ExcludeSelectedTable()
+    End Sub
+#End Region
+
 #Region "ツールバーイベント: エクスポート"
     ''' <summary>
     ''' エクスポート操作の共通処理: アクティブなWorkspaceからテーブル情報を取得
+    ''' テーブル未選択時は Nothing (一括エクスポートへ分岐)
     ''' </summary>
     Private Function GetExportContext() As ExportHelper.TableExportContext
-        Dim ctx = ExportHelper.GetActiveTableContext()
-        If ctx Is Nothing Then
-            MessageBox.Show("ワークスペースでテーブルを選択してください。", "情報",
+        Return ExportHelper.GetActiveTableContext()
+    End Function
+
+    ''' <summary>
+    ''' 一括エクスポート用: 可視テーブル一覧を取得し確認ダイアログを表示
+    ''' </summary>
+    Private Function GetBulkExportContexts() As List(Of ExportHelper.TableExportContext)
+        Dim contexts = ExportHelper.GetActiveVisibleTableContexts()
+        If contexts Is Nothing OrElse contexts.Count = 0 Then
+            MessageBox.Show("ワークスペースにエクスポート対象のテーブルがありません。", "情報",
                            MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Return Nothing
         End If
-        Return ctx
+
+        Dim result = MessageBox.Show($"{contexts.Count} テーブルを一括エクスポートしますか？",
+                                     "一括エクスポート", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+        If result <> DialogResult.Yes Then Return Nothing
+
+        Return contexts
     End Function
 
     Private Sub ToolStripButton5_Click(sender As Object, e As EventArgs) Handles ToolStripButton5.Click
         Dim ctx = GetExportContext()
-        If ctx Is Nothing Then Return
 
         ' DBMS 選択ダイアログ
         Dim sqlDlg As New SqlExportDialog()
         If sqlDlg.ShowDialog(Me) <> DialogResult.OK Then Return
         Dim dbmsType = sqlDlg.SelectedDbmsType
 
-        ' SaveFileDialog
-        Dim defaultName = $"{ctx.Schema}.{ctx.TableName}.sql"
-        Dim outputPath = ExportHelper.ShowSaveFileDialog("SQL ファイル|*.sql|すべてのファイル|*.*", defaultName)
-        If outputPath Is Nothing Then Return
+        If ctx IsNot Nothing Then
+            ' === 単一テーブル ===
+            Dim defaultName = $"{ctx.Schema}.{ctx.TableName}.sql"
+            Dim outputPath = ExportHelper.ShowSaveFileDialog("SQL ファイル|*.sql|すべてのファイル|*.*", defaultName)
+            If outputPath Is Nothing Then Return
 
-        ' C DLL でストリーミング SQL エクスポート
-        Using dlg As New ExportProgressDialog()
-            Dim success = dlg.RunExport(
-                Sub(worker, args)
-                    Dim ok = SqlExportLogic.ExportFromDump(ctx, outputPath, dbmsType)
-                    If Not ok Then
-                        args.Cancel = True
+            Using dlg As New ExportProgressDialog()
+                Dim success = dlg.RunExport(
+                    Sub(worker, args)
+                        Dim ok = SqlExportLogic.ExportFromDump(ctx, outputPath, dbmsType)
+                        If Not ok Then args.Cancel = True
+                    End Sub)
+                If success Then
+                    MessageBox.Show($"SQL スクリプト出力が完了しました。" & vbCrLf & outputPath,
+                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
+            End Using
+        Else
+            ' === 一括エクスポート ===
+            Dim contexts = GetBulkExportContexts()
+            If contexts Is Nothing Then Return
+
+            Using fbd As New FolderBrowserDialog()
+                fbd.Description = "SQL ファイルの出力先フォルダを選択"
+                If fbd.ShowDialog() <> DialogResult.OK Then Return
+
+                Using dlg As New ExportProgressDialog()
+                    Dim folder = fbd.SelectedPath
+                    Dim success = dlg.RunExport(
+                        Sub(worker, args)
+                            Dim ok = BulkExportLogic.ExportSql(contexts, folder, dbmsType, worker)
+                            If Not ok Then args.Cancel = True
+                        End Sub)
+                    If success Then
+                        MessageBox.Show($"SQL 一括エクスポートが完了しました。" & vbCrLf &
+                                       $"{contexts.Count} テーブルを出力しました。" & vbCrLf & folder,
+                                       "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
                     End If
-                End Sub)
-
-            If success Then
-                MessageBox.Show($"SQL スクリプト出力が完了しました。" & vbCrLf & outputPath,
-                               "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            End If
-        End Using
+                End Using
+            End Using
+        End If
     End Sub
 
     Private Sub ToolStripButton6_Click(sender As Object, e As EventArgs) Handles ToolStripButton6.Click
         Dim ctx = GetExportContext()
-        If ctx Is Nothing Then Return
 
-        ' SaveFileDialog
-        Dim defaultName = $"{ctx.Schema}.{ctx.TableName}.csv"
-        Dim outputPath = ExportHelper.ShowSaveFileDialog("CSV ファイル|*.csv|すべてのファイル|*.*", defaultName)
-        If outputPath Is Nothing Then Return
+        If ctx IsNot Nothing Then
+            ' === 単一テーブル ===
+            Dim defaultName = $"{ctx.Schema}.{ctx.TableName}.csv"
+            Dim outputPath = ExportHelper.ShowSaveFileDialog("CSV ファイル|*.csv|すべてのファイル|*.*", defaultName)
+            If outputPath Is Nothing Then Return
 
-        ' C DLL でストリーミング CSV エクスポート (進捗ダイアログ付き)
-        Using dlg As New ExportProgressDialog()
-            Dim success = dlg.RunExport(
-                Sub(worker, args)
-                    Dim ok = CsvExportLogic.ExportFromDump(ctx, outputPath)
-                    If Not ok Then
-                        args.Cancel = True
+            Using dlg As New ExportProgressDialog()
+                Dim success = dlg.RunExport(
+                    Sub(worker, args)
+                        Dim ok = CsvExportLogic.ExportFromDump(ctx, outputPath)
+                        If Not ok Then args.Cancel = True
+                    End Sub)
+                If success Then
+                    MessageBox.Show($"CSV エクスポートが完了しました。" & vbCrLf & outputPath,
+                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
+            End Using
+        Else
+            ' === 一括エクスポート ===
+            Dim contexts = GetBulkExportContexts()
+            If contexts Is Nothing Then Return
+
+            Using fbd As New FolderBrowserDialog()
+                fbd.Description = "CSV ファイルの出力先フォルダを選択"
+                If fbd.ShowDialog() <> DialogResult.OK Then Return
+
+                Using dlg As New ExportProgressDialog()
+                    Dim folder = fbd.SelectedPath
+                    Dim success = dlg.RunExport(
+                        Sub(worker, args)
+                            Dim ok = BulkExportLogic.ExportCsv(contexts, folder, worker)
+                            If Not ok Then args.Cancel = True
+                        End Sub)
+                    If success Then
+                        MessageBox.Show($"CSV 一括エクスポートが完了しました。" & vbCrLf &
+                                       $"{contexts.Count} テーブルを出力しました。" & vbCrLf & folder,
+                                       "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
                     End If
-                End Sub)
-
-            If success Then
-                MessageBox.Show($"CSV エクスポートが完了しました。" & vbCrLf & outputPath,
-                               "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            End If
-        End Using
+                End Using
+            End Using
+        End If
     End Sub
 
     Private Sub ToolStripButton7_Click(sender As Object, e As EventArgs) Handles ToolStripButton7.Click
         Dim ctx = GetExportContext()
-        If ctx Is Nothing Then Return
 
-        ' SaveFileDialog
-        Dim defaultName = $"{ctx.Schema}.{ctx.TableName}.xlsx"
-        Dim outputPath = ExportHelper.ShowSaveFileDialog("Excel ファイル|*.xlsx|すべてのファイル|*.*", defaultName)
-        If outputPath Is Nothing Then Return
+        If ctx IsNot Nothing Then
+            ' === 単一テーブル ===
+            Dim defaultName = $"{ctx.Schema}.{ctx.TableName}.xlsx"
+            Dim outputPath = ExportHelper.ShowSaveFileDialog("Excel ファイル|*.xlsx|すべてのファイル|*.*", defaultName)
+            If outputPath Is Nothing Then Return
 
-        ' テーブルデータを取得 (C DLL でオンデマンド解析)
-        Dim tableData = AnalyzeLogic.AnalyzeTable(ctx.DumpFilePath, ctx.Schema, ctx.TableName, ctx.DataOffset)
-        If tableData Is Nothing Then tableData = New List(Of String())
+            Dim tableData = AnalyzeLogic.AnalyzeTable(ctx.DumpFilePath, ctx.Schema, ctx.TableName, ctx.DataOffset)
+            If tableData Is Nothing Then tableData = New List(Of String())
 
-        Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
-        Dim columnList = New List(Of String)(colNames)
+            Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
+            Dim columnList = New List(Of String)(colNames)
 
-        ' 進捗ダイアログ付き Excel エクスポート
-        Using dlg As New ExportProgressDialog()
-            Dim success = dlg.RunExport(
-                Sub(worker, args)
-                    Dim ok = ExcelExportLogic.Export(tableData, columnList, ctx.ColumnTypes,
-                                                     $"{ctx.Schema}.{ctx.TableName}", outputPath, worker)
-                    If Not ok Then
-                        args.Cancel = True
-                    End If
-                End Sub)
+            Using dlg As New ExportProgressDialog()
+                Dim success = dlg.RunExport(
+                    Sub(worker, args)
+                        Dim ok = ExcelExportLogic.Export(tableData, columnList, ctx.ColumnTypes,
+                                                         $"{ctx.Schema}.{ctx.TableName}", outputPath, worker)
+                        If Not ok Then args.Cancel = True
+                    End Sub)
+                If success Then
+                    MessageBox.Show($"Excel エクスポートが完了しました。" & vbCrLf &
+                                   $"{tableData.Count:#,0} 行を出力しました。" & vbCrLf & outputPath,
+                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
+            End Using
+        Else
+            ' === 一括エクスポート ===
+            Dim contexts = GetBulkExportContexts()
+            If contexts Is Nothing Then Return
 
-            If success Then
-                MessageBox.Show($"Excel エクスポートが完了しました。" & vbCrLf &
-                               $"{tableData.Count:#,0} 行を出力しました。" & vbCrLf & outputPath,
-                               "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            End If
-        End Using
+            Dim outputPath = ExportHelper.ShowSaveFileDialog("Excel ファイル|*.xlsx|すべてのファイル|*.*", "export.xlsx")
+            If outputPath Is Nothing Then Return
+
+            Using dlg As New ExportProgressDialog()
+                Dim success = dlg.RunExport(
+                    Sub(worker, args)
+                        Dim ok = BulkExportLogic.ExportExcel(contexts, outputPath, worker)
+                        If Not ok Then args.Cancel = True
+                    End Sub)
+                If success Then
+                    MessageBox.Show($"Excel 一括エクスポートが完了しました。" & vbCrLf &
+                                   $"{contexts.Count} テーブルを出力しました。" & vbCrLf & outputPath,
+                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
+            End Using
+        End If
     End Sub
 
     Private Sub ToolStripButton8_Click(sender As Object, e As EventArgs) Handles ToolStripButton8.Click
         Dim ctx = GetExportContext()
-        If ctx Is Nothing Then Return
 
-        ' SaveFileDialog
-        Dim defaultName = $"{ctx.Schema}.{ctx.TableName}.accdb"
-        Dim outputPath = ExportHelper.ShowSaveFileDialog("Access データベース|*.accdb|すべてのファイル|*.*", defaultName)
-        If outputPath Is Nothing Then Return
+        If ctx IsNot Nothing Then
+            ' === 単一テーブル ===
+            Dim defaultName = $"{ctx.Schema}.{ctx.TableName}.accdb"
+            Dim outputPath = ExportHelper.ShowSaveFileDialog("Access データベース|*.accdb|すべてのファイル|*.*", defaultName)
+            If outputPath Is Nothing Then Return
 
-        ' テーブルデータを取得
-        Dim tableData = AnalyzeLogic.AnalyzeTable(ctx.DumpFilePath, ctx.Schema, ctx.TableName, ctx.DataOffset)
-        If tableData Is Nothing Then tableData = New List(Of String())
+            Dim tableData = AnalyzeLogic.AnalyzeTable(ctx.DumpFilePath, ctx.Schema, ctx.TableName, ctx.DataOffset)
+            If tableData Is Nothing Then tableData = New List(Of String())
 
-        Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
-        Dim columnList = New List(Of String)(colNames)
+            Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
+            Dim columnList = New List(Of String)(colNames)
 
-        ' 進捗ダイアログ付き Access エクスポート
-        Using dlg As New ExportProgressDialog()
-            Dim success = dlg.RunExport(
-                Sub(worker, args)
-                    Dim ok = AccessExportLogic.Export(tableData, columnList, ctx.ColumnTypes,
-                                                      ctx.TableName, outputPath, worker)
-                    If Not ok Then
-                        args.Cancel = True
-                    End If
-                End Sub)
+            Using dlg As New ExportProgressDialog()
+                Dim success = dlg.RunExport(
+                    Sub(worker, args)
+                        Dim ok = AccessExportLogic.Export(tableData, columnList, ctx.ColumnTypes,
+                                                          ctx.TableName, outputPath, worker)
+                        If Not ok Then args.Cancel = True
+                    End Sub)
+                If success Then
+                    MessageBox.Show($"Access エクスポートが完了しました。" & vbCrLf &
+                                   $"{tableData.Count:#,0} 行を出力しました。" & vbCrLf & outputPath,
+                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
+            End Using
+        Else
+            ' === 一括エクスポート ===
+            Dim contexts = GetBulkExportContexts()
+            If contexts Is Nothing Then Return
 
-            If success Then
-                MessageBox.Show($"Access エクスポートが完了しました。" & vbCrLf &
-                               $"{tableData.Count:#,0} 行を出力しました。" & vbCrLf & outputPath,
-                               "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            End If
-        End Using
+            Dim outputPath = ExportHelper.ShowSaveFileDialog("Access データベース|*.accdb|すべてのファイル|*.*", "export.accdb")
+            If outputPath Is Nothing Then Return
+
+            Using dlg As New ExportProgressDialog()
+                Dim success = dlg.RunExport(
+                    Sub(worker, args)
+                        Dim ok = BulkExportLogic.ExportAccess(contexts, outputPath, worker)
+                        If Not ok Then args.Cancel = True
+                    End Sub)
+                If success Then
+                    MessageBox.Show($"Access 一括エクスポートが完了しました。" & vbCrLf &
+                                   $"{contexts.Count} テーブルを出力しました。" & vbCrLf & outputPath,
+                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
+            End Using
+        End If
     End Sub
 
     Private Sub ToolStripButton9_Click(sender As Object, e As EventArgs) Handles ToolStripButton9.Click
         Dim ctx = GetExportContext()
-        If ctx Is Nothing Then Return
 
         ' DB 接続ダイアログ (SQL Server タブ)
         Dim connDlg As New DatabaseConnectionDialog()
@@ -394,36 +490,51 @@ Public Class OraDB_DUMP_Viewer
             Return
         End If
 
-        ' テーブルデータを取得
-        Dim tableData = AnalyzeLogic.AnalyzeTable(ctx.DumpFilePath, ctx.Schema, ctx.TableName, ctx.DataOffset)
-        If tableData Is Nothing Then tableData = New List(Of String())
+        If ctx IsNot Nothing Then
+            ' === 単一テーブル ===
+            Dim tableData = AnalyzeLogic.AnalyzeTable(ctx.DumpFilePath, ctx.Schema, ctx.TableName, ctx.DataOffset)
+            If tableData Is Nothing Then tableData = New List(Of String())
 
-        Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
-        Dim columnList = New List(Of String)(colNames)
+            Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
+            Dim columnList = New List(Of String)(colNames)
 
-        ' 進捗ダイアログ付き SQL Server エクスポート
-        Using dlg As New ExportProgressDialog()
-            Dim connStr = connDlg.ConnectionString
-            Dim success = dlg.RunExport(
-                Sub(worker, args)
-                    Dim ok = SqlServerExportLogic.Export(tableData, columnList, ctx.ColumnTypes,
-                                                         ctx.Schema, ctx.TableName, connStr, worker)
-                    If Not ok Then
-                        args.Cancel = True
-                    End If
-                End Sub)
+            Using dlg As New ExportProgressDialog()
+                Dim connStr = connDlg.ConnectionString
+                Dim success = dlg.RunExport(
+                    Sub(worker, args)
+                        Dim ok = SqlServerExportLogic.Export(tableData, columnList, ctx.ColumnTypes,
+                                                             ctx.Schema, ctx.TableName, connStr, worker)
+                        If Not ok Then args.Cancel = True
+                    End Sub)
+                If success Then
+                    MessageBox.Show($"SQL Server へのエクスポートが完了しました。" & vbCrLf &
+                                   $"{tableData.Count:#,0} 行を出力しました。",
+                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
+            End Using
+        Else
+            ' === 一括エクスポート ===
+            Dim contexts = GetBulkExportContexts()
+            If contexts Is Nothing Then Return
 
-            If success Then
-                MessageBox.Show($"SQL Server へのエクスポートが完了しました。" & vbCrLf &
-                               $"{tableData.Count:#,0} 行を出力しました。",
-                               "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            End If
-        End Using
+            Using dlg As New ExportProgressDialog()
+                Dim connStr = connDlg.ConnectionString
+                Dim success = dlg.RunExport(
+                    Sub(worker, args)
+                        Dim ok = BulkExportLogic.ExportSqlServer(contexts, connStr, worker)
+                        If Not ok Then args.Cancel = True
+                    End Sub)
+                If success Then
+                    MessageBox.Show($"SQL Server 一括エクスポートが完了しました。" & vbCrLf &
+                                   $"{contexts.Count} テーブルを出力しました。",
+                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
+            End Using
+        End If
     End Sub
 
     Private Sub ToolStripButton3_Click(sender As Object, e As EventArgs) Handles ToolStripButton3.Click
         Dim ctx = GetExportContext()
-        If ctx Is Nothing Then Return
 
         ' DB 接続ダイアログ (ODBC タブを初期選択)
         Dim connDlg As New DatabaseConnectionDialog(selectOdbcTab:=True)
@@ -433,31 +544,47 @@ Public Class OraDB_DUMP_Viewer
             Return
         End If
 
-        ' テーブルデータを取得
-        Dim tableData = AnalyzeLogic.AnalyzeTable(ctx.DumpFilePath, ctx.Schema, ctx.TableName, ctx.DataOffset)
-        If tableData Is Nothing Then tableData = New List(Of String())
+        If ctx IsNot Nothing Then
+            ' === 単一テーブル ===
+            Dim tableData = AnalyzeLogic.AnalyzeTable(ctx.DumpFilePath, ctx.Schema, ctx.TableName, ctx.DataOffset)
+            If tableData Is Nothing Then tableData = New List(Of String())
 
-        Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
-        Dim columnList = New List(Of String)(colNames)
+            Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
+            Dim columnList = New List(Of String)(colNames)
 
-        ' 進捗ダイアログ付き ODBC エクスポート
-        Using dlg As New ExportProgressDialog()
-            Dim connStr = connDlg.ConnectionString
-            Dim success = dlg.RunExport(
-                Sub(worker, args)
-                    Dim ok = OdbcExportLogic.Export(tableData, columnList, ctx.ColumnTypes,
-                                                    ctx.TableName, connStr, worker)
-                    If Not ok Then
-                        args.Cancel = True
-                    End If
-                End Sub)
+            Using dlg As New ExportProgressDialog()
+                Dim connStr = connDlg.ConnectionString
+                Dim success = dlg.RunExport(
+                    Sub(worker, args)
+                        Dim ok = OdbcExportLogic.Export(tableData, columnList, ctx.ColumnTypes,
+                                                        ctx.TableName, connStr, worker)
+                        If Not ok Then args.Cancel = True
+                    End Sub)
+                If success Then
+                    MessageBox.Show($"ODBC エクスポートが完了しました。" & vbCrLf &
+                                   $"{tableData.Count:#,0} 行を出力しました。",
+                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
+            End Using
+        Else
+            ' === 一括エクスポート ===
+            Dim contexts = GetBulkExportContexts()
+            If contexts Is Nothing Then Return
 
-            If success Then
-                MessageBox.Show($"ODBC エクスポートが完了しました。" & vbCrLf &
-                               $"{tableData.Count:#,0} 行を出力しました。",
-                               "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
-            End If
-        End Using
+            Using dlg As New ExportProgressDialog()
+                Dim connStr = connDlg.ConnectionString
+                Dim success = dlg.RunExport(
+                    Sub(worker, args)
+                        Dim ok = BulkExportLogic.ExportOdbc(contexts, connStr, worker)
+                        If Not ok Then args.Cancel = True
+                    End Sub)
+                If success Then
+                    MessageBox.Show($"ODBC 一括エクスポートが完了しました。" & vbCrLf &
+                                   $"{contexts.Count} テーブルを出力しました。",
+                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                End If
+            End Using
+        End If
     End Sub
 #End Region
 

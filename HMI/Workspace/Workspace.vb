@@ -13,6 +13,8 @@ Public Class Workspace
     ''' <summary>テーブルごとのカラム型 (キー: "schema.table")</summary>
     Private _columnTypesMap As New Dictionary(Of String, String())
     Private _currentSchema As String = String.Empty
+    ''' <summary>除外テーブル (キー: "schema.table")</summary>
+    Private _excludedTables As New HashSet(Of String)
 
     ' 引数ありコンストラクタ
     Public Sub New(value1 As String, value2 As String)
@@ -206,6 +208,79 @@ Public Class Workspace
     End Sub
 #End Region
 
+#Region "テーブル除外機能"
+    ''' <summary>
+    ''' 選択中のテーブルを除外リストに追加し、一覧から非表示にする
+    ''' </summary>
+    Public Sub ExcludeSelectedTable()
+        If lstTableList.SelectedItems.Count = 0 Then
+            MessageBox.Show("テーブルが選択されていません。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Return
+        End If
+        If String.IsNullOrEmpty(_currentSchema) Then Return
+
+        Dim tableName = lstTableList.SelectedItems(0).Text
+        Dim tableKey = $"{_currentSchema}.{tableName}"
+        _excludedTables.Add(tableKey)
+        DisplayTablesForSchema(_currentSchema)
+    End Sub
+
+    ''' <summary>
+    ''' 現スキーマ内で除外/可視を反転する
+    ''' 可視テーブル → 除外に、除外テーブル → 可視に切り替え
+    ''' </summary>
+    Public Sub InvertExclusion()
+        If String.IsNullOrEmpty(_currentSchema) Then Return
+        If Not _tableList.ContainsKey(_currentSchema) Then Return
+
+        Dim allTables = _tableList(_currentSchema)
+        Dim newExcluded As New HashSet(Of String)
+
+        For Each tableInfo In allTables
+            Dim tableKey = $"{_currentSchema}.{tableInfo.Item1}"
+            If Not _excludedTables.Contains(tableKey) Then
+                ' 現在可視 → 除外に
+                newExcluded.Add(tableKey)
+            End If
+            ' 現在除外 → 可視に (newExcluded に追加しない)
+        Next
+
+        ' 他のスキーマの除外は維持
+        Dim otherExcluded = _excludedTables.Where(Function(k) Not k.StartsWith(_currentSchema & "."))
+        _excludedTables = New HashSet(Of String)(otherExcluded)
+        For Each key In newExcluded
+            _excludedTables.Add(key)
+        Next
+
+        DisplayTablesForSchema(_currentSchema)
+    End Sub
+
+    ''' <summary>
+    ''' すべての除外を解除し、全テーブルを再表示する
+    ''' </summary>
+    Public Sub RestoreAllExcludedTables()
+        _excludedTables.Clear()
+        If Not String.IsNullOrEmpty(_currentSchema) Then
+            DisplayTablesForSchema(_currentSchema)
+        End If
+    End Sub
+
+    ' コンテキストメニュー: 除外
+    Private Sub mnuExclude_Click(sender As Object, e As EventArgs) Handles mnuExclude.Click
+        ExcludeSelectedTable()
+    End Sub
+
+    ' コンテキストメニュー: 選択を反転
+    Private Sub mnuInvertExclusion_Click(sender As Object, e As EventArgs) Handles mnuInvertExclusion.Click
+        InvertExclusion()
+    End Sub
+
+    ' コンテキストメニュー: すべての除外を解除
+    Private Sub mnuRestoreAll_Click(sender As Object, e As EventArgs) Handles mnuRestoreAll.Click
+        RestoreAllExcludedTables()
+    End Sub
+#End Region
+
 #Region "エクスポート用コンテキスト取得"
     ''' <summary>
     ''' 選択中のテーブルのエクスポート用コンテキスト情報を返す
@@ -239,6 +314,42 @@ Public Class Workspace
         End If
 
         Return ctx
+    End Function
+
+    ''' <summary>
+    ''' 現在表示中（除外されていない）の全テーブルのエクスポートコンテキストを返す
+    ''' 一括エクスポート用
+    ''' </summary>
+    Public Function GetVisibleTableContexts() As List(Of ExportHelper.TableExportContext)
+        Dim result As New List(Of ExportHelper.TableExportContext)
+        If String.IsNullOrEmpty(_currentSchema) Then Return result
+        If Not _tableList.ContainsKey(_currentSchema) Then Return result
+
+        For Each tableInfo In _tableList(_currentSchema)
+            Dim tableName = tableInfo.Item1
+            Dim tableKey = $"{_currentSchema}.{tableName}"
+
+            ' 除外テーブルをスキップ
+            If _excludedTables.Contains(tableKey) Then Continue For
+
+            Dim ctx As New ExportHelper.TableExportContext()
+            ctx.DumpFilePath = DumpFilePath
+            ctx.Schema = _currentSchema
+            ctx.TableName = tableName
+            ctx.RowCount = tableInfo.Item2
+            ctx.DataOffset = tableInfo.Item3
+
+            If _columnNamesMap.ContainsKey(tableKey) Then
+                ctx.ColumnNames = _columnNamesMap(tableKey)
+            End If
+            If _columnTypesMap.ContainsKey(tableKey) Then
+                ctx.ColumnTypes = _columnTypesMap(tableKey)
+            End If
+
+            result.Add(ctx)
+        Next
+
+        Return result
     End Function
 #End Region
 
@@ -313,6 +424,12 @@ Public Class Workspace
             For Each tableInfo In tables
                 Dim tableName = tableInfo.Item1
                 Dim rowCount = tableInfo.Item2
+
+                ' 除外テーブルをスキップ
+                Dim tableKey = $"{schemaName}.{tableName}"
+                If _excludedTables.Contains(tableKey) Then
+                    Continue For
+                End If
 
                 ' フィルタ: 検索文字列が空でなければ部分一致でスキップ判定
                 If searchText.Length > 0 AndAlso

@@ -218,6 +218,28 @@ Public Module ExportHelper
 
         Return workspace.GetSelectedTableExportContext()
     End Function
+
+    ''' <summary>
+    ''' メインフォームのアクティブなワークスペースから可視テーブル一覧を取得 (一括エクスポート用)
+    ''' </summary>
+    Public Function GetActiveVisibleTableContexts() As List(Of TableExportContext)
+        Dim mainForm = TryCast(Application.OpenForms(0), OraDB_DUMP_Viewer)
+        If mainForm Is Nothing Then Return Nothing
+
+        Dim workspace = TryCast(mainForm.ActiveMdiChild, Workspace)
+        If workspace Is Nothing Then Return Nothing
+
+        Return workspace.GetVisibleTableContexts()
+    End Function
+
+    ''' <summary>
+    ''' メインフォームのアクティブなワークスペースを取得
+    ''' </summary>
+    Public Function GetActiveWorkspace() As Workspace
+        Dim mainForm = TryCast(Application.OpenForms(0), OraDB_DUMP_Viewer)
+        If mainForm Is Nothing Then Return Nothing
+        Return TryCast(mainForm.ActiveMdiChild, Workspace)
+    End Function
 #End Region
 
 End Module

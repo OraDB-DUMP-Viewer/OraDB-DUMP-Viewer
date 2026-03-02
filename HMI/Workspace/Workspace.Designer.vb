@@ -29,8 +29,13 @@ Partial Class Workspace
         plnTableSearch = New TableLayoutPanel()
         txtTableSearch = New TextBox()
         btnTableSearch = New Button()
+        ctxTableMenu = New ContextMenuStrip()
+        mnuExclude = New ToolStripMenuItem()
+        mnuInvertExclusion = New ToolStripMenuItem()
+        mnuRestoreAll = New ToolStripMenuItem()
         pnlDBList.SuspendLayout()
         plnTableSearch.SuspendLayout()
+        ctxTableMenu.SuspendLayout()
         SuspendLayout()
         ' 
         ' pnlDBList
@@ -66,6 +71,7 @@ Partial Class Workspace
         lstTableList.Columns.Add("所有者", 100)
         lstTableList.Columns.Add("種類", 80)
         lstTableList.Columns.Add("行数", 80)
+        lstTableList.ContextMenuStrip = ctxTableMenu
         lstTableList.Dock = DockStyle.Fill
         lstTableList.FullRowSelect = True
         lstTableList.GridLines = True
@@ -75,6 +81,30 @@ Partial Class Workspace
         lstTableList.TabIndex = 2
         lstTableList.UseCompatibleStateImageBehavior = False
         lstTableList.View = View.Details
+        '
+        ' ctxTableMenu
+        '
+        ctxTableMenu.Items.AddRange(New ToolStripItem() {mnuExclude, mnuInvertExclusion, mnuRestoreAll})
+        ctxTableMenu.Name = "ctxTableMenu"
+        ctxTableMenu.Size = New Size(200, 70)
+        '
+        ' mnuExclude
+        '
+        mnuExclude.Name = "mnuExclude"
+        mnuExclude.Size = New Size(199, 22)
+        mnuExclude.Text = "除外"
+        '
+        ' mnuInvertExclusion
+        '
+        mnuInvertExclusion.Name = "mnuInvertExclusion"
+        mnuInvertExclusion.Size = New Size(199, 22)
+        mnuInvertExclusion.Text = "選択を反転"
+        '
+        ' mnuRestoreAll
+        '
+        mnuRestoreAll.Name = "mnuRestoreAll"
+        mnuRestoreAll.Size = New Size(199, 22)
+        mnuRestoreAll.Text = "すべての除外を解除"
         ' 
         ' plnTableSearch
         ' 
@@ -121,6 +151,7 @@ Partial Class Workspace
         Controls.Add(pnlDBList)
         Name = "Workspace"
         Text = "Workspace"
+        ctxTableMenu.ResumeLayout(False)
         pnlDBList.ResumeLayout(False)
         plnTableSearch.ResumeLayout(False)
         plnTableSearch.PerformLayout()
@@ -134,4 +165,8 @@ Partial Class Workspace
     Friend WithEvents txtTableSearch As TextBox
     Friend WithEvents treeDBList As TreeView
     Friend WithEvents lstTableList As ListView
+    Friend WithEvents ctxTableMenu As ContextMenuStrip
+    Friend WithEvents mnuExclude As ToolStripMenuItem
+    Friend WithEvents mnuInvertExclusion As ToolStripMenuItem
+    Friend WithEvents mnuRestoreAll As ToolStripMenuItem
 End Class

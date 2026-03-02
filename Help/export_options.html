@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>エクスポートオプション - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>エクスポートオプション</h1>
+
+<h2>アクセス方法</h2>
+<p>ツールバーの <strong>オプション</strong> ボタンをクリックすると、
+エクスポートオプションダイアログが表示されます。</p>
+
+<h2>日付書式</h2>
+<table>
+<tr><th>書式</th><th>例</th><th>説明</th></tr>
+<tr><td>YYYY/MM/DD HH:MI:SS</td><td>2026/01/15 09:30:00</td><td>標準形式 (デフォルト)</td></tr>
+<tr><td>YYYYMMDD</td><td>20260115</td><td>コンパクト (日付のみ)</td></tr>
+<tr><td>YYYYMMDDHH24MISS</td><td>20260115093000</td><td>コンパクト (日時)</td></tr>
+<tr><td>カスタム</td><td>任意</td><td>トークン: YYYY, MM, DD, HH24, MI, SS</td></tr>
+</table>
+
+<h2>CSV オプション</h2>
+<table>
+<tr><th>設定</th><th>デフォルト</th><th>説明</th></tr>
+<tr><td>ヘッダー行を出力</td><td>ON</td><td>1行目にカラム名を出力</td></tr>
+<tr><td>型情報行を出力</td><td>OFF</td><td>ヘッダーの次行にカラム型を出力</td></tr>
+</table>
+
+<h2>SQL オプション</h2>
+<table>
+<tr><th>設定</th><th>デフォルト</th><th>説明</th></tr>
+<tr><td>CREATE TABLE を出力</td><td>OFF</td><td>INSERT 文の前に DDL を出力</td></tr>
+<tr><td>DBMS 種別</td><td>Oracle</td><td>Oracle / PostgreSQL / MySQL / SQL Server</td></tr>
+</table>
+
+<div class="note">
+<strong>注意:</strong> オプション設定はアプリケーション終了時にリセットされます。
+</div>
+
+<p><a href="toc.html">目次に戻る</a></p>
+
+</body>
+</html>

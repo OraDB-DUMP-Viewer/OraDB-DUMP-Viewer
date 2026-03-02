@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>はじめに - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>はじめに</h1>
+
+<h2>OraDB DUMP Viewer とは</h2>
+<p>OraDB DUMP Viewer は、Oracle データベースのダンプファイル (EXP / EXPDP) を
+Oracle クライアントなしで閲覧・エクスポートできるスタンドアロンツールです。</p>
+
+<h2>主な機能</h2>
+<ul>
+    <li><strong>ダンプファイル解析</strong> &mdash; EXP (従来形式) と EXPDP (Data Pump) 両方に対応</li>
+    <li><strong>テーブル一覧表示</strong> &mdash; スキーマ・テーブル名・カラム情報をツリー表示</li>
+    <li><strong>データプレビュー</strong> &mdash; テーブルデータを DataGridView で閲覧</li>
+    <li><strong>CSV エクスポート</strong> &mdash; テーブルデータを CSV ファイルに出力</li>
+    <li><strong>SQL エクスポート</strong> &mdash; INSERT 文を生成 (Oracle / PostgreSQL / MySQL / SQL Server)</li>
+    <li><strong>一括エクスポート</strong> &mdash; 複数テーブルを一括で CSV/SQL 出力</li>
+    <li><strong>LOB ファイル抽出</strong> &mdash; BLOB/CLOB/NCLOB データを個別ファイルに抽出</li>
+    <li><strong>ワークスペース</strong> &mdash; 作業状態の保存・復元</li>
+    <li><strong>テーブル除外</strong> &mdash; 不要テーブルの非表示 (元に戻す対応)</li>
+</ul>
+
+<h2>対応ダンプ形式</h2>
+<table>
+<tr><th>形式</th><th>ツール</th><th>対応状況</th></tr>
+<tr><td>EXP (従来形式)</td><td>exp / imp</td><td>対応</td></tr>
+<tr><td>EXPDP (Data Pump)</td><td>expdp / impdp</td><td>対応</td></tr>
+<tr><td>EXPDP 圧縮</td><td>expdp COMPRESSION=ALL</td><td>対応 (メタデータのみ)</td></tr>
+</table>
+
+<h2>インストール</h2>
+<ol>
+    <li>配布された MSI インストーラーを実行します。</li>
+    <li>インストールウィザードの指示に従ってインストールします。</li>
+    <li>デスクトップまたはスタートメニューから「OraDB DUMP Viewer」を起動します。</li>
+</ol>
+
+<p><a href="toc.html">目次に戻る</a></p>
+
+</body>
+</html>

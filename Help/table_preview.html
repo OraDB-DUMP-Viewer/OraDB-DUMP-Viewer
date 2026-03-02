@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>テーブルプレビュー - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>テーブルプレビュー</h1>
+
+<h2>テーブルを開く</h2>
+<p>テーブル一覧でテーブル名をダブルクリックすると、データプレビュー画面が開きます。
+または、テーブルを右クリックして <strong>開く(&amp;O)</strong> を選択します。</p>
+
+<h2>データ表示</h2>
+<p>データは DataGridView で一覧表示されます。</p>
+<ul>
+    <li>列ヘッダーにカラム名が表示されます。</li>
+    <li>各行に1レコードのデータが表示されます。</li>
+    <li>NULL 値は空白で表示されます。</li>
+    <li>LOB データ (BLOB/CLOB/NCLOB) は <code>%BLOB%</code>, <code>%CLOB%</code>, <code>%NCLOB%</code> と表示されます。</li>
+</ul>
+
+<h2>テーブルプロパティ</h2>
+<p>テーブルを右クリックして <strong>プロパティ(&amp;P)</strong> を選択すると、
+テーブルのカラム定義（カラム名、データ型、長さ等）が表示されます。</p>
+
+<h2>テーブル除外</h2>
+<p>不要なテーブルを一時的に非表示にできます。</p>
+<ol>
+    <li>テーブル一覧でテーブルを選択します（複数選択可）。</li>
+    <li>右クリックメニューの <strong>削除(&amp;D)</strong> を選択、
+        または <span class="shortcut">Delete</span> キーを押します。</li>
+    <li>除外されたテーブルはステータスバーに表示されます。</li>
+</ol>
+
+<p>除外を元に戻すには:</p>
+<ul>
+    <li><strong>編集(&amp;E)</strong> &gt; <strong>元に戻す</strong>
+        (<span class="shortcut">Ctrl+Z</span>)</li>
+    <li><strong>オブジェクト(&amp;O)</strong> &gt; <strong>すべてのフィルタをクリア(&amp;F)</strong>
+        で全除外を解除</li>
+</ul>
+
+<p><a href="toc.html">目次に戻る</a></p>
+
+</body>
+</html>

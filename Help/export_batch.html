@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>一括エクスポート - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>一括エクスポート</h1>
+
+<h2>概要</h2>
+<p>複数のテーブルを一度に CSV または SQL ファイルにエクスポートできます。
+各テーブルは個別のファイルとして出力されます。</p>
+
+<h2>操作手順</h2>
+<ol>
+    <li>ツールバーの <strong>一括エクスポート</strong> ボタンをクリックします。</li>
+    <li>エクスポートダイアログが表示されます。</li>
+    <li>出力形式 (CSV / SQL) を選択します。</li>
+    <li>出力先フォルダを指定します。</li>
+    <li>エクスポートするテーブルのチェックを確認します。
+        <br>不要なテーブルはチェックを外せます。</li>
+    <li><strong>エクスポート</strong> ボタンをクリックします。</li>
+</ol>
+
+<h2>出力ファイル名</h2>
+<p>ファイル名は <code>スキーマ名.テーブル名.csv</code> または
+<code>スキーマ名.テーブル名.sql</code> の形式で自動生成されます。</p>
+
+<h2>テーブルの選択/除外</h2>
+<ul>
+    <li><strong>すべて選択</strong> / <strong>すべて解除</strong> ボタンで一括操作</li>
+    <li><strong>選択を反転</strong> で選択状態を反転</li>
+    <li>個別にチェックボックスをクリックして選択</li>
+</ul>
+
+<div class="tip">
+<strong>ヒント:</strong> ワークスペースでテーブルを除外すると、
+一括エクスポートの対象からも自動的に除外されます。
+</div>
+
+<p><a href="toc.html">目次に戻る</a></p>
+
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>SQL エクスポート - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>SQL エクスポート</h1>
+
+<h2>操作手順</h2>
+<ol>
+    <li>テーブル一覧でエクスポートしたいテーブルを選択します。</li>
+    <li>ツールバーの <strong>SQL</strong> ボタンをクリック、
+        または <strong>オブジェクト(&amp;O)</strong> &gt; <strong>エクスポート</strong> &gt; <strong>スクリプト(&amp;S)</strong> を選択します。</li>
+    <li>保存先のファイルパスを指定します。</li>
+    <li>エクスポートが実行されます。</li>
+</ol>
+
+<h2>対応 DBMS</h2>
+<p>INSERT 文は以下の DBMS 向けに生成できます:</p>
+<table>
+<tr><th>DBMS</th><th>構文の違い</th></tr>
+<tr><td>Oracle</td><td>TO_DATE 関数, NUMBER 型そのまま</td></tr>
+<tr><td>PostgreSQL</td><td>CAST 構文, TIMESTAMP 型</td></tr>
+<tr><td>MySQL</td><td>バッククオート識別子, DATETIME 型</td></tr>
+<tr><td>SQL Server</td><td>ブラケット識別子, DATETIME2 型</td></tr>
+</table>
+
+<h2>オプション</h2>
+<ul>
+    <li><strong>CREATE TABLE 出力</strong> &mdash; INSERT 文の前に CREATE TABLE DDL を出力</li>
+    <li><strong>日付書式</strong> &mdash; リテラル形式またはファンクション呼び出し</li>
+</ul>
+
+<div class="note">
+<strong>注意:</strong> LOB データ (BLOB/CLOB) は SQL エクスポートに含まれません。
+LOB データをエクスポートするには <a href="lob_extract.html">LOB ファイル抽出</a> を使用してください。
+</div>
+
+<p><a href="toc.html">目次に戻る</a></p>
+
+</body>
+</html>

@@ -30,6 +30,22 @@
     </None>
   </ItemGroup>
 
+  <!-- ヘルプファイルをビルド出力にコピー -->
+  <ItemGroup>
+    <None Include="Help\OraDBDumpViewer.chm" Condition="Exists('Help\OraDBDumpViewer.chm')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>OraDBDumpViewer.chm</Link>
+    </None>
+    <Content Include="Help\*.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Help\%(Filename)%(Extension)</Link>
+    </Content>
+    <Content Include="Help\style.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Help\style.css</Link>
+    </Content>
+  </ItemGroup>
+
   <ItemGroup>
     <Import Include="System.Data" />
     <Import Include="System.Drawing" />

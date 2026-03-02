@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>ワークスペース - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>ワークスペース</h1>
+
+<h2>概要</h2>
+<p>ワークスペースは、ダンプファイルの解析結果と作業状態をまとめて管理する機能です。
+テーブルの除外状態やフィルタ設定を保存・復元できます。</p>
+
+<h2>ワークスペースの保存</h2>
+<ol>
+    <li>メニューの <strong>ファイル(&amp;F)</strong> &gt; <strong>ワークスペースの保存(&amp;S)</strong> を選択します。</li>
+    <li>初回は保存先のファイルパスを指定します (拡張子: <code>.odvw</code>)。</li>
+    <li>2回目以降は上書き保存されます。</li>
+</ol>
+
+<h2>名前を付けて保存</h2>
+<p><strong>ファイル(&amp;F)</strong> &gt; <strong>名前を付けて保存(&amp;A)</strong> で、
+別のファイル名でワークスペースを保存できます。</p>
+
+<h2>ワークスペースを開く</h2>
+<ol>
+    <li>メニューの <strong>ファイル(&amp;F)</strong> &gt; <strong>ワークスペース(&amp;W)...</strong> を選択します。</li>
+    <li><code>.odvw</code> ファイルを選択します。</li>
+    <li>ダンプファイルが自動的に読み込まれ、除外状態やフィルタが復元されます。</li>
+</ol>
+
+<h2>保存される情報</h2>
+<table>
+<tr><th>項目</th><th>説明</th></tr>
+<tr><td>ダンプファイルパス</td><td>元のダンプファイルの絶対パス</td></tr>
+<tr><td>除外テーブル</td><td>非表示にしたテーブルのリスト</td></tr>
+<tr><td>検索フィルタ</td><td>テーブル名検索テキスト</td></tr>
+<tr><td>スキーマ</td><td>現在選択中のスキーマ</td></tr>
+<tr><td>展開ノード</td><td>ツリービューの展開状態</td></tr>
+</table>
+
+<h2>最近使ったファイル</h2>
+<p><strong>ファイル</strong> メニューの下部に、最近使ったワークスペースとダンプファイルが
+最大 5 件ずつ表示されます。クリックするだけで素早くアクセスできます。</p>
+
+<div class="tip">
+<strong>ヒント:</strong> ワークスペースを閉じる前に保存確認のダイアログが表示されます。
+保存していない変更がある場合は「はい」を選択して保存してください。
+</div>
+
+<p><a href="toc.html">目次に戻る</a></p>
+
+</body>
+</html>

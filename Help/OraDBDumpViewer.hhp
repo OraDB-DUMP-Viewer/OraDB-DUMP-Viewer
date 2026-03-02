@@ -1,0 +1,29 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=OraDBDumpViewer.chm
+Contents file=OraDBDumpViewer.hhc
+Default topic=toc.html
+Display compile progress=No
+Full-text search=Yes
+Index file=OraDBDumpViewer.hhk
+Language=0x411 Japanese
+Title=OraDB DUMP Viewer ヘルプ
+
+[FILES]
+style.css
+toc.html
+getting_started.html
+open_dump.html
+workspace.html
+table_preview.html
+search.html
+export_csv.html
+export_sql.html
+export_batch.html
+export_options.html
+lob_extract.html
+shortcut_keys.html
+supported_formats.html
+about.html
+
+[INFOTYPES]

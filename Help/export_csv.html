@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>CSV エクスポート - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>CSV エクスポート</h1>
+
+<h2>操作手順</h2>
+<ol>
+    <li>テーブル一覧でエクスポートしたいテーブルを選択します。</li>
+    <li>ツールバーの <strong>CSV</strong> ボタンをクリック、
+        または <strong>オブジェクト(&amp;O)</strong> &gt; <strong>エクスポート</strong> &gt; <strong>データ(&amp;D)</strong> を選択します。</li>
+    <li>保存先のファイルパスを指定します。</li>
+    <li>エクスポートが実行され、進捗ダイアログが表示されます。</li>
+</ol>
+
+<h2>出力形式</h2>
+<ul>
+    <li>文字コード: UTF-8 (BOM 付き)</li>
+    <li>区切り: カンマ (<code>,</code>)</li>
+    <li>引用符: ダブルクオート (<code>"</code>) &mdash; 値にカンマ・改行・ダブルクオートが含まれる場合に適用</li>
+    <li>改行: CRLF (<code>\r\n</code>)</li>
+    <li>RFC 4180 準拠</li>
+</ul>
+
+<h2>オプション</h2>
+<p><a href="export_options.html">エクスポートオプション</a> で以下を設定できます:</p>
+<ul>
+    <li><strong>ヘッダー行</strong> &mdash; 1行目にカラム名を出力するかどうか</li>
+    <li><strong>型情報行</strong> &mdash; ヘッダーの次行にカラムの型情報を出力</li>
+    <li><strong>日付書式</strong> &mdash; DATE/TIMESTAMP カラムの出力書式</li>
+</ul>
+
+<p><a href="toc.html">目次に戻る</a></p>
+
+</body>
+</html>

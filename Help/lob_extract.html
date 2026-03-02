@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>LOB ファイル抽出 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>LOB ファイル抽出</h1>
+
+<h2>概要</h2>
+<p>テーブルの BLOB / CLOB / NCLOB カラムに格納されたデータを、
+1レコードにつき1ファイルとして抽出します。</p>
+
+<h2>対応データ型</h2>
+<table>
+<tr><th>カラム型</th><th>出力内容</th></tr>
+<tr><td>BLOB</td><td>バイナリファイル (画像、PDF、ZIP 等)</td></tr>
+<tr><td>CLOB</td><td>テキストファイル (ダンプの文字セットでデコード)</td></tr>
+<tr><td>NCLOB</td><td>Unicode テキストファイル</td></tr>
+</table>
+
+<h2>操作手順</h2>
+<ol>
+    <li>テーブル一覧で LOB カラムを含むテーブルを選択します。</li>
+    <li>メニューの <strong>ファイル(&amp;F)</strong> &gt; <strong>ファイルの取り出し(&amp;F)</strong> を選択します。</li>
+    <li>LOB 抽出ダイアログが表示されます。</li>
+    <li>以下を設定します:
+        <ul>
+            <li><strong>LOB カラム</strong> &mdash; 抽出する LOB カラムを選択</li>
+            <li><strong>出力フォルダ</strong> &mdash; ファイルの出力先ディレクトリ</li>
+            <li><strong>ファイル名方式</strong> &mdash; 連番 または カラム値</li>
+            <li><strong>拡張子</strong> &mdash; 出力ファイルの拡張子 (デフォルト: <code>lob</code>)</li>
+        </ul>
+    </li>
+    <li><strong>抽出</strong> ボタンをクリックします。</li>
+</ol>
+
+<h2>ファイル名方式</h2>
+<table>
+<tr><th>方式</th><th>例</th><th>説明</th></tr>
+<tr><td>連番</td><td><code>000001.jpg</code>, <code>000002.jpg</code></td><td>1 から始まる6桁連番</td></tr>
+<tr><td>カラム値</td><td><code>filename_col_value.jpg</code></td><td>指定カラムの値をファイル名に使用</td></tr>
+</table>
+
+<h2>使用例</h2>
+<h3>画像ファイルの抽出</h3>
+<p>BLOB カラムに JPEG 画像が格納されている場合:</p>
+<ol>
+    <li>LOB カラム: <code>IMAGE_DATA (BLOB)</code> を選択</li>
+    <li>拡張子: <code>jpg</code></li>
+    <li>ファイル名方式: 連番 または ID カラム値</li>
+</ol>
+
+<h3>テキストデータの抽出</h3>
+<p>CLOB カラムに XML や JSON が格納されている場合:</p>
+<ol>
+    <li>LOB カラム: <code>XML_CONTENT (CLOB)</code> を選択</li>
+    <li>拡張子: <code>xml</code></li>
+</ol>
+
+<div class="caution">
+<strong>注意:</strong> 大量の LOB レコードがある場合、抽出には時間がかかります。
+進捗ダイアログでキャンセルできます。
+</div>
+
+<div class="note">
+<strong>注意:</strong> テーブルプレビューでは LOB データは <code>%BLOB%</code>、
+<code>%CLOB%</code>、<code>%NCLOB%</code> とプレースホルダー表示されます。
+実データを取得するにはこの LOB ファイル抽出機能を使用してください。
+</div>
+
+<p><a href="toc.html">目次に戻る</a></p>
+
+</body>
+</html>

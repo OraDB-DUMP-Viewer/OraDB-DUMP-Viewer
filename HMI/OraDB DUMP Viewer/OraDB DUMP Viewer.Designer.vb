@@ -452,6 +452,7 @@ Partial Class OraDB_DUMP_Viewer
         ' MokujiToolStripMenuItem
         ' 
         MokujiToolStripMenuItem.Name = "MokujiToolStripMenuItem"
+        MokujiToolStripMenuItem.ShortcutKeys = Keys.F1
         MokujiToolStripMenuItem.Size = New Size(158, 22)
         MokujiToolStripMenuItem.Text = "目次(&I)"
         ' 

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>ダンプファイルを開く - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>ダンプファイルを開く</h1>
+
+<h2>操作手順</h2>
+<ol>
+    <li>メニューの <strong>ファイル(&amp;F)</strong> &gt; <strong>ダンプファイルを開く(&amp;O)...</strong> を選択します。
+        <br>または、ツールバーの <strong>開く</strong> ボタンをクリックします。</li>
+    <li>ファイル選択ダイアログで、ダンプファイル (<code>.dmp</code>) を選択します。</li>
+    <li>解析が開始され、進捗バーが表示されます。</li>
+    <li>完了すると、テーブル一覧がワークスペースに表示されます。</li>
+</ol>
+
+<h2>自動検出</h2>
+<p>ダンプファイルの形式 (EXP / EXPDP / EXPDP 圧縮) は自動的に検出されます。
+ファイルの先頭バイトおよびマーカーバイトを解析して判定します。</p>
+
+<table>
+<tr><th>形式</th><th>検出方法</th></tr>
+<tr><td>EXP</td><td>先頭バイト 0x01-0x05 + "EXPORT:" 文字列</td></tr>
+<tr><td>EXPDP</td><td>"xml version" 文字列</td></tr>
+<tr><td>EXPDP (圧縮)</td><td>"KGC" + "HDR" マーカー</td></tr>
+</table>
+
+<h2>文字セット</h2>
+<p>ダンプファイルの文字セットも自動検出されます。
+対応する文字セット:</p>
+<ul>
+    <li>AL32UTF8 / UTF8</li>
+    <li>JA16SJIS (Shift_JIS)</li>
+    <li>JA16EUC (EUC-JP)</li>
+    <li>AL16UTF16</li>
+    <li>US7ASCII</li>
+    <li>WE8ISO8859P1 / WE8MSWIN1252</li>
+</ul>
+
+<div class="note">
+<strong>注意:</strong> 圧縮された EXPDP ダンプの場合、テーブル定義 (DDL) のみ読み取り可能です。
+データレコードの解凍には対応していません。
+</div>
+
+<p><a href="toc.html">目次に戻る</a></p>
+
+</body>
+</html>

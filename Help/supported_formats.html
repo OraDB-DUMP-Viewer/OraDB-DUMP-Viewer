@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>対応形式・制限事項 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>対応形式・制限事項</h1>
+
+<h2>対応ダンプ形式</h2>
+<table>
+<tr><th>形式</th><th>対応</th><th>備考</th></tr>
+<tr><td>EXP (exp コマンド)</td><td>対応</td><td>Oracle 7〜11g</td></tr>
+<tr><td>EXPDP (expdp コマンド)</td><td>対応</td><td>Oracle 10g〜</td></tr>
+<tr><td>EXPDP 圧縮</td><td>一部対応</td><td>テーブル定義のみ (データは不可)</td></tr>
+</table>
+
+<h2>対応データ型</h2>
+<table>
+<tr><th>データ型</th><th>プレビュー</th><th>CSV/SQL 出力</th><th>LOB 抽出</th></tr>
+<tr><td>CHAR / VARCHAR2</td><td>対応</td><td>対応</td><td>-</td></tr>
+<tr><td>NCHAR / NVARCHAR2</td><td>対応</td><td>対応</td><td>-</td></tr>
+<tr><td>NUMBER</td><td>対応</td><td>対応</td><td>-</td></tr>
+<tr><td>BINARY_FLOAT</td><td>対応</td><td>対応</td><td>-</td></tr>
+<tr><td>BINARY_DOUBLE</td><td>対応</td><td>対応</td><td>-</td></tr>
+<tr><td>DATE</td><td>対応</td><td>対応</td><td>-</td></tr>
+<tr><td>TIMESTAMP</td><td>対応</td><td>対応</td><td>-</td></tr>
+<tr><td>TIMESTAMP WITH TIME ZONE</td><td>対応</td><td>対応</td><td>-</td></tr>
+<tr><td>RAW / LONG RAW</td><td>対応</td><td>対応</td><td>-</td></tr>
+<tr><td>BLOB</td><td>%BLOB%</td><td>スキップ</td><td>対応</td></tr>
+<tr><td>CLOB</td><td>%CLOB%</td><td>スキップ</td><td>対応</td></tr>
+<tr><td>NCLOB</td><td>%NCLOB%</td><td>スキップ</td><td>対応</td></tr>
+<tr><td>XMLTYPE</td><td>対応</td><td>対応</td><td>-</td></tr>
+<tr><td>ROWID</td><td>対応</td><td>対応</td><td>-</td></tr>
+</table>
+
+<h2>制限事項</h2>
+<ul>
+    <li>圧縮 EXPDP ダンプのデータレコード読み取りには対応していません (メタデータのみ)</li>
+    <li>BFILE 型の実データは抽出できません (パス情報のみ)</li>
+    <li>暗号化されたダンプファイルには対応していません</li>
+    <li>ネットワークリンク経由のダンプには対応していません</li>
+    <li>最大テーブル数: 1,000</li>
+    <li>最大カラム数: 1,000 (テーブルあたり)</li>
+</ul>
+
+<h2>文字セット</h2>
+<p>以下の NLS キャラクタセットに対応しています:</p>
+<ul>
+    <li>AL32UTF8 / UTF8</li>
+    <li>JA16SJIS</li>
+    <li>JA16EUC</li>
+    <li>AL16UTF16</li>
+    <li>US7ASCII</li>
+    <li>WE8ISO8859P1 / WE8MSWIN1252</li>
+</ul>
+
+<p><a href="toc.html">目次に戻る</a></p>
+
+</body>
+</html>

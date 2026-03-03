@@ -16,8 +16,12 @@ if "%VCVARS%"=="" (
     echo ERROR: Visual Studio not found
     exit /b 1
 )
+REM アーキテクチャ指定 (デフォルト: x64, オプション: arm64)
+set ARCH=%1
+if "%ARCH%"=="" set ARCH=x64
 echo Using: %VCVARS%
-call "%VCVARS%" x64
+echo Architecture: %ARCH%
+call "%VCVARS%" %ARCH%
 
 set DEFS=/DWINDOWS /DWIN32 /DUTF8 /DODV_DLL_MODE /D_CRT_SECURE_NO_WARNINGS
 set CFLAGS=/O2 /W3 /LD /MT /nologo /utf-8 /std:c11

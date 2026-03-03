@@ -9,12 +9,24 @@ on:
       - release
 
 jobs:
+  # ═══════════════════════════════════════════
+  # ビルドジョブ (x64 / ARM64 並列)
+  # ═══════════════════════════════════════════
   build:
-    name: Build & Release
+    name: Build (${{ matrix.arch }})
     runs-on: windows-latest
 
-    permissions:
-      contents: write  # GitHub Release の作成に必要
+    strategy:
+      matrix:
+        include:
+          - arch: x64
+            rid: win-x64
+            msvc_arch: x64
+            wix_arch: x64
+          - arch: arm64
+            rid: win-arm64
+            msvc_arch: arm64
+            wix_arch: arm64
 
     steps:
       # ─────────────────────────────────────
@@ -37,7 +49,7 @@ jobs:
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
         with:
-          arch: x64
+          arch: ${{ matrix.msvc_arch }}
 
       # ─────────────────────────────────────
       # 4. C ネイティブ DLL ビルド
@@ -53,7 +65,7 @@ jobs:
           cl %CFLAGS% %DEFS% /I "." /Fe"OraDB_DumpParser.dll" %SRCS% /link /DLL
           if %ERRORLEVEL% NEQ 0 exit /b 1
           del /q *.obj *.exp *.lib 2>nul
-          echo DLL built successfully
+          echo DLL built successfully (${{ matrix.arch }})
           dir OraDB_DumpParser.dll
 
       # ─────────────────────────────────────
@@ -73,47 +85,13 @@ jobs:
           echo "TAG=v$version" >> $env:GITHUB_OUTPUT
 
       # ─────────────────────────────────────
-      # 6. CHANGELOG.md から該当バージョンの
-      #    リリースノートを抽出
-      # ─────────────────────────────────────
-      - name: Extract release notes from CHANGELOG.md
-        id: changelog
-        shell: pwsh
-        run: |
-          $version = "${{ steps.get_version.outputs.VERSION }}"
-
-          if (-not (Test-Path "CHANGELOG.md")) {
-            Write-Host "CHANGELOG.md が見つかりません。空のリリースノートを使用します。"
-            $notes = "No release notes."
-          } else {
-            $content = Get-Content "CHANGELOG.md" -Raw
-            # ## [0.1.2] または ## 0.1.2 の形式に対応
-            $escaped = [regex]::Escape($version)
-            $pattern = "(?ms)^## \[?${escaped}\]?[^\n]*\n(.*?)(?=\n## |\Z)"
-            $match = [regex]::Match($content, $pattern)
-            if ($match.Success) {
-              $notes = $match.Groups[1].Value.Trim()
-              Write-Host "リリースノートを取得しました"
-            } else {
-              $notes = "No release notes for v${version}."
-              Write-Host "該当バージョンのセクションが見つかりませんでした"
-            }
-          }
-
-          # 複数行を GITHUB_OUTPUT に書き込む
-          $delimiter = "EOF_CHANGELOG"
-          "NOTES<<$delimiter" | Out-File -Append -Encoding utf8 $env:GITHUB_OUTPUT
-          $notes | Out-File -Append -Encoding utf8 $env:GITHUB_OUTPUT
-          $delimiter | Out-File -Append -Encoding utf8 $env:GITHUB_OUTPUT
-
-      # ─────────────────────────────────────
-      # 7. NuGet パッケージの復元
+      # 6. NuGet パッケージの復元
       # ─────────────────────────────────────
       - name: Restore dependencies
         run: dotnet restore "OraDB DUMP Viewer.vbproj"
 
       # ─────────────────────────────────────
-      # 8. アプリビルド (Self-contained)
+      # 7. アプリビルド (Self-contained)
       #    .NET ランタイム同梱
       #    ポータブル版 (ZIP) と MSI で共用
       # ─────────────────────────────────────
@@ -121,7 +99,7 @@ jobs:
         run: |
           dotnet publish "OraDB DUMP Viewer.vbproj" `
             --configuration Release `
-            --runtime win-x64 `
+            --runtime ${{ matrix.rid }} `
             --self-contained true `
             --output ./publish/app
 
@@ -134,7 +112,7 @@ jobs:
           Copy-Item -Path "./publish/app/*" -Destination "./publish/msi" -Recurse -Force
 
       # ─────────────────────────────────────
-      # 9. DLL が出力に含まれていることを検証
+      # 8. DLL が出力に含まれていることを検証
       # ─────────────────────────────────────
       - name: Verify native DLL in output
         shell: pwsh
@@ -143,10 +121,10 @@ jobs:
             Write-Error "OraDB_DumpParser.dll がビルド出力に含まれていません"
             exit 1
           }
-          Write-Host "OraDB_DumpParser.dll found in build output"
+          Write-Host "OraDB_DumpParser.dll found in build output (${{ matrix.arch }})"
 
       # ─────────────────────────────────────
-      # 10. ポータブル版を ZIP に圧縮
+      # 9. ポータブル版を ZIP に圧縮
       # ─────────────────────────────────────
       - name: Zip portable
         shell: pwsh
@@ -154,22 +132,22 @@ jobs:
           $version = "${{ steps.get_version.outputs.VERSION }}"
           Compress-Archive `
             -Path "./publish/portable/*" `
-            -DestinationPath "./publish/OraDBDumpViewer_v${version}_portable.zip"
+            -DestinationPath "./publish/OraDBDumpViewer_v${version}_portable_${{ matrix.arch }}.zip"
 
       # ─────────────────────────────────────
-      # 11. WiX Toolset v5.0.2 のインストール
+      # 10. WiX Toolset v5.0.2 のインストール
       # ─────────────────────────────────────
       - name: Install WiX Toolset
         run: dotnet tool install --global wix --version 5.0.2
 
       # ─────────────────────────────────────
-      # 12. WiX UI 拡張を追加
+      # 11. WiX UI 拡張を追加
       # ─────────────────────────────────────
       - name: Add WiX UI extension
         run: wix extension add WixToolset.UI.wixext/5.0.2
 
       # ─────────────────────────────────────
-      # 13. WiX ソースファイルの生成
+      # 12. WiX ソースファイルの生成
       # ─────────────────────────────────────
       - name: Generate WiX source file
         shell: pwsh
@@ -257,7 +235,7 @@ jobs:
           $wxs | Set-Content -Path installer.wxs -Encoding UTF8
 
       # ─────────────────────────────────────
-      # 14. .msi インストーラーのビルド
+      # 13. .msi インストーラーのビルド
       # ─────────────────────────────────────
       - name: Build MSI installer
         shell: pwsh
@@ -265,11 +243,120 @@ jobs:
           $version = "${{ steps.get_version.outputs.VERSION }}"
           wix build installer.wxs `
             -ext WixToolset.UI.wixext `
-            -o "./publish/OraDBDumpViewer_v${version}_installer.msi"
+            -arch ${{ matrix.wix_arch }} `
+            -o "./publish/OraDBDumpViewer_v${version}_installer_${{ matrix.arch }}.msi"
 
       # ─────────────────────────────────────
-      # 15. GitHub Release の作成 & アップロード
-      #     body に CHANGELOG.md の内容を使用
+      # 14. ビルドアーティファクトをアップロード
+      # ─────────────────────────────────────
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.arch }}
+          path: |
+            ./publish/OraDBDumpViewer_v${{ steps.get_version.outputs.VERSION }}_portable_${{ matrix.arch }}.zip
+            ./publish/OraDBDumpViewer_v${{ steps.get_version.outputs.VERSION }}_installer_${{ matrix.arch }}.msi
+
+      - name: Save version info
+        shell: pwsh
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}"
+          Set-Content -Path "./publish/version.txt" -Value $version -NoNewline
+
+      - name: Upload version info
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-info-${{ matrix.arch }}
+          path: ./publish/version.txt
+
+  # ═══════════════════════════════════════════
+  # リリースジョブ (ビルド完了後に統合)
+  # ═══════════════════════════════════════════
+  release:
+    name: Release
+    needs: build
+    runs-on: windows-latest
+
+    permissions:
+      contents: write  # GitHub Release の作成に必要
+
+    steps:
+      # ─────────────────────────────────────
+      # 1. ソースコードをチェックアウト
+      #    (CHANGELOG.md 読み取り用)
+      # ─────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ─────────────────────────────────────
+      # 2. 全アーキテクチャのアーティファクトをダウンロード
+      # ─────────────────────────────────────
+      - name: Download x64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-x64
+          path: ./artifacts
+
+      - name: Download arm64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-arm64
+          path: ./artifacts
+
+      - name: Download version info
+        uses: actions/download-artifact@v4
+        with:
+          name: version-info-x64
+          path: ./meta
+
+      # ─────────────────────────────────────
+      # 3. バージョン情報を読み取り
+      # ─────────────────────────────────────
+      - name: Read version
+        id: get_version
+        shell: pwsh
+        run: |
+          $version = Get-Content "./meta/version.txt" -Raw
+          Write-Host "Version: $version"
+          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          echo "TAG=v$version" >> $env:GITHUB_OUTPUT
+
+      # ─────────────────────────────────────
+      # 4. CHANGELOG.md からリリースノートを抽出
+      # ─────────────────────────────────────
+      - name: Extract release notes from CHANGELOG.md
+        id: changelog
+        shell: pwsh
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}"
+
+          if (-not (Test-Path "CHANGELOG.md")) {
+            Write-Host "CHANGELOG.md が見つかりません。空のリリースノートを使用します。"
+            $notes = "No release notes."
+          } else {
+            $content = Get-Content "CHANGELOG.md" -Raw
+            # ## [0.1.2] または ## 0.1.2 の形式に対応
+            $escaped = [regex]::Escape($version)
+            $pattern = "(?ms)^## \[?${escaped}\]?[^\n]*\n(.*?)(?=\n## |\Z)"
+            $match = [regex]::Match($content, $pattern)
+            if ($match.Success) {
+              $notes = $match.Groups[1].Value.Trim()
+              Write-Host "リリースノートを取得しました"
+            } else {
+              $notes = "No release notes for v${version}."
+              Write-Host "該当バージョンのセクションが見つかりませんでした"
+            }
+          }
+
+          # 複数行を GITHUB_OUTPUT に書き込む
+          $delimiter = "EOF_CHANGELOG"
+          "NOTES<<$delimiter" | Out-File -Append -Encoding utf8 $env:GITHUB_OUTPUT
+          $notes | Out-File -Append -Encoding utf8 $env:GITHUB_OUTPUT
+          $delimiter | Out-File -Append -Encoding utf8 $env:GITHUB_OUTPUT
+
+      # ─────────────────────────────────────
+      # 5. GitHub Release の作成 & アップロード
+      #    x64 + ARM64 の全ファイルをアップロード
       # ─────────────────────────────────────
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -280,22 +367,29 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            ./publish/OraDBDumpViewer_v${{ steps.get_version.outputs.VERSION }}_portable.zip
-            ./publish/OraDBDumpViewer_v${{ steps.get_version.outputs.VERSION }}_installer.msi
+            ./artifacts/OraDBDumpViewer_v${{ steps.get_version.outputs.VERSION }}_portable_x64.zip
+            ./artifacts/OraDBDumpViewer_v${{ steps.get_version.outputs.VERSION }}_installer_x64.msi
+            ./artifacts/OraDBDumpViewer_v${{ steps.get_version.outputs.VERSION }}_portable_arm64.zip
+            ./artifacts/OraDBDumpViewer_v${{ steps.get_version.outputs.VERSION }}_installer_arm64.msi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ─────────────────────────────────────
-      # 16. Winget パッケージマニフェストの自動PR
-      #     microsoft/winget-pkgs へ PR を送信
+      # 6. Winget パッケージマニフェストの自動PR
+      #    microsoft/winget-pkgs へ PR を送信
+      #    x64 + ARM64 両アーキテクチャのインストーラーを登録
       # ─────────────────────────────────────
       - name: Publish to Winget
         shell: pwsh
         run: |
           $version = "${{ steps.get_version.outputs.VERSION }}"
-          $msiPath = "./publish/OraDBDumpViewer_v${version}_installer.msi"
-          $msiUrl = "https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases/download/v${version}/OraDBDumpViewer_v${version}_installer.msi"
-          $hash = (Get-FileHash $msiPath -Algorithm SHA256).Hash
+          $baseUrl = "https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases/download/v${version}"
+
+          # 各アーキテクチャの MSI ハッシュを取得
+          $msiX64 = "./artifacts/OraDBDumpViewer_v${version}_installer_x64.msi"
+          $msiArm64 = "./artifacts/OraDBDumpViewer_v${version}_installer_arm64.msi"
+          $hashX64 = (Get-FileHash $msiX64 -Algorithm SHA256).Hash
+          $hashArm64 = (Get-FileHash $msiArm64 -Algorithm SHA256).Hash
 
           # マニフェストディレクトリ作成
           $dir = "manifests/o/OraDBDumpViewer/OraDBDumpViewer/$version"
@@ -310,7 +404,7 @@ jobs:
           ManifestVersion: 1.6.0
           "@ -replace '(?m)^          ', '' | Set-Content "$dir/OraDBDumpViewer.OraDBDumpViewer.yaml" -NoNewline
 
-          # インストーラーマニフェスト
+          # インストーラーマニフェスト (x64 + ARM64)
           @"
           PackageIdentifier: OraDBDumpViewer.OraDBDumpViewer
           PackageVersion: $version
@@ -325,8 +419,11 @@ jobs:
           - silentWithProgress
           Installers:
           - Architecture: x64
-            InstallerUrl: $msiUrl
-            InstallerSha256: $hash
+            InstallerUrl: ${baseUrl}/OraDBDumpViewer_v${version}_installer_x64.msi
+            InstallerSha256: $hashX64
+          - Architecture: arm64
+            InstallerUrl: ${baseUrl}/OraDBDumpViewer_v${version}_installer_arm64.msi
+            InstallerSha256: $hashArm64
           ManifestType: installer
           ManifestVersion: 1.6.0
           "@ -replace '(?m)^          ', '' | Set-Content "$dir/OraDBDumpViewer.OraDBDumpViewer.installer.yaml" -NoNewline

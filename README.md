@@ -7,7 +7,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases"><img src="https://img.shields.io/github/v/release/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer?label=%E6%9C%80%E6%96%B0%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3&style=flat-square" alt="Release"></a>
+  <a href="https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases"><img src="https://img.shields.io/github/v/tag/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer?label=%E6%9C%80%E6%96%B0%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3&style=flat-square" alt="Release"></a>
+  <a href="https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases"><img src="https://img.shields.io/github/downloads/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/total?label=%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89&style=flat-square" alt="Downloads"></a>
   <img src="https://img.shields.io/badge/platform-Windows%20x64%20%7C%20ARM64-blue?style=flat-square" alt="Platform">
   <img src="https://img.shields.io/badge/runtime-.NET%2010.0-purple?style=flat-square" alt=".NET 10">
   <a href="https://www.odv.dev/"><img src="https://img.shields.io/badge/%E3%83%A9%E3%82%A4%E3%82%BB%E3%83%B3%E3%82%B9-www.odv.dev-green?style=flat-square" alt="License"></a>

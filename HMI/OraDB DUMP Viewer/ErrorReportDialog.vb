@@ -28,6 +28,8 @@ Partial Public Class ErrorReportDialog
         lblMemoryValue.Text = _sysInfo.MemoryMB
         lblScreenValue.Text = _sysInfo.ScreenResolution
         lblDumpInfoValue.Text = _sysInfo.DumpFileInfo
+
+        ThemeManager.ApplyTheme(Me)
     End Sub
 
     ''' <summary>
@@ -64,7 +66,7 @@ Partial Public Class ErrorReportDialog
 
             If result.Success Then
                 lblStatus.Text = "送信が完了しました。ご報告ありがとうございます。"
-                lblStatus.ForeColor = Color.Green
+                lblStatus.ForeColor = ThemeManager.SuccessColor
                 lblStatus.Visible = True
 
                 If Not String.IsNullOrEmpty(result.IssueUrl) Then
@@ -79,7 +81,7 @@ Partial Public Class ErrorReportDialog
                 btnSubmit.Visible = False
             Else
                 lblStatus.Text = $"送信に失敗しました: {result.ErrorMessage}"
-                lblStatus.ForeColor = Color.Red
+                lblStatus.ForeColor = ThemeManager.ErrorColor
                 lblStatus.Visible = True
                 SetSubmitting(False)
             End If
@@ -87,7 +89,7 @@ Partial Public Class ErrorReportDialog
         Catch ex As Exception
             prgSubmit.Visible = False
             lblStatus.Text = $"送信エラー: {ex.Message}"
-            lblStatus.ForeColor = Color.Red
+            lblStatus.ForeColor = ThemeManager.ErrorColor
             lblStatus.Visible = True
             SetSubmitting(False)
         End Try
@@ -106,7 +108,7 @@ Partial Public Class ErrorReportDialog
 
         If submitting Then
             lblStatus.Text = "送信中..."
-            lblStatus.ForeColor = SystemColors.ControlText
+            lblStatus.ForeColor = ThemeManager.ForeColor
             lblStatus.Visible = True
         End If
     End Sub

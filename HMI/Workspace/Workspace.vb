@@ -35,6 +35,8 @@ Public Class Workspace
 
 #Region "イベント処理"
     Private Sub Workspace_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ThemeManager.ApplyTheme(Me)
+
         ' フェーズ1: テーブル一覧のみ取得（高速・メモリ軽量）
         Dim colMap As Dictionary(Of String, String()) = Nothing
         Dim typeMap As Dictionary(Of String, String()) = Nothing

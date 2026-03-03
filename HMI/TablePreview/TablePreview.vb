@@ -184,6 +184,7 @@ Public Class TablePreview
     ''' </summary>
     Private Sub TablePreview_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         _isInitializing = True
+        ThemeManager.ApplyTheme(Me)
 
         ' １ページあたりの行数の初期値を設定
         numericUpDownPageCount.Value = _pageCount

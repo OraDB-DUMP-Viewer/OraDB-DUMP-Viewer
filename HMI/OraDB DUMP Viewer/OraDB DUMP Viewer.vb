@@ -25,6 +25,17 @@ Public Class OraDB_DUMP_Viewer
 
         ' ドラッグ&ドロップでダンプファイルを開けるようにする
         Me.AllowDrop = True
+
+        ' テーマ初期化
+        ThemeManager.LoadThemeFromSettings()
+        ダークモードDToolStripMenuItem.Checked = ThemeManager.IsDarkMode
+        ThemeManager.ApplyTheme(Me)
+    End Sub
+
+    Private Sub ダークモードDToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ダークモードDToolStripMenuItem.Click
+        ThemeManager.ToggleTheme()
+        ダークモードDToolStripMenuItem.Checked = ThemeManager.IsDarkMode
+        ThemeManager.ApplyThemeToAllForms()
     End Sub
 
     Private Sub OraDB_DUMP_Viewer_DragEnter(sender As Object, e As DragEventArgs) Handles MyBase.DragEnter

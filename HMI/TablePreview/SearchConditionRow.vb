@@ -74,6 +74,9 @@ Public Class SearchConditionRow
             columnCombo.SelectedIndex = 0
         End If
 
+        ' テーマを適用
+        ThemeManager.ApplyThemeToSingleControl(Me)
+
         ' 列が変更されたときに検索値をクリアするイベントハンドラーを追加
         ' 異なる列に変更した際に、前の列の値が残らないようにするため
         AddHandler columnCombo.SelectedIndexChanged, AddressOf ColumnCombo_SelectedIndexChanged

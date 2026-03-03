@@ -39,6 +39,8 @@ Public Class LobExtractDialog
 
         Me.Text = $"LOBファイル抽出 - {tableName}"
 
+        ThemeManager.ApplyTheme(Me)
+
         ' ファイル名方式コンボボックス
         cboFilenameMethod.Items.Add("連番")
         cboFilenameMethod.Items.Add("カラム値")

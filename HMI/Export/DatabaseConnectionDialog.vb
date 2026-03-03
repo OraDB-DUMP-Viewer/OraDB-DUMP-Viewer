@@ -35,6 +35,7 @@ Public Class DatabaseConnectionDialog
     End Sub
 
     Private Sub DatabaseConnectionDialog_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ThemeManager.ApplyTheme(Me)
         UpdateAuthUI()
     End Sub
 
@@ -99,7 +100,7 @@ Public Class DatabaseConnectionDialog
 
     ''' <summary>SQL Server 接続テスト</summary>
     Private Sub btnTest_Click(sender As Object, e As EventArgs) Handles btnTest.Click
-        lblTestResult.ForeColor = Color.Black
+        lblTestResult.ForeColor = ThemeManager.NeutralStatusColor
         lblTestResult.Text = "接続中..."
         Application.DoEvents()
 
@@ -108,17 +109,17 @@ Public Class DatabaseConnectionDialog
             Using conn As New SqlConnection(connStr)
                 conn.Open()
             End Using
-            lblTestResult.ForeColor = Color.Green
+            lblTestResult.ForeColor = ThemeManager.SuccessColor
             lblTestResult.Text = "接続成功"
         Catch ex As Exception
-            lblTestResult.ForeColor = Color.Red
+            lblTestResult.ForeColor = ThemeManager.ErrorColor
             lblTestResult.Text = $"接続失敗: {ex.Message}"
         End Try
     End Sub
 
     ''' <summary>ODBC 接続テスト</summary>
     Private Sub btnTestOdbc_Click(sender As Object, e As EventArgs) Handles btnTestOdbc.Click
-        lblTestResultOdbc.ForeColor = Color.Black
+        lblTestResultOdbc.ForeColor = ThemeManager.NeutralStatusColor
         lblTestResultOdbc.Text = "接続中..."
         Application.DoEvents()
 
@@ -127,10 +128,10 @@ Public Class DatabaseConnectionDialog
             Using conn As New System.Data.Odbc.OdbcConnection(connStr)
                 conn.Open()
             End Using
-            lblTestResultOdbc.ForeColor = Color.Green
+            lblTestResultOdbc.ForeColor = ThemeManager.SuccessColor
             lblTestResultOdbc.Text = "接続成功"
         Catch ex As Exception
-            lblTestResultOdbc.ForeColor = Color.Red
+            lblTestResultOdbc.ForeColor = ThemeManager.ErrorColor
             lblTestResultOdbc.Text = $"接続失敗: {ex.Message}"
         End Try
     End Sub

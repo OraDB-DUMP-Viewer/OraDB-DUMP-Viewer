@@ -9,6 +9,8 @@ Public Class ExportOptionsDialog
     End Sub
 
     Private Sub ExportOptionsDialog_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ThemeManager.ApplyTheme(Me)
+
         ' ExportOptions から現在の設定をコントロールに反映
         Select Case ExportOptions.DateFormat
             Case OraDB_NativeParser.DATE_FMT_SLASH : rdoSlash.Checked = True

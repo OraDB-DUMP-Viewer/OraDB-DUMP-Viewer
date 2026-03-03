@@ -27,6 +27,8 @@ Partial Public Class AboutDialog
         lblVersion.Text = $"バージョン: v{currentVersion}"
         lblCopyright.Text = $"Copyright (C) {DateTime.Now.Year} YANAI Taketo"
 
+        ThemeManager.ApplyTheme(Me)
+
         ' 最新バージョンを非同期で確認
         CheckLatestVersionAsync(currentVersion)
     End Sub
@@ -94,7 +96,7 @@ Partial Public Class AboutDialog
                         If latestVer > currentVer Then
                             ' 新しいバージョンがある
                             lblLatestVersion.Text = $"v{latestVersion} (新しいバージョンがあります)"
-                            lblLatestVersion.ForeColor = Color.OrangeRed
+                            lblLatestVersion.ForeColor = ThemeManager.UpdateColor
 
                             ' 更新ボタンを表示（MSI URLがある場合のみ）
                             If _msiDownloadUrl IsNot Nothing Then
@@ -106,7 +108,7 @@ Partial Public Class AboutDialog
                         Else
                             ' 最新版を使用中
                             lblLatestVersion.Text = $"v{latestVersion} (最新版を利用中)"
-                            lblLatestVersion.ForeColor = Color.Green
+                            lblLatestVersion.ForeColor = ThemeManager.SuccessColor
                         End If
                     Else
                         lblLatestVersion.Text = $"{tagName}"

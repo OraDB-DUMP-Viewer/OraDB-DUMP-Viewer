@@ -11,6 +11,7 @@ Public Class SqlExportDialog
 
     Public Sub New()
         InitializeComponent()
+        ThemeManager.ApplyTheme(Me)
 
         ' DBMS 一覧を設定
         cboDbms.Items.Add("Oracle")

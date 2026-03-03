@@ -115,6 +115,8 @@ Public Class AdvancedSearchForm
     ''' - 前回の検索条件があれば復元、なければ初期条件行を1行追加
     ''' </summary>
     Private Sub AdvancedSearchForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ThemeManager.ApplyTheme(Me)
+
         ' ボタンクリックイベントをハンドラーに関連付け
         AddHandler buttonAdd.Click, AddressOf ButtonAdd_Click
         AddHandler buttonClear.Click, AddressOf ButtonClear_Click
@@ -215,7 +217,7 @@ Public Class AdvancedSearchForm
         Dim logicalPanel As New Panel()
         logicalPanel.Height = 40
         logicalPanel.AutoSize = True
-        logicalPanel.BackColor = SystemColors.Control
+        logicalPanel.BackColor = ThemeManager.ControlBackColor
 
         ' ラベルを作成（"条件:"）
         Dim logicalLabel As New Label()

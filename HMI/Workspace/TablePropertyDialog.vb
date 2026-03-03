@@ -6,6 +6,7 @@ Partial Public Class TablePropertyDialog
 
     Public Sub New(schemaName As String, tableName As String, columnNames As String(), columnTypes As String(), rowCount As Long)
         InitializeComponent()
+        ThemeManager.ApplyTheme(Me)
 
         ' タイトル
         Me.Text = $"テーブルプロパティ - {schemaName}.{tableName}"

@@ -62,6 +62,8 @@ Public Class ExportProgressDialog
 
         ' 経過時間を1秒ごとに更新するタイマー
         _elapsedTimer.Interval = 1000
+
+        ThemeManager.ApplyTheme(Me)
     End Sub
 #End Region
 

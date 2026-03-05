@@ -421,3 +421,4 @@ FodyWeavers.xsd
 Logics/DumpParser/*.dll
 Logics/DumpParser/*.lib
 Logics/DumpParser/*.exp
+Logics/DumpParser/odv_version_gen.h

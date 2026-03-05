@@ -11,9 +11,13 @@
 #include "odv_api.h"
 
 /*---------------------------------------------------------------------------
-    Version
+    Version (auto-generated from .vbproj by gen_version.cmd)
  ---------------------------------------------------------------------------*/
-#define ODV_VERSION_STRING "1.0.0.0"
+#include "odv_version_gen.h"
+
+#ifndef ODV_VERSION_STRING
+#define ODV_VERSION_STRING "0.0.0"
+#endif
 
 /*---------------------------------------------------------------------------
     Internal helpers

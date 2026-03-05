@@ -91,7 +91,8 @@ OraDB DUMP Viewer/
 │     ├─ odv_sql.c                         # SQL INSERT文生成
 │     └─ _build.cmd                        # MSVCビルドスクリプト
 ├─ .github/workflows/
-│  └─ build-and-release.yml                # CI/CD（GitHub Actions）
+│  ├─ build-and-release.yml                # CI/CD 正式版（release ブランチ）
+│  └─ build-and-release-beta.yml           # CI/CD ベータ版（beta ブランチ）
 ├─ README.md                               # プロジェクト説明
 ├─ CHANGELOG.md                            # リリースノート
 ├─ CLA.md                                  # コントリビューターライセンス同意書
@@ -122,6 +123,49 @@ dotnet build "OraDB DUMP Viewer.vbproj"
 - .NET 10.0 (net10.0-windows7.0)
 - 言語: Visual Basic .NET
 - UI: Windows Forms (WinForms)
+
+## Release Flow
+
+### ブランチ戦略
+
+```
+main (開発) → beta (ベータ公開) → release (正式公開)
+```
+
+| ブランチ | 用途 | トリガー | GitHub Release |
+|---|---|---|---|
+| `main` | 日常開発 | — | — |
+| `beta` | ベータ版公開 (最短毎日) | push → GitHub Actions | Pre-release |
+| `release` | 正式版公開 | push → GitHub Actions | Release |
+
+### リリース手順
+
+**ベータ版公開:**
+```bash
+git push origin main:beta
+```
+→ GitHub Actions (`build-and-release-beta.yml`) が自動実行
+→ タグ `v{version}-beta` で Pre-release を作成
+→ Winget ID: `OraDBDumpViewer.OraDBDumpViewer.BETA`
+
+**正式版公開:**
+```bash
+git push origin main:release
+```
+→ GitHub Actions (`build-and-release.yml`) が自動実行
+→ タグ `v{version}` で Release を作成
+→ Winget ID: `OraDBDumpViewer.OraDBDumpViewer`
+
+### ベータ版と安定版の並存
+
+| 項目 | 安定版 | Beta版 |
+|---|---|---|
+| インストール先 | `Program Files\OraDB DUMP Viewer` | `Program Files\OraDB DUMP Viewer Beta` |
+| ショートカット名 | `OraDB DUMP Viewer` | `OraDB DUMP Viewer (Beta)` |
+| WiX UpgradeCode | `cd3b541d-5df6-4737-9bcc-16a4329a8a54` | `a6f03b60-f9ab-4182-a1fc-aa9801428121` |
+| Winget ID | `OraDBDumpViewer.OraDBDumpViewer` | `OraDBDumpViewer.OraDBDumpViewer.BETA` |
+
+同一 PC に両方インストール可能。
 
 ## License & Authentication
 

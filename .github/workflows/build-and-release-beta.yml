@@ -1,0 +1,457 @@
+name: Build and Release (Beta)
+
+# ───────────────────────────────────────────
+# トリガー: beta ブランチへの push 時に実行
+# 開発フロー: main (開発) → beta (ベータ公開) → release (正式公開)
+# ───────────────────────────────────────────
+on:
+  push:
+    branches:
+      - beta
+
+jobs:
+  # ═══════════════════════════════════════════
+  # ビルドジョブ (x64 / ARM64 並列)
+  # ═══════════════════════════════════════════
+  build:
+    name: Build (${{ matrix.arch }})
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        include:
+          - arch: x64
+            rid: win-x64
+            msvc_arch: x64
+            wix_arch: x64
+          - arch: arm64
+            rid: win-arm64
+            msvc_arch: amd64_arm64
+            wix_arch: arm64
+
+    steps:
+      # ─────────────────────────────────────
+      # 1. ソースコードをチェックアウト
+      # ─────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ─────────────────────────────────────
+      # 2. .NET SDK のセットアップ (.NET 10)
+      # ─────────────────────────────────────
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # ─────────────────────────────────────
+      # 3. MSVC 環境セットアップ (C DLL ビルド用)
+      # ─────────────────────────────────────
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.msvc_arch }}
+
+      # ─────────────────────────────────────
+      # 4. C ネイティブ DLL ビルド
+      # ─────────────────────────────────────
+      - name: Build native DLL (OraDB_DumpParser.dll)
+        shell: cmd
+        working-directory: Logics/DumpParser
+        run: |
+          set DEFS=/DWINDOWS /DWIN32 /DUTF8 /DODV_DLL_MODE /D_CRT_SECURE_NO_WARNINGS /DNDEBUG
+          set CFLAGS=/O2 /W3 /LD /MT /nologo /utf-8 /std:c11
+          set SRCS=odv_api.c odv_detect.c odv_expdp.c odv_exp.c odv_record.c odv_number.c odv_datetime.c odv_charset.c odv_xml.c odv_csv.c odv_sql.c
+          cl %CFLAGS% %DEFS% /I "." /Fe"OraDB_DumpParser.dll" %SRCS% /link /DLL
+          if %ERRORLEVEL% NEQ 0 exit /b 1
+          del /q *.obj *.exp *.lib 2>nul
+          echo DLL built successfully (${{ matrix.arch }})
+          dir OraDB_DumpParser.dll
+
+      # ─────────────────────────────────────
+      # 5. バージョン番号を .vbproj から取得
+      # ─────────────────────────────────────
+      - name: Get version from .vbproj
+        id: get_version
+        shell: pwsh
+        run: |
+          [xml]$xml = Get-Content "OraDB DUMP Viewer.vbproj"
+          $version = $xml.Project.PropertyGroup `
+            | Where-Object { $_.Version } `
+            | Select-Object -ExpandProperty Version -First 1
+          if (-not $version) { $version = "1.0.0" }
+          Write-Host "Version: $version"
+          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          echo "TAG=v$version-beta" >> $env:GITHUB_OUTPUT
+          echo "FILE_VERSION=v$version-beta" >> $env:GITHUB_OUTPUT
+
+      # ─────────────────────────────────────
+      # 6. NuGet パッケージの復元
+      # ─────────────────────────────────────
+      - name: Restore dependencies
+        run: dotnet restore "OraDB DUMP Viewer.vbproj"
+
+      # ─────────────────────────────────────
+      # 7. アプリビルド (Self-contained)
+      # ─────────────────────────────────────
+      - name: Build application (self-contained)
+        run: |
+          dotnet publish "OraDB DUMP Viewer.vbproj" `
+            --configuration Release `
+            --runtime ${{ matrix.rid }} `
+            --self-contained true `
+            --output ./publish/app
+
+      - name: Copy build output for portable and MSI
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path "./publish/portable" -Force | Out-Null
+          New-Item -ItemType Directory -Path "./publish/msi" -Force | Out-Null
+          Copy-Item -Path "./publish/app/*" -Destination "./publish/portable" -Recurse -Force
+          Copy-Item -Path "./publish/app/*" -Destination "./publish/msi" -Recurse -Force
+
+      # ─────────────────────────────────────
+      # 8. DLL が出力に含まれていることを検証
+      # ─────────────────────────────────────
+      - name: Verify native DLL in output
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "./publish/app/OraDB_DumpParser.dll")) {
+            Write-Error "OraDB_DumpParser.dll がビルド出力に含まれていません"
+            exit 1
+          }
+          Write-Host "OraDB_DumpParser.dll found in build output (${{ matrix.arch }})"
+
+      # ─────────────────────────────────────
+      # 9. ポータブル版を ZIP に圧縮
+      # ─────────────────────────────────────
+      - name: Zip portable
+        shell: pwsh
+        run: |
+          $fileVer = "${{ steps.get_version.outputs.FILE_VERSION }}"
+          Compress-Archive `
+            -Path "./publish/portable/*" `
+            -DestinationPath "./publish/OraDBDumpViewer_${fileVer}_portable_${{ matrix.arch }}.zip"
+
+      # ─────────────────────────────────────
+      # 10. WiX Toolset v5.0.2 のインストール
+      # ─────────────────────────────────────
+      - name: Install WiX Toolset
+        run: dotnet tool install --global wix --version 5.0.2
+
+      # ─────────────────────────────────────
+      # 11. WiX UI 拡張を追加
+      # ─────────────────────────────────────
+      - name: Add WiX UI extension
+        run: wix extension add WixToolset.UI.wixext/5.0.2
+
+      # ─────────────────────────────────────
+      # 12. WiX ソースファイルの生成 (Beta用)
+      #     安定版と並存可能: 別 UpgradeCode / 別インストール先
+      # ─────────────────────────────────────
+      - name: Generate WiX source file (Beta)
+        shell: pwsh
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}"
+          $exeDir = "$env:GITHUB_WORKSPACE\publish\msi"
+
+          $wxs = @"
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+               xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+            <Package Name="OraDB DUMP Viewer (Beta)"
+                     Version="${version}"
+                     Manufacturer="YANAI Taketo"
+                     UpgradeCode="a6f03b60-f9ab-4182-a1fc-aa9801428121"
+                     Codepage="65001"
+                     Scope="perMachine"
+                     Language="1041">
+
+              <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
+              <MediaTemplate EmbedCab="yes" />
+
+              <ui:WixUI Id="WixUI_InstallDir" />
+              <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+              <Feature Id="ProductFeature" Title="OraDB DUMP Viewer (Beta)" Level="1">
+                <ComponentGroupRef Id="ProductComponents" />
+                <ComponentRef Id="DesktopShortcut" />
+                <ComponentRef Id="StartMenuShortcut" />
+              </Feature>
+
+              <!-- インストール先フォルダ (安定版と別パス) -->
+              <StandardDirectory Id="ProgramFiles64Folder">
+                <Directory Id="INSTALLFOLDER" Name="OraDB DUMP Viewer Beta" />
+              </StandardDirectory>
+
+              <!-- デスクトップ -->
+              <StandardDirectory Id="DesktopFolder">
+                <Component Id="DesktopShortcut" Guid="*">
+                  <Shortcut Id="DesktopShortcutLink"
+                            Name="OraDB DUMP Viewer (Beta)"
+                            Description="OraDB DUMP Viewer (Beta)"
+                            Target="[INSTALLFOLDER]OraDB DUMP Viewer.exe"
+                            WorkingDirectory="INSTALLFOLDER" />
+                  <RegistryValue Root="HKCU"
+                                 Key="Software\YANAI Taketo\OraDB DUMP Viewer Beta"
+                                 Name="DesktopShortcut"
+                                 Type="integer"
+                                 Value="1"
+                                 KeyPath="yes" />
+                </Component>
+              </StandardDirectory>
+
+              <!-- スタートメニュー -->
+              <StandardDirectory Id="ProgramMenuFolder">
+                <Directory Id="AppStartMenuFolder" Name="OraDB DUMP Viewer (Beta)">
+                  <Component Id="StartMenuShortcut" Guid="*">
+                    <Shortcut Id="StartMenuShortcutLink"
+                              Name="OraDB DUMP Viewer (Beta)"
+                              Description="OraDB DUMP Viewer (Beta)"
+                              Target="[INSTALLFOLDER]OraDB DUMP Viewer.exe"
+                              WorkingDirectory="INSTALLFOLDER" />
+                    <RemoveFolder Id="RemoveStartMenuFolder"
+                                  Directory="AppStartMenuFolder"
+                                  On="uninstall" />
+                    <RegistryValue Root="HKCU"
+                                   Key="Software\YANAI Taketo\OraDB DUMP Viewer Beta"
+                                   Name="StartMenuShortcut"
+                                   Type="integer"
+                                   Value="1"
+                                   KeyPath="yes" />
+                  </Component>
+                </Directory>
+              </StandardDirectory>
+
+              <!-- アプリ本体ファイル -->
+              <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+                <Files Include="${exeDir}\**" />
+              </ComponentGroup>
+
+            </Package>
+          </Wix>
+          "@
+          $wxs | Set-Content -Path installer.wxs -Encoding UTF8
+
+      # ─────────────────────────────────────
+      # 13. .msi インストーラーのビルド
+      # ─────────────────────────────────────
+      - name: Build MSI installer
+        shell: pwsh
+        run: |
+          $fileVer = "${{ steps.get_version.outputs.FILE_VERSION }}"
+          wix build installer.wxs `
+            -ext WixToolset.UI.wixext `
+            -arch ${{ matrix.wix_arch }} `
+            -o "./publish/OraDBDumpViewer_${fileVer}_installer_${{ matrix.arch }}.msi"
+
+      # ─────────────────────────────────────
+      # 14. ビルドアーティファクトをアップロード
+      # ─────────────────────────────────────
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: beta-build-${{ matrix.arch }}
+          path: |
+            ./publish/OraDBDumpViewer_${{ steps.get_version.outputs.FILE_VERSION }}_portable_${{ matrix.arch }}.zip
+            ./publish/OraDBDumpViewer_${{ steps.get_version.outputs.FILE_VERSION }}_installer_${{ matrix.arch }}.msi
+
+      - name: Save version info
+        shell: pwsh
+        run: |
+          "${{ steps.get_version.outputs.VERSION }}" | Set-Content -Path "./publish/version.txt" -NoNewline
+          "${{ steps.get_version.outputs.FILE_VERSION }}" | Set-Content -Path "./publish/file_version.txt" -NoNewline
+
+      - name: Upload version info
+        uses: actions/upload-artifact@v4
+        with:
+          name: beta-version-info-${{ matrix.arch }}
+          path: |
+            ./publish/version.txt
+            ./publish/file_version.txt
+
+  # ═══════════════════════════════════════════
+  # リリースジョブ (Beta Pre-release)
+  # ═══════════════════════════════════════════
+  release:
+    name: Beta Release
+    needs: build
+    runs-on: windows-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      # ─────────────────────────────────────
+      # 1. ソースコードをチェックアウト
+      #    (CHANGELOG.md 読み取り用)
+      # ─────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ─────────────────────────────────────
+      # 2. 全アーキテクチャのアーティファクトをダウンロード
+      # ─────────────────────────────────────
+      - name: Download x64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: beta-build-x64
+          path: ./artifacts
+
+      - name: Download arm64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: beta-build-arm64
+          path: ./artifacts
+
+      - name: Download version info
+        uses: actions/download-artifact@v4
+        with:
+          name: beta-version-info-x64
+          path: ./meta
+
+      # ─────────────────────────────────────
+      # 3. バージョン情報を読み取り
+      # ─────────────────────────────────────
+      - name: Read version
+        id: get_version
+        shell: pwsh
+        run: |
+          $version = Get-Content "./meta/version.txt" -Raw
+          $fileVer = Get-Content "./meta/file_version.txt" -Raw
+          Write-Host "Version: $version"
+          Write-Host "File version: $fileVer"
+          echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          echo "TAG=v$version-beta" >> $env:GITHUB_OUTPUT
+          echo "FILE_VERSION=$fileVer" >> $env:GITHUB_OUTPUT
+
+      # ─────────────────────────────────────
+      # 4. CHANGELOG.md からリリースノートを抽出
+      # ─────────────────────────────────────
+      - name: Extract release notes from CHANGELOG.md
+        id: changelog
+        shell: pwsh
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}"
+
+          if (-not (Test-Path "CHANGELOG.md")) {
+            Write-Host "CHANGELOG.md が見つかりません。空のリリースノートを使用します。"
+            $notes = "No release notes."
+          } else {
+            $content = Get-Content "CHANGELOG.md" -Raw
+            $escaped = [regex]::Escape($version)
+            $pattern = "(?ms)^## \[?${escaped}\]?[^\n]*\n(.*?)(?=\n## |\Z)"
+            $match = [regex]::Match($content, $pattern)
+            if ($match.Success) {
+              $notes = $match.Groups[1].Value.Trim()
+              Write-Host "リリースノートを取得しました"
+            } else {
+              $notes = "No release notes for v${version}."
+              Write-Host "該当バージョンのセクションが見つかりませんでした"
+            }
+          }
+
+          $delimiter = "EOF_CHANGELOG"
+          "NOTES<<$delimiter" | Out-File -Append -Encoding utf8 $env:GITHUB_OUTPUT
+          $notes | Out-File -Append -Encoding utf8 $env:GITHUB_OUTPUT
+          $delimiter | Out-File -Append -Encoding utf8 $env:GITHUB_OUTPUT
+
+      # ─────────────────────────────────────
+      # 5. GitHub Release の作成 (Pre-release)
+      # ─────────────────────────────────────
+      - name: Create GitHub Beta Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_version.outputs.TAG }}
+          name: Beta ${{ steps.get_version.outputs.TAG }}
+          body: |
+            > **This is a beta release.** Install alongside the stable version for testing.
+
+            ${{ steps.changelog.outputs.NOTES }}
+          draft: false
+          prerelease: true
+          files: |
+            ./artifacts/OraDBDumpViewer_${{ steps.get_version.outputs.FILE_VERSION }}_portable_x64.zip
+            ./artifacts/OraDBDumpViewer_${{ steps.get_version.outputs.FILE_VERSION }}_installer_x64.msi
+            ./artifacts/OraDBDumpViewer_${{ steps.get_version.outputs.FILE_VERSION }}_portable_arm64.zip
+            ./artifacts/OraDBDumpViewer_${{ steps.get_version.outputs.FILE_VERSION }}_installer_arm64.msi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ─────────────────────────────────────
+      # 6. Winget パッケージマニフェストの自動PR
+      #    Beta 用パッケージ ID: OraDBDumpViewer.OraDBDumpViewer.BETA
+      # ─────────────────────────────────────
+      - name: Publish to Winget (Beta)
+        shell: pwsh
+        run: |
+          $version = "${{ steps.get_version.outputs.VERSION }}"
+          $fileVer = "${{ steps.get_version.outputs.FILE_VERSION }}"
+          $baseUrl = "https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases/download/${fileVer}"
+
+          $msiX64 = "./artifacts/OraDBDumpViewer_${fileVer}_installer_x64.msi"
+          $msiArm64 = "./artifacts/OraDBDumpViewer_${fileVer}_installer_arm64.msi"
+          $hashX64 = (Get-FileHash $msiX64 -Algorithm SHA256).Hash
+          $hashArm64 = (Get-FileHash $msiArm64 -Algorithm SHA256).Hash
+
+          $pkgId = "OraDBDumpViewer.OraDBDumpViewer.BETA"
+          $dir = "manifests/o/OraDBDumpViewer/OraDBDumpViewer.BETA/$version"
+          New-Item -ItemType Directory -Path $dir -Force
+
+          # バージョンマニフェスト
+          @"
+          PackageIdentifier: $pkgId
+          PackageVersion: $version
+          DefaultLocale: ja-JP
+          ManifestType: version
+          ManifestVersion: 1.6.0
+          "@ -replace '(?m)^          ', '' | Set-Content "$dir/$pkgId.yaml" -NoNewline
+
+          # インストーラーマニフェスト
+          @"
+          PackageIdentifier: $pkgId
+          PackageVersion: $version
+          Platform:
+          - Windows.Desktop
+          MinimumOSVersion: 10.0.17763.0
+          InstallerType: msi
+          Scope: machine
+          InstallModes:
+          - interactive
+          - silent
+          - silentWithProgress
+          Installers:
+          - Architecture: x64
+            InstallerUrl: ${baseUrl}/OraDBDumpViewer_${fileVer}_installer_x64.msi
+            InstallerSha256: $hashX64
+          - Architecture: arm64
+            InstallerUrl: ${baseUrl}/OraDBDumpViewer_${fileVer}_installer_arm64.msi
+            InstallerSha256: $hashArm64
+          ManifestType: installer
+          ManifestVersion: 1.6.0
+          "@ -replace '(?m)^          ', '' | Set-Content "$dir/$pkgId.installer.yaml" -NoNewline
+
+          # ロケールマニフェスト
+          @"
+          PackageIdentifier: $pkgId
+          PackageVersion: $version
+          PackageLocale: ja-JP
+          Publisher: YANAI Taketo
+          PublisherUrl: https://www.odv.dev/
+          PackageName: OraDB DUMP Viewer (Beta)
+          PackageUrl: https://www.odv.dev/
+          License: Proprietary
+          ShortDescription: Oracle EXP/EXPDP DUMPファイルビューア (Beta)
+          Tags:
+          - oracle
+          - dump
+          - viewer
+          - database
+          - beta
+          ManifestType: defaultLocale
+          ManifestVersion: 1.6.0
+          "@ -replace '(?m)^          ', '' | Set-Content "$dir/$pkgId.locale.ja-JP.yaml" -NoNewline
+
+          Invoke-WebRequest -Uri "https://aka.ms/wingetcreate/latest" -OutFile wingetcreate.exe
+          .\wingetcreate.exe submit --token "${{ secrets.WINGET_TOKEN }}" $dir

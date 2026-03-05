@@ -444,17 +444,35 @@ static int parse_column_type(const char *type_str, ODV_COLUMN *col)
     }
 
     /* Extract length/precision/scale from parentheses */
-    p = strchr(upper, '(');
-    if (p) {
-        p++;
-        col->length = atoi(p);
-
-        /* For NUMBER(p,s) */
-        p = strchr(p, ',');
+    {
+        int has_parens = 0;
+        p = strchr(upper, '(');
         if (p) {
+            has_parens = 1;
             p++;
-            col->scale = atoi(p);
-            col->precision = col->length;
+            col->length = atoi(p);
+
+            /* For NUMBER(p,s) */
+            p = strchr(p, ',');
+            if (p) {
+                p++;
+                col->scale = atoi(p);
+                col->precision = col->length;
+            }
+        }
+
+        /* For TIMESTAMP types, parenthesized value is fractional seconds precision */
+        switch (col->type) {
+        case COL_TIMESTAMP:
+        case COL_TIMESTAMP_TZ:
+        case COL_TIMESTAMP_LTZ:
+            if (has_parens) {
+                col->precision = col->length;
+                col->length = 0; /* Reset to get default byte length below */
+            } else {
+                col->precision = 6; /* Oracle default */
+            }
+            break;
         }
     }
 
@@ -581,7 +599,7 @@ static int decode_exp_column(ODV_SESSION *s, int col_idx,
     case COL_TIMESTAMP:
     case COL_TIMESTAMP_TZ:
     case COL_TIMESTAMP_LTZ:
-        rc = decode_oracle_timestamp(data, data_len, tmp, sizeof(tmp), s->date_format, s->custom_date_format);
+        rc = decode_oracle_timestamp(data, data_len, tmp, sizeof(tmp), s->date_format, s->custom_date_format, col->precision);
         if (rc == ODV_OK) {
             set_value_string(val, tmp, (int)strlen(tmp));
         } else {

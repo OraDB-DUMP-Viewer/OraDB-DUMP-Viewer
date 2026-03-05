@@ -375,7 +375,7 @@ int decode_oracle_number(const unsigned char *buf, int len, char *out, int out_s
 
 /* odv_datetime.c */
 int decode_oracle_date(const unsigned char *buf, int len, char *out, int out_size, int fmt, const char *custom_fmt);
-int decode_oracle_timestamp(const unsigned char *buf, int len, char *out, int out_size, int fmt, const char *custom_fmt);
+int decode_oracle_timestamp(const unsigned char *buf, int len, char *out, int out_size, int fmt, const char *custom_fmt, int ts_precision);
 int decode_binary_float(const unsigned char *buf, char *out, int out_size);
 int decode_binary_double(const unsigned char *buf, char *out, int out_size);
 

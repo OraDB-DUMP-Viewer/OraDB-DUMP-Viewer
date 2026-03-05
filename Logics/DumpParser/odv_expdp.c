@@ -180,10 +180,19 @@ static void ddl_xml_callback(const char *tag, const char *value,
                     snprintf(col->type_str, sizeof(col->type_str), "DATE");
                     break;
                 case COL_TIMESTAMP:
-                    snprintf(col->type_str, sizeof(col->type_str), "TIMESTAMP");
+                    if (col->precision <= 0) col->precision = 6; /* Oracle default */
+                    snprintf(col->type_str, sizeof(col->type_str),
+                             "TIMESTAMP(%d)", col->precision);
                     break;
                 case COL_TIMESTAMP_TZ:
-                    snprintf(col->type_str, sizeof(col->type_str), "TIMESTAMP WITH TIME ZONE");
+                    if (col->precision <= 0) col->precision = 6;
+                    snprintf(col->type_str, sizeof(col->type_str),
+                             "TIMESTAMP(%d) WITH TIME ZONE", col->precision);
+                    break;
+                case COL_TIMESTAMP_LTZ:
+                    if (col->precision <= 0) col->precision = 6;
+                    snprintf(col->type_str, sizeof(col->type_str),
+                             "TIMESTAMP(%d) WITH LOCAL TIME ZONE", col->precision);
                     break;
                 case COL_BLOB:
                     snprintf(col->type_str, sizeof(col->type_str), "BLOB");
@@ -613,7 +622,8 @@ END_LOB_PARSE:
                         case COL_TIMESTAMP_LTZ:
                             decode_oracle_timestamp(v->data, v->data_len,
                                                     decode_buf, sizeof(decode_buf),
-                                                    s->date_format, s->custom_date_format);
+                                                    s->date_format, s->custom_date_format,
+                                                    col->precision);
                             set_value_string(v, decode_buf, (int)strlen(decode_buf));
                             v->type = col->type;
                             break;

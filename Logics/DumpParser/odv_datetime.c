@@ -138,21 +138,28 @@ int decode_oracle_date(const unsigned char *buf, int len, char *out, int out_siz
     decode_oracle_timestamp
 
     Decodes 7-11 byte Oracle TIMESTAMP to string.
-    Includes nanoseconds if bytes 7-10 are present.
 
-    Output: "YYYY/MM/DD HH:MI:SS.NNNNNNNNN"
+    ts_precision: fractional seconds digits (0-9).
+      0       => no fractional part (like DATE)
+      1-9     => fixed-width fractional digits (Oracle-compliant)
+      negative => use Oracle default (6)
+
+    Output: "YYYY/MM/DD HH:MI:SS.FFFFFF" (for precision=6)
  ---------------------------------------------------------------------------*/
-int decode_oracle_timestamp(const unsigned char *buf, int len, char *out, int out_size, int fmt, const char *custom_fmt)
+int decode_oracle_timestamp(const unsigned char *buf, int len, char *out, int out_size, int fmt, const char *custom_fmt, int ts_precision)
 {
     int yyyy, mm, dd, hh, mi, ss;
     unsigned int nano = 0;
-    int rc;
 
     if (!buf || !out || out_size < 2) return ODV_ERROR_INVALID_ARG;
     if (len < 7) {
         out[0] = '\0';
         return ODV_ERROR_INVALID_ARG;
     }
+
+    /* Clamp precision: negative => Oracle default (6), max 9 */
+    if (ts_precision < 0) ts_precision = 6;
+    if (ts_precision > 9) ts_precision = 9;
 
     /* Decode date portion (same as DATE) */
     if (buf[0] >= 100) {
@@ -186,27 +193,15 @@ int decode_oracle_timestamp(const unsigned char *buf, int len, char *out, int ou
         return format_date_custom(custom_fmt, yyyy, mm, dd, hh, mi, ss, out, out_size);
     }
 
-    /* Format output */
-    if (nano > 0) {
+    /* Format output based on column precision */
+    if (ts_precision > 0) {
         char nano_str[16];
-        int nano_len;
 
         if (out_size < 30) return ODV_ERROR_BUFFER_OVER;
 
-        /* Format nanoseconds with precision-aware trimming:
-           - Millisecond-aligned (us/ns part = 0): fixed 3 digits
-           - Otherwise: trim trailing zeros (minimum 1 digit) */
+        /* Format nanoseconds and truncate to requested precision */
         snprintf(nano_str, sizeof(nano_str), "%09u", nano);
-        if (nano % 1000000 == 0) {
-            /* Exact milliseconds: use fixed 3-digit precision */
-            nano_len = 3;
-        } else {
-            nano_len = 9;
-            while (nano_len > 1 && nano_str[nano_len - 1] == '0') {
-                nano_len--;
-            }
-        }
-        nano_str[nano_len] = '\0';
+        nano_str[ts_precision] = '\0';
 
         switch (fmt) {
         case DATE_FMT_SLASH:
@@ -223,9 +218,8 @@ int decode_oracle_timestamp(const unsigned char *buf, int len, char *out, int ou
             break;
         }
     } else {
-        /* No nanoseconds: same as DATE */
-        rc = decode_oracle_date(buf, 7, out, out_size, fmt, custom_fmt);
-        return rc;
+        /* TIMESTAMP(0): no fractional seconds, same as DATE */
+        return decode_oracle_date(buf, 7, out, out_size, fmt, custom_fmt);
     }
 
     return ODV_OK;

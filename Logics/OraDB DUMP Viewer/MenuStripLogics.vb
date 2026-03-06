@@ -7,8 +7,8 @@ Public Class MenuStripLogics
         Try
             'OpenFileDialogのインスタンスを作成
             Using OpenFileDialog As New OpenFileDialog
-                OpenFileDialog.Title = "Oracle DUMPファイルを選択してください"
-                OpenFileDialog.Filter = "Oracleダンプファイル (*.dmp)|*.dmp|すべてのファイル (*.*)|*.*"
+                OpenFileDialog.Title = Loc.S("Dialog_OpenDumpTitle")
+                OpenFileDialog.Filter = Loc.S("Dialog_DumpFilter")
                 OpenFileDialog.FilterIndex = 1
                 OpenFileDialog.RestoreDirectory = True
                 OpenFileDialog.CheckFileExists = True
@@ -28,8 +28,8 @@ Public Class MenuStripLogics
 
             End Using
         Catch ex As Exception
-            MessageBox.Show("ファイル選択中にエラーが発生しました: " & ex.Message,
-                            "エラー",
+            MessageBox.Show(Loc.SF("Dialog_FileSelectionError", ex.Message),
+                            Loc.S("Title_Error"),
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Error)
         End Try
@@ -56,8 +56,8 @@ Public Class MenuStripLogics
     Public Shared Sub ライセンス認証ToolStripMenuItem()
         Try
             Using OpenFileDialog As New OpenFileDialog
-                OpenFileDialog.Title = "ライセンスファイル（*.lic.json）を選択してください"
-                OpenFileDialog.Filter = "ライセンスファイル (*.lic.json)|*.lic.json|すべてのファイル (*.*)|*.*"
+                OpenFileDialog.Title = Loc.S("License_FileDialogTitle")
+                OpenFileDialog.Filter = Loc.S("License_FileFilter")
                 OpenFileDialog.FilterIndex = 1
                 OpenFileDialog.RestoreDirectory = True
                 OpenFileDialog.CheckFileExists = True
@@ -71,7 +71,7 @@ Public Class MenuStripLogics
                     Dim holder As String = String.Empty
                     Dim errMsg As String = String.Empty
                     If Not LICENSE.VerifyLicenseFile(licPath, licenseKey, expiryDate, holder, errMsg) Then
-                        MessageBox.Show(errMsg, "認証失敗", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                        MessageBox.Show(errMsg, Loc.S("Title_AuthFailed"), MessageBoxButtons.OK, MessageBoxIcon.Error)
                         Return
                     End If
                     ' 認証成功時はAppDataにそのまま保存
@@ -79,14 +79,14 @@ Public Class MenuStripLogics
                     If Not Directory.Exists(appData) Then Directory.CreateDirectory(appData)
                     Dim statusPath = Path.Combine(appData, "license.status")
                     File.Copy(licPath, statusPath, True)
-                    MessageBox.Show("ライセンス認証に成功しました。", "認証成功", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show(Loc.S("License_Success"), Loc.S("Title_AuthSuccess"), MessageBoxButtons.OK, MessageBoxIcon.Information)
                     ' ステータスバーにHolder名を反映
                     COMMON.ReSet_StatusLavel()
                 End If
 
             End Using
         Catch ex As Exception
-            MessageBox.Show("ライセンス認証中にエラーが発生しました: " & ex.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show(Loc.SF("License_AuthError", ex.Message), Loc.S("Title_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 End Class

@@ -2,11 +2,15 @@ Imports System.IO
 Imports System.Text
 
 Public Class OraDB_DUMP_Viewer
+    Implements ILocalizable
 
     Private Const MRU_MAX As Integer = 5
 
 #Region "フォームロード・初期化"
     Private Sub OraDB_DUMP_Viewer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        LocaleManager.InitializeLanguage()
+        ApplyLocalization()
+
         COMMON.ReSet_StatusLavel()
         COMMON.ResetProgressBar()
         ExportOptions.Load()
@@ -63,6 +67,115 @@ Public Class OraDB_DUMP_Viewer
     End Sub
 #End Region
 
+#Region "ローカライズ"
+    Public Sub ApplyLocalization() Implements ILocalizable.ApplyLocalization
+        ' === メニュー項目 ===
+        ' ファイル
+        ファイルFToolStripMenuItem.Text = Loc.S("Menu_File")
+        開くToolStripMenuItem.Text = Loc.S("Menu_File_Open")
+        ワークスペースToolStripMenuItem.Text = Loc.S("Menu_File_Open_Workspace")
+        ダンプファイルDToolStripMenuItem.Text = Loc.S("Menu_File_Open_DumpFile")
+        閉じるCToolStripMenuItem.Text = Loc.S("Menu_File_Close")
+        ワークスペースの保存SToolStripMenuItem.Text = Loc.S("Menu_File_SaveWorkspace")
+        名前を付けてワークスペースを保存AToolStripMenuItem.Text = Loc.S("Menu_File_SaveWorkspaceAs")
+        ワークスペースを閉じるLToolStripMenuItem.Text = Loc.S("Menu_File_CloseWorkspace")
+        ダンプファイルの作成GToolStripMenuItem.Text = Loc.S("Menu_File_CreateDump")
+        最近使ったワークスペースWToolStripMenuItem.Text = Loc.S("Menu_File_RecentWorkspaces")
+        最近使ったダンプファイルDToolStripMenuItem.Text = Loc.S("Menu_File_RecentDumps")
+        終了XToolStripMenuItem.Text = Loc.S("Menu_File_Exit")
+
+        ' 編集
+        編集EToolStripMenuItem.Text = Loc.S("Menu_Edit")
+        元に戻すUToolStripMenuItem.Text = Loc.S("Menu_Edit_Undo")
+        やり直しRToolStripMenuItem.Text = Loc.S("Menu_Edit_Redo")
+        切り取りTToolStripMenuItem.Text = Loc.S("Menu_Edit_Cut")
+        ToolStripMenuItem1.Text = Loc.S("Menu_Edit_Copy")
+        貼り付けPToolStripMenuItem.Text = Loc.S("Menu_Edit_Paste")
+        すべて選択AToolStripMenuItem1.Text = Loc.S("Menu_Edit_SelectAll")
+
+        ' 表示
+        表示VToolStripMenuItem.Text = Loc.S("Menu_View")
+        ツールバーTToolStripMenuItem.Text = Loc.S("Menu_View_Toolbar")
+        エクスポートToolStripMenuItem.Text = Loc.S("Menu_View_Export")
+        ステータスバーSToolStripMenuItem.Text = Loc.S("Menu_View_StatusBar")
+
+        ' オブジェクト
+        オブジェクトOToolStripMenuItem.Text = Loc.S("Menu_Object")
+        開くToolStripMenuItem1.Text = Loc.S("Menu_Object_Open")
+        すべてのフィルタをクリアFToolStripMenuItem.Text = Loc.S("Menu_Object_ClearFilters")
+        削除DToolStripMenuItem.Text = Loc.S("Menu_Object_Delete")
+        更新の取り消しCToolStripMenuItem.Text = Loc.S("Menu_Object_UndoChanges")
+        プロパティPToolStripMenuItem.Text = Loc.S("Menu_Object_Property")
+        エクスポートToolStripMenuItem1.Text = Loc.S("Menu_Object_Export")
+        スクリプトWSToolStripMenuItem.Text = Loc.S("Menu_Object_ExportScript")
+        データDToolStripMenuItem.Text = Loc.S("Menu_Object_ExportData")
+        レポート出力RToolStripMenuItem.Text = Loc.S("Menu_Object_Report")
+        オブジェクト一覧ToolStripMenuItem.Text = Loc.S("Menu_Object_ReportObjectList")
+        テーブル定義ToolStripMenuItem.Text = Loc.S("Menu_Object_ReportTableDef")
+
+        ' ツール
+        ツールTToolStripMenuItem.Text = Loc.S("Menu_Tools")
+        ファイルの取り出しFToolStripMenuItem.Text = Loc.S("Menu_Tools_ExtractFile")
+        オプションOToolStripMenuItem.Text = Loc.S("Menu_Tools_Options")
+
+        ' ウィンドウ
+        ウィンドウWToolStripMenuItem.Text = Loc.S("Menu_Window")
+        重ねて表示CToolStripMenuItem.Text = Loc.S("Menu_Window_Cascade")
+        並べて表示TToolStripMenuItem.Text = Loc.S("Menu_Window_Tile")
+        アイコンの整列IToolStripMenuItem.Text = Loc.S("Menu_Window_ArrangeIcons")
+
+        ' ヘルプ
+        ヘルプHToolStripMenuItem.Text = Loc.S("Menu_Help")
+        MokujiToolStripMenuItem.Text = Loc.S("Menu_Help_Contents")
+        エラー報告RToolStripMenuItem.Text = Loc.S("Menu_Help_ErrorReport")
+        ライセンス認証ToolStripMenuItem.Text = Loc.S("Menu_Help_License")
+        バージョン情報AToolStripMenuItem.Text = Loc.S("Menu_Help_About")
+
+        ' === ツールバー ===
+        tolTablPproperty.Text = Loc.S("Toolbar_Property")
+        tolTablPproperty.ToolTipText = Loc.S("Toolbar_Property")
+        btnExcludeTable.Text = Loc.S("Toolbar_Delete")
+        btnExcludeTable.ToolTipText = Loc.S("Toolbar_Delete")
+        btnExportSql.Text = Loc.S("Toolbar_SqlScript")
+        btnExportSql.ToolTipText = Loc.S("Toolbar_SqlScript")
+        btnExportCsv.Text = Loc.S("Toolbar_CsvExport")
+        btnExportCsv.ToolTipText = Loc.S("Toolbar_CsvExport")
+        btnExportExcel.Text = Loc.S("Toolbar_ExcelExport")
+        btnExportExcel.ToolTipText = Loc.S("Toolbar_ExcelExport")
+        btnExportAccess.Text = Loc.S("Toolbar_AccessExport")
+        btnExportAccess.ToolTipText = Loc.S("Toolbar_AccessExport")
+        btnExportSqlServer.Text = Loc.S("Toolbar_SqlServer")
+        btnExportSqlServer.ToolTipText = Loc.S("Toolbar_SqlServer")
+        btnExportOdbc.Text = Loc.S("Toolbar_Odbc")
+        btnExportOdbc.ToolTipText = Loc.S("Toolbar_Odbc")
+
+        ' Language submenu
+        ' Build language menu items dynamically
+        Dim langMenu As ToolStripMenuItem = Nothing
+        For Each item As ToolStripMenuItem In ヘルプHToolStripMenuItem.DropDownItems.OfType(Of ToolStripMenuItem)()
+            If item.Name = "langToolStripMenuItem" Then
+                langMenu = item
+                Exit For
+            End If
+        Next
+        If langMenu Is Nothing Then
+            langMenu = New ToolStripMenuItem()
+            langMenu.Name = "langToolStripMenuItem"
+            ヘルプHToolStripMenuItem.DropDownItems.Add(New ToolStripSeparator())
+            ヘルプHToolStripMenuItem.DropDownItems.Add(langMenu)
+        End If
+        langMenu.Text = Loc.S("Menu_Help_Language")
+        langMenu.DropDownItems.Clear()
+        Dim jaItem As New ToolStripMenuItem(Loc.S("Menu_Help_Language_Japanese"))
+        Dim enItem As New ToolStripMenuItem(Loc.S("Menu_Help_Language_English"))
+        jaItem.Checked = LocaleManager.IsJapanese()
+        enItem.Checked = Not LocaleManager.IsJapanese()
+        AddHandler jaItem.Click, Sub() LocaleManager.SetLanguage("ja")
+        AddHandler enItem.Click, Sub() LocaleManager.SetLanguage("en")
+        langMenu.DropDownItems.AddRange({jaItem, enItem})
+    End Sub
+#End Region
+
 #Region "ライセンス認証"
     ''' <summary>
     ''' ライセンスを検証し、未認証の場合はユーザーに認証を促す。
@@ -89,21 +202,17 @@ Public Class OraDB_DUMP_Viewer
             Do
                 Dim msg As String
                 If Not File.Exists(statusPath) Then
-                    msg = "ライセンスが登録されていません。" & vbCrLf & vbCrLf &
-                          "ライセンスの取得は下記サイトから行えます。" & vbCrLf &
-                          "https://www.odv.dev/" & vbCrLf & vbCrLf &
-                          "ライセンスファイル (.lic.json) を選択して認証しますか？"
+                    msg = Loc.S("License_NotRegistered")
                 Else
                     Dim errMsg As String = String.Empty
                     Dim dummy1 As String = String.Empty
                     Dim dummy2 As DateTime
                     Dim dummy3 As String = String.Empty
                     LICENSE.VerifyLicenseFile(statusPath, dummy1, dummy2, dummy3, errMsg)
-                    msg = "ライセンス検証に失敗しました: " & errMsg & vbCrLf & vbCrLf &
-                          "新しいライセンスファイルを選択して認証しますか？"
+                    msg = Loc.SF("License_VerifyFailed", errMsg)
                 End If
 
-                Dim res = MessageBox.Show(msg, "ライセンス認証が必要です",
+                Dim res = MessageBox.Show(msg, Loc.S("License_Required"),
                                           MessageBoxButtons.YesNo, MessageBoxIcon.Warning)
 
                 If res = DialogResult.Yes Then
@@ -127,7 +236,7 @@ Public Class OraDB_DUMP_Viewer
             Loop
 
         Catch ex As Exception
-            MessageBox.Show("ライセンスチェック中にエラーが発生しました: " & ex.Message, "エラー",
+            MessageBox.Show(Loc.SF("License_CheckError", ex.Message), Loc.S("Title_Error"),
                            MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return False
         End Try
@@ -136,7 +245,7 @@ Public Class OraDB_DUMP_Viewer
 
 #Region "メニューイベント: ダンプファイル"
     Private Sub ダンプファイルDToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ダンプファイルDToolStripMenuItem.Click
-        COMMON.Set_StatusLavel("ダンプファイルのパスを選択してください...")
+        COMMON.Set_StatusLavel(Loc.S("Status_SelectDumpFile"))
         Dim filePath = MenuStripLogics.ダンプファイルDToolStripMenuItem()
         If String.IsNullOrEmpty(filePath) Then
             COMMON.ReSet_StatusLavel()
@@ -168,16 +277,16 @@ Public Class OraDB_DUMP_Viewer
     ''' <summary>ワークスペースファイル (.odvw) を開く</summary>
     Private Sub ワークスペースToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ワークスペースToolStripMenuItem.Click
         Using dlg As New OpenFileDialog()
-            dlg.Title = "ワークスペースを開く"
-            dlg.Filter = "ワークスペースファイル (*.odvw)|*.odvw|すべてのファイル (*.*)|*.*"
+            dlg.Title = Loc.S("Dialog_OpenWorkspaceTitle")
+            dlg.Filter = Loc.S("Dialog_WorkspaceFilter")
             dlg.RestoreDirectory = True
             If dlg.ShowDialog() <> DialogResult.OK Then Return
 
             Try
                 Dim data = WorkspaceData.Load(dlg.FileName)
                 If String.IsNullOrEmpty(data.DumpFilePath) OrElse Not File.Exists(data.DumpFilePath) Then
-                    MessageBox.Show("ワークスペースに指定されたダンプファイルが見つかりません。" & vbCrLf & data.DumpFilePath,
-                                    "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                    MessageBox.Show(Loc.SF("Msg_DumpFileNotFound", data.DumpFilePath),
+                                    Loc.S("Title_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error)
                     Return
                 End If
 
@@ -191,8 +300,8 @@ Public Class OraDB_DUMP_Viewer
                 AddToMru(My.Settings.RecentWorkspaces, dlg.FileName)
                 BuildMruMenus()
             Catch ex As Exception
-                MessageBox.Show($"ワークスペースの読み込みに失敗しました。" & vbCrLf & ex.Message,
-                                "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                MessageBox.Show(Loc.SF("Msg_WorkspaceLoadFailed", ex.Message),
+                                Loc.S("Title_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Try
         End Using
     End Sub
@@ -219,8 +328,8 @@ Public Class OraDB_DUMP_Viewer
 
     Private Sub SaveWorkspaceAs(ws As Workspace)
         Using dlg As New SaveFileDialog()
-            dlg.Title = "ワークスペースを保存"
-            dlg.Filter = "ワークスペースファイル (*.odvw)|*.odvw|すべてのファイル (*.*)|*.*"
+            dlg.Title = Loc.S("Dialog_SaveWorkspaceTitle")
+            dlg.Filter = Loc.S("Dialog_WorkspaceFilter")
             dlg.DefaultExt = "odvw"
             dlg.FileName = Path.GetFileNameWithoutExtension(ws.DumpFilePath) & ".odvw"
             dlg.RestoreDirectory = True
@@ -239,11 +348,11 @@ Public Class OraDB_DUMP_Viewer
             AddToMru(My.Settings.RecentWorkspaces, savePath)
             BuildMruMenus()
 
-            MessageBox.Show("ワークスペースを保存しました。" & vbCrLf & savePath,
-                            "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show(Loc.SF("Msg_WorkspaceSaved", savePath),
+                            Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
         Catch ex As Exception
-            MessageBox.Show($"ワークスペースの保存に失敗しました。" & vbCrLf & ex.Message,
-                            "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show(Loc.SF("Msg_WorkspaceSaveFailed", ex.Message),
+                            Loc.S("Title_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
@@ -252,8 +361,8 @@ Public Class OraDB_DUMP_Viewer
         Dim ws = TryCast(Me.ActiveMdiChild, Workspace)
         If ws Is Nothing Then Return
 
-        Dim result = MessageBox.Show("ワークスペースを保存してから閉じますか？",
-                                      "確認", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question)
+        Dim result = MessageBox.Show(Loc.S("Msg_CloseWorkspaceConfirm"),
+                                      Loc.S("Title_Confirm"), MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question)
         Select Case result
             Case DialogResult.Yes
                 If String.IsNullOrEmpty(ws.WorkspacePath) Then
@@ -314,14 +423,14 @@ Public Class OraDB_DUMP_Viewer
         If item Is Nothing Then Return
         Dim path = CStr(item.Tag)
         If Not File.Exists(path) Then
-            MessageBox.Show("ファイルが見つかりません。" & vbCrLf & path, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show(Loc.SF("Msg_FileNotFound", path), Loc.S("Title_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return
         End If
         Try
             Dim data = WorkspaceData.Load(path)
             If String.IsNullOrEmpty(data.DumpFilePath) OrElse Not File.Exists(data.DumpFilePath) Then
-                MessageBox.Show("ワークスペースに指定されたダンプファイルが見つかりません。" & vbCrLf & data.DumpFilePath,
-                                "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                MessageBox.Show(Loc.SF("Msg_DumpFileNotFound", data.DumpFilePath),
+                                Loc.S("Title_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Return
             End If
             OpenDumpFile(data.DumpFilePath, data)
@@ -330,8 +439,8 @@ Public Class OraDB_DUMP_Viewer
             AddToMru(My.Settings.RecentWorkspaces, path)
             BuildMruMenus()
         Catch ex As Exception
-            MessageBox.Show($"ワークスペースの読み込みに失敗しました。" & vbCrLf & ex.Message,
-                            "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show(Loc.SF("Msg_WorkspaceLoadFailed", ex.Message),
+                            Loc.S("Title_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
@@ -340,7 +449,7 @@ Public Class OraDB_DUMP_Viewer
         If item Is Nothing Then Return
         Dim path = CStr(item.Tag)
         If Not File.Exists(path) Then
-            MessageBox.Show("ファイルが見つかりません。" & vbCrLf & path, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show(Loc.SF("Msg_FileNotFound", path), Loc.S("Title_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return
         End If
         OpenDumpFile(path)
@@ -428,7 +537,7 @@ Public Class OraDB_DUMP_Viewer
     Private Sub ShowTableProperty()
         Dim activeChild = TryCast(Me.ActiveMdiChild, Workspace)
         If activeChild Is Nothing Then
-            MessageBox.Show("ワークスペースが開かれていません。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show(Loc.S("Msg_WorkspaceNotOpen"), Loc.S("Title_Info"), MessageBoxButtons.OK, MessageBoxIcon.Information)
             Return
         End If
         activeChild.ShowTableProperty()
@@ -486,7 +595,7 @@ Public Class OraDB_DUMP_Viewer
     Private Sub 開くToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles 開くToolStripMenuItem1.Click
         Dim ws = TryCast(Me.ActiveMdiChild, Workspace)
         If ws Is Nothing Then
-            MessageBox.Show("ワークスペースが開かれていません。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show(Loc.S("Msg_WorkspaceNotOpen"), Loc.S("Title_Info"), MessageBoxButtons.OK, MessageBoxIcon.Information)
             Return
         End If
         ws.OpenSelectedTable()
@@ -518,25 +627,25 @@ Public Class OraDB_DUMP_Viewer
     Private Sub オブジェクト一覧ToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles オブジェクト一覧ToolStripMenuItem.Click
         Dim ws = TryCast(Me.ActiveMdiChild, Workspace)
         If ws Is Nothing Then
-            MessageBox.Show("ワークスペースが開かれていません。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show(Loc.S("Msg_WorkspaceNotOpen"), Loc.S("Title_Info"), MessageBoxButtons.OK, MessageBoxIcon.Information)
             Return
         End If
-        Dim outputPath = ExportHelper.ShowSaveFileDialog("テキストファイル|*.txt|すべてのファイル|*.*", "オブジェクト一覧.txt")
+        Dim outputPath = ExportHelper.ShowSaveFileDialog(Loc.S("Dialog_TextFilter"), Loc.S("Report_DefaultObjectList"))
         If outputPath Is Nothing Then Return
         ws.ExportTableListReport(outputPath)
-        MessageBox.Show($"オブジェクト一覧を出力しました。" & vbCrLf & outputPath, "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        MessageBox.Show(Loc.SF("Msg_ObjectListExported", outputPath), Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 
     Private Sub テーブル定義ToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles テーブル定義ToolStripMenuItem.Click
         Dim ws = TryCast(Me.ActiveMdiChild, Workspace)
         If ws Is Nothing Then
-            MessageBox.Show("ワークスペースが開かれていません。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show(Loc.S("Msg_WorkspaceNotOpen"), Loc.S("Title_Info"), MessageBoxButtons.OK, MessageBoxIcon.Information)
             Return
         End If
-        Dim outputPath = ExportHelper.ShowSaveFileDialog("テキストファイル|*.txt|すべてのファイル|*.*", "テーブル定義.txt")
+        Dim outputPath = ExportHelper.ShowSaveFileDialog(Loc.S("Dialog_TextFilter"), Loc.S("Report_DefaultTableDef"))
         If outputPath Is Nothing Then Return
         ws.ExportTableDefinitionReport(outputPath)
-        MessageBox.Show($"テーブル定義を出力しました。" & vbCrLf & outputPath, "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        MessageBox.Show(Loc.SF("Msg_TableDefExported", outputPath), Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 #End Region
 
@@ -558,7 +667,7 @@ Public Class OraDB_DUMP_Viewer
             If File.Exists(htmlPath) Then
                 Process.Start(New ProcessStartInfo(htmlPath) With {.UseShellExecute = True})
             Else
-                MessageBox.Show("ヘルプファイルが見つかりません。", "ヘルプ",
+                MessageBox.Show(Loc.S("Msg_HelpNotFound"), Loc.S("Menu_Help"),
                                MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
         End If
@@ -585,7 +694,7 @@ Public Class OraDB_DUMP_Viewer
     Private Sub btnExcludeTable_Click(sender As Object, e As EventArgs) Handles btnExcludeTable.Click
         Dim workspace = ExportHelper.GetActiveWorkspace()
         If workspace Is Nothing Then
-            MessageBox.Show("ワークスペースを開いてください。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show(Loc.S("Msg_OpenWorkspacePlease"), Loc.S("Title_Info"), MessageBoxButtons.OK, MessageBoxIcon.Information)
             Return
         End If
         workspace.ExcludeSelectedTable()
@@ -614,13 +723,13 @@ Public Class OraDB_DUMP_Viewer
     Private Function GetBulkExportContexts() As List(Of ExportHelper.TableExportContext)
         Dim contexts = ExportHelper.GetActiveVisibleTableContexts()
         If contexts Is Nothing OrElse contexts.Count = 0 Then
-            MessageBox.Show("ワークスペースにエクスポート対象のテーブルがありません。", "情報",
+            MessageBox.Show(Loc.S("Msg_NoExportTables"), Loc.S("Title_Info"),
                            MessageBoxButtons.OK, MessageBoxIcon.Information)
             Return Nothing
         End If
 
-        Dim result = MessageBox.Show($"{contexts.Count} テーブルを一括エクスポートしますか？",
-                                     "一括エクスポート", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+        Dim result = MessageBox.Show(Loc.SF("Msg_BulkExportConfirm", contexts.Count),
+                                     Loc.S("Title_BulkExport"), MessageBoxButtons.YesNo, MessageBoxIcon.Question)
         If result <> DialogResult.Yes Then Return Nothing
 
         Return contexts
@@ -637,7 +746,7 @@ Public Class OraDB_DUMP_Viewer
         If ctx IsNot Nothing Then
             ' === 単一テーブル ===
             Dim defaultName = $"{ctx.Schema}.{ctx.TableName}.sql"
-            Dim outputPath = ExportHelper.ShowSaveFileDialog("SQL ファイル|*.sql|すべてのファイル|*.*", defaultName)
+            Dim outputPath = ExportHelper.ShowSaveFileDialog(Loc.S("Dialog_SqlFilter"), defaultName)
             If outputPath Is Nothing Then Return
 
             Dim preview = GetActiveTablePreview()
@@ -657,8 +766,8 @@ Public Class OraDB_DUMP_Viewer
                         If Not ok Then args.Cancel = True
                     End Sub)
                 If success Then
-                    MessageBox.Show($"SQL スクリプト出力が完了しました。" & vbCrLf & outputPath,
-                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show(Loc.SF("Msg_SqlExportComplete", outputPath),
+                                   Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
                 End If
             End Using
         Else
@@ -667,7 +776,7 @@ Public Class OraDB_DUMP_Viewer
             If contexts Is Nothing Then Return
 
             Using fbd As New FolderBrowserDialog()
-                fbd.Description = "SQL ファイルの出力先フォルダを選択"
+                fbd.Description = Loc.S("Dialog_SqlFolderBrowse")
                 If fbd.ShowDialog() <> DialogResult.OK Then Return
 
                 Using dlg As New ExportProgressDialog()
@@ -678,9 +787,8 @@ Public Class OraDB_DUMP_Viewer
                             If Not ok Then args.Cancel = True
                         End Sub)
                     If success Then
-                        MessageBox.Show($"SQL 一括エクスポートが完了しました。" & vbCrLf &
-                                       $"{contexts.Count} テーブルを出力しました。" & vbCrLf & folder,
-                                       "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                        MessageBox.Show(Loc.SF("Msg_BulkSqlExportComplete", contexts.Count, folder),
+                                       Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
                     End If
                 End Using
             End Using
@@ -693,7 +801,7 @@ Public Class OraDB_DUMP_Viewer
         If ctx IsNot Nothing Then
             ' === 単一テーブル ===
             Dim defaultName = $"{ctx.Schema}.{ctx.TableName}.csv"
-            Dim outputPath = ExportHelper.ShowSaveFileDialog("CSV ファイル|*.csv|すべてのファイル|*.*", defaultName)
+            Dim outputPath = ExportHelper.ShowSaveFileDialog(Loc.S("Dialog_CsvFilter"), defaultName)
             If outputPath Is Nothing Then Return
 
             Dim preview = GetActiveTablePreview()
@@ -712,8 +820,8 @@ Public Class OraDB_DUMP_Viewer
                         If Not ok Then args.Cancel = True
                     End Sub)
                 If success Then
-                    MessageBox.Show($"CSV エクスポートが完了しました。" & vbCrLf & outputPath,
-                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show(Loc.SF("Msg_CsvExportComplete", outputPath),
+                                   Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
                 End If
             End Using
         Else
@@ -722,7 +830,7 @@ Public Class OraDB_DUMP_Viewer
             If contexts Is Nothing Then Return
 
             Using fbd As New FolderBrowserDialog()
-                fbd.Description = "CSV ファイルの出力先フォルダを選択"
+                fbd.Description = Loc.S("Dialog_CsvFolderBrowse")
                 If fbd.ShowDialog() <> DialogResult.OK Then Return
 
                 Using dlg As New ExportProgressDialog()
@@ -733,9 +841,8 @@ Public Class OraDB_DUMP_Viewer
                             If Not ok Then args.Cancel = True
                         End Sub)
                     If success Then
-                        MessageBox.Show($"CSV 一括エクスポートが完了しました。" & vbCrLf &
-                                       $"{contexts.Count} テーブルを出力しました。" & vbCrLf & folder,
-                                       "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                        MessageBox.Show(Loc.SF("Msg_BulkCsvExportComplete", contexts.Count, folder),
+                                       Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
                     End If
                 End Using
             End Using
@@ -748,7 +855,7 @@ Public Class OraDB_DUMP_Viewer
         If ctx IsNot Nothing Then
             ' === 単一テーブル ===
             Dim defaultName = $"{ctx.Schema}.{ctx.TableName}.xlsx"
-            Dim outputPath = ExportHelper.ShowSaveFileDialog("Excel ファイル|*.xlsx|すべてのファイル|*.*", defaultName)
+            Dim outputPath = ExportHelper.ShowSaveFileDialog(Loc.S("Dialog_ExcelFilter"), defaultName)
             If outputPath Is Nothing Then Return
 
             Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
@@ -782,9 +889,8 @@ Public Class OraDB_DUMP_Viewer
                         If Not ok Then args.Cancel = True
                     End Sub)
                 If success Then
-                    MessageBox.Show($"Excel エクスポートが完了しました。" & vbCrLf &
-                                   $"{exportedRows:#,0} 行を出力しました。" & vbCrLf & outputPath,
-                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show(Loc.SF("Msg_ExcelExportComplete", exportedRows, outputPath),
+                                   Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
                 End If
             End Using
         Else
@@ -792,7 +898,7 @@ Public Class OraDB_DUMP_Viewer
             Dim contexts = GetBulkExportContexts()
             If contexts Is Nothing Then Return
 
-            Dim outputPath = ExportHelper.ShowSaveFileDialog("Excel ファイル|*.xlsx|すべてのファイル|*.*", "export.xlsx")
+            Dim outputPath = ExportHelper.ShowSaveFileDialog(Loc.S("Dialog_ExcelFilter"), "export.xlsx")
             If outputPath Is Nothing Then Return
 
             Using dlg As New ExportProgressDialog()
@@ -802,9 +908,8 @@ Public Class OraDB_DUMP_Viewer
                         If Not ok Then args.Cancel = True
                     End Sub)
                 If success Then
-                    MessageBox.Show($"Excel 一括エクスポートが完了しました。" & vbCrLf &
-                                   $"{contexts.Count} テーブルを出力しました。" & vbCrLf & outputPath,
-                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show(Loc.SF("Msg_BulkExcelExportComplete", contexts.Count, outputPath),
+                                   Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
                 End If
             End Using
         End If
@@ -816,7 +921,7 @@ Public Class OraDB_DUMP_Viewer
         If ctx IsNot Nothing Then
             ' === 単一テーブル ===
             Dim defaultName = $"{ctx.Schema}.{ctx.TableName}.accdb"
-            Dim outputPath = ExportHelper.ShowSaveFileDialog("Access データベース|*.accdb|すべてのファイル|*.*", defaultName)
+            Dim outputPath = ExportHelper.ShowSaveFileDialog(Loc.S("Dialog_AccessFilter"), defaultName)
             If outputPath Is Nothing Then Return
 
             Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
@@ -850,9 +955,8 @@ Public Class OraDB_DUMP_Viewer
                         If Not ok Then args.Cancel = True
                     End Sub)
                 If success Then
-                    MessageBox.Show($"Access エクスポートが完了しました。" & vbCrLf &
-                                   $"{exportedRows:#,0} 行を出力しました。" & vbCrLf & outputPath,
-                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show(Loc.SF("Msg_AccessExportComplete", exportedRows, outputPath),
+                                   Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
                 End If
             End Using
         Else
@@ -860,7 +964,7 @@ Public Class OraDB_DUMP_Viewer
             Dim contexts = GetBulkExportContexts()
             If contexts Is Nothing Then Return
 
-            Dim outputPath = ExportHelper.ShowSaveFileDialog("Access データベース|*.accdb|すべてのファイル|*.*", "export.accdb")
+            Dim outputPath = ExportHelper.ShowSaveFileDialog(Loc.S("Dialog_AccessFilter"), "export.accdb")
             If outputPath Is Nothing Then Return
 
             Using dlg As New ExportProgressDialog()
@@ -870,9 +974,8 @@ Public Class OraDB_DUMP_Viewer
                         If Not ok Then args.Cancel = True
                     End Sub)
                 If success Then
-                    MessageBox.Show($"Access 一括エクスポートが完了しました。" & vbCrLf &
-                                   $"{contexts.Count} テーブルを出力しました。" & vbCrLf & outputPath,
-                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show(Loc.SF("Msg_BulkAccessExportComplete", contexts.Count, outputPath),
+                                   Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
                 End If
             End Using
         End If
@@ -885,7 +988,7 @@ Public Class OraDB_DUMP_Viewer
         Dim connDlg As New DatabaseConnectionDialog()
         If connDlg.ShowDialog(Me) <> DialogResult.OK Then Return
         If Not connDlg.IsSqlServer Then
-            MessageBox.Show("SQL Server タブから接続してください。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show(Loc.S("Msg_ConnectViaSqlServer"), Loc.S("Title_Info"), MessageBoxButtons.OK, MessageBoxIcon.Information)
             Return
         End If
 
@@ -923,9 +1026,8 @@ Public Class OraDB_DUMP_Viewer
                         If Not ok Then args.Cancel = True
                     End Sub)
                 If success Then
-                    MessageBox.Show($"SQL Server へのエクスポートが完了しました。" & vbCrLf &
-                                   $"{exportedRows:#,0} 行を出力しました。",
-                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show(Loc.SF("Msg_SqlServerExportComplete", exportedRows),
+                                   Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
                 End If
             End Using
         Else
@@ -941,9 +1043,8 @@ Public Class OraDB_DUMP_Viewer
                         If Not ok Then args.Cancel = True
                     End Sub)
                 If success Then
-                    MessageBox.Show($"SQL Server 一括エクスポートが完了しました。" & vbCrLf &
-                                   $"{contexts.Count} テーブルを出力しました。",
-                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show(Loc.SF("Msg_BulkSqlServerExportComplete", contexts.Count),
+                                   Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
                 End If
             End Using
         End If
@@ -956,7 +1057,7 @@ Public Class OraDB_DUMP_Viewer
         Dim connDlg As New DatabaseConnectionDialog(selectOdbcTab:=True)
         If connDlg.ShowDialog(Me) <> DialogResult.OK Then Return
         If connDlg.IsSqlServer Then
-            MessageBox.Show("ODBC タブから接続してください。", "情報", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show(Loc.S("Msg_ConnectViaOdbc"), Loc.S("Title_Info"), MessageBoxButtons.OK, MessageBoxIcon.Information)
             Return
         End If
 
@@ -994,9 +1095,8 @@ Public Class OraDB_DUMP_Viewer
                         If Not ok Then args.Cancel = True
                     End Sub)
                 If success Then
-                    MessageBox.Show($"ODBC エクスポートが完了しました。" & vbCrLf &
-                                   $"{exportedRows:#,0} 行を出力しました。",
-                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show(Loc.SF("Msg_OdbcExportComplete", exportedRows),
+                                   Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
                 End If
             End Using
         Else
@@ -1012,9 +1112,8 @@ Public Class OraDB_DUMP_Viewer
                         If Not ok Then args.Cancel = True
                     End Sub)
                 If success Then
-                    MessageBox.Show($"ODBC 一括エクスポートが完了しました。" & vbCrLf &
-                                   $"{contexts.Count} テーブルを出力しました。",
-                                   "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show(Loc.SF("Msg_BulkOdbcExportComplete", contexts.Count),
+                                   Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
                 End If
             End Using
         End If
@@ -1025,21 +1124,21 @@ Public Class OraDB_DUMP_Viewer
     Private Sub ファイルの取り出しFToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ファイルの取り出しFToolStripMenuItem.Click
         Dim ws = TryCast(Me.ActiveMdiChild, Workspace)
         If ws Is Nothing Then
-            MessageBox.Show("ワークスペースが開かれていません。", "LOBファイル抽出",
+            MessageBox.Show(Loc.S("Msg_WorkspaceNotOpen"), Loc.S("Title_LobExtract"),
                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
         Dim ctx = ws.GetSelectedTableExportContext()
         If ctx Is Nothing Then
-            MessageBox.Show("テーブルを選択してください。", "LOBファイル抽出",
+            MessageBox.Show(Loc.S("Msg_SelectTableForLob"), Loc.S("Title_LobExtract"),
                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
         ' LOBカラムの有無チェック
         If ctx.ColumnTypes Is Nothing OrElse ctx.ColumnTypes.Length = 0 Then
-            MessageBox.Show("カラム型情報がありません。", "LOBファイル抽出",
+            MessageBox.Show(Loc.S("Msg_NoColumnTypeInfo"), Loc.S("Title_LobExtract"),
                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
@@ -1049,7 +1148,7 @@ Public Class OraDB_DUMP_Viewer
                                              Return u.Contains("BLOB") OrElse u.Contains("CLOB")
                                          End Function)
         If Not hasLob Then
-            MessageBox.Show("選択テーブルにLOBカラム (BLOB/CLOB/NCLOB) がありません。", "LOBファイル抽出",
+            MessageBox.Show(Loc.S("Msg_NoLobColumns"), Loc.S("Title_LobExtract"),
                            MessageBoxButtons.OK, MessageBoxIcon.Information)
             Return
         End If

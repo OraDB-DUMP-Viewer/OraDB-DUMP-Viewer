@@ -76,6 +76,8 @@
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Update="Strings.resx" />
+    <EmbeddedResource Update="Strings.en.resx" />
   </ItemGroup>
 
   <ItemGroup>

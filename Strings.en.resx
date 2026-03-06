@@ -436,4 +436,27 @@ https://www.microsoft.com/en-us/download/details.aspx?id=54920</value></data>
   <data name="TablePreview_NoColumns" xml:space="preserve"><value>No column information available.</value></data>
   <data name="TablePreview_DisplayError" xml:space="preserve"><value>An error occurred while displaying data: {0}</value></data>
 
+  <!-- ========== License verification errors ========== -->
+  <data name="License_SignatureVerifyFailed" xml:space="preserve"><value>Signature verification failed</value></data>
+  <data name="License_ExpiryParseFailed" xml:space="preserve"><value>Expiry date parse failed</value></data>
+  <data name="License_Expired" xml:space="preserve"><value>License expired</value></data>
+  <data name="License_VerifyError" xml:space="preserve"><value>Verification error: {0}</value></data>
+
+  <!-- ========== DLL parser errors ========== -->
+  <data name="Parser_SessionCreateFailed" xml:space="preserve"><value>Session creation failed (rc={0})</value></data>
+  <data name="Parser_DumpFileSettingError" xml:space="preserve"><value>Dump file setting error: {0}</value></data>
+  <data name="Parser_DumpParseError" xml:space="preserve"><value>Dump parse error: {0}</value></data>
+
+  <!-- ========== Error report logic ========== -->
+  <data name="ErrorReport_RetrievalFailed" xml:space="preserve"><value>Retrieval failed</value></data>
+  <data name="ErrorReport_NotOpened" xml:space="preserve"><value>Not opened</value></data>
+  <data name="ErrorReport_DumpType_ExpdpCompress" xml:space="preserve"><value>EXPDP (Compressed)</value></data>
+  <data name="ErrorReport_DumpType_Unknown" xml:space="preserve"><value>Unknown</value></data>
+  <data name="ErrorReport_ServerError" xml:space="preserve"><value>Server error (HTTP {0})</value></data>
+  <data name="ErrorReport_RateLimitExceeded" xml:space="preserve"><value>Submission rate limit exceeded. Please try again later.</value></data>
+  <data name="ErrorReport_InvalidRequest" xml:space="preserve"><value>Invalid request format.</value></data>
+  <data name="ErrorReport_InternalError" xml:space="preserve"><value>Internal server error. Please try again later.</value></data>
+  <data name="ErrorReport_UnknownError" xml:space="preserve"><value>An unknown error occurred (HTTP {0})</value></data>
+  <data name="ErrorReport_Process" xml:space="preserve"><value>Process:</value></data>
+
 </root>

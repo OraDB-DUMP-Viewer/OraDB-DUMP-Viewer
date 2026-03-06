@@ -24,7 +24,7 @@ Partial Public Class ErrorReportDialog
         lblDllVersionValue.Text = _sysInfo.DllVersion
         lblOSValue.Text = _sysInfo.OsVersion
         lblDotNetValue.Text = _sysInfo.DotNetVersion
-        lblArchValue.Text = $"{_sysInfo.Architecture} (プロセス: {_sysInfo.ProcessArchitecture})"
+        lblArchValue.Text = $"{_sysInfo.Architecture} ({Loc.S("ErrorReport_Process")} {_sysInfo.ProcessArchitecture})"
         lblLocaleValue.Text = _sysInfo.Locale
         lblDpiValue.Text = _sysInfo.DpiScale
         lblMemoryValue.Text = _sysInfo.MemoryMB

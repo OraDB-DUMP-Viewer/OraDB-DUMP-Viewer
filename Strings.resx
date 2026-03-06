@@ -443,4 +443,27 @@ https://www.microsoft.com/ja-jp/download/details.aspx?id=54920</value></data>
   <data name="TablePreview_NoColumns" xml:space="preserve"><value>列情報がありません。</value></data>
   <data name="TablePreview_DisplayError" xml:space="preserve"><value>データ表示中にエラーが発生しました: {0}</value></data>
 
+  <!-- ========== ライセンス検証エラー ========== -->
+  <data name="License_SignatureVerifyFailed" xml:space="preserve"><value>署名検証に失敗</value></data>
+  <data name="License_ExpiryParseFailed" xml:space="preserve"><value>有効期限パース失敗</value></data>
+  <data name="License_Expired" xml:space="preserve"><value>有効期限切れ</value></data>
+  <data name="License_VerifyError" xml:space="preserve"><value>検証エラー: {0}</value></data>
+
+  <!-- ========== DLLパーサーエラー ========== -->
+  <data name="Parser_SessionCreateFailed" xml:space="preserve"><value>セッション作成に失敗しました (rc={0})</value></data>
+  <data name="Parser_DumpFileSettingError" xml:space="preserve"><value>ダンプファイル設定エラー: {0}</value></data>
+  <data name="Parser_DumpParseError" xml:space="preserve"><value>ダンプ解析エラー: {0}</value></data>
+
+  <!-- ========== エラー報告ロジック ========== -->
+  <data name="ErrorReport_RetrievalFailed" xml:space="preserve"><value>取得失敗</value></data>
+  <data name="ErrorReport_NotOpened" xml:space="preserve"><value>未オープン</value></data>
+  <data name="ErrorReport_DumpType_ExpdpCompress" xml:space="preserve"><value>EXPDP (圧縮)</value></data>
+  <data name="ErrorReport_DumpType_Unknown" xml:space="preserve"><value>不明</value></data>
+  <data name="ErrorReport_ServerError" xml:space="preserve"><value>サーバーエラー (HTTP {0})</value></data>
+  <data name="ErrorReport_RateLimitExceeded" xml:space="preserve"><value>送信回数の制限に達しました。しばらく時間をおいてからお試しください。</value></data>
+  <data name="ErrorReport_InvalidRequest" xml:space="preserve"><value>リクエスト形式が不正です。</value></data>
+  <data name="ErrorReport_InternalError" xml:space="preserve"><value>サーバー内部エラーが発生しました。しばらく時間をおいてからお試しください。</value></data>
+  <data name="ErrorReport_UnknownError" xml:space="preserve"><value>不明なエラーが発生しました (HTTP {0})</value></data>
+  <data name="ErrorReport_Process" xml:space="preserve"><value>プロセス:</value></data>
+
 </root>

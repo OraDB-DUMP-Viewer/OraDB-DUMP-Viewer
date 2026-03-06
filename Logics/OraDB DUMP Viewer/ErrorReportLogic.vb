@@ -117,10 +117,10 @@ Public Class ErrorReportLogic
                 Dim typeName = DumpTypeName(dumpType)
                 info.DumpFileInfo = $"{typeName} / {sizeMB:F1} MB"
             Catch
-                info.DumpFileInfo = "取得失敗"
+                info.DumpFileInfo = Loc.S("ErrorReport_RetrievalFailed")
             End Try
         Else
-            info.DumpFileInfo = "未オープン"
+            info.DumpFileInfo = Loc.S("ErrorReport_NotOpened")
         End If
 
         Return info
@@ -145,10 +145,10 @@ Public Class ErrorReportLogic
     Private Shared Function DumpTypeName(dumpType As Integer) As String
         Select Case dumpType
             Case OraDB_NativeParser.DUMP_EXPDP : Return "EXPDP"
-            Case OraDB_NativeParser.DUMP_EXPDP_COMPRESS : Return "EXPDP (圧縮)"
+            Case OraDB_NativeParser.DUMP_EXPDP_COMPRESS : Return Loc.S("ErrorReport_DumpType_ExpdpCompress")
             Case OraDB_NativeParser.DUMP_EXP : Return "EXP"
             Case OraDB_NativeParser.DUMP_EXP_DIRECT : Return "EXP (Direct)"
-            Case Else : Return "不明"
+            Case Else : Return Loc.S("ErrorReport_DumpType_Unknown")
         End Select
     End Function
 
@@ -217,7 +217,7 @@ Public Class ErrorReportLogic
                     If root.TryGetProperty("error", errProp) Then
                         result.ErrorMessage = TranslateError(errProp.GetString(), response.StatusCode)
                     Else
-                        result.ErrorMessage = $"サーバーエラー (HTTP {CInt(response.StatusCode)})"
+                        result.ErrorMessage = Loc.SF("ErrorReport_ServerError", CInt(response.StatusCode))
                     End If
                 End If
 
@@ -232,16 +232,16 @@ Public Class ErrorReportLogic
     Private Shared Function TranslateError(errorCode As String, statusCode As Net.HttpStatusCode) As String
         Select Case errorCode
             Case "rate_limit_exceeded"
-                Return "送信回数の制限に達しました。しばらく時間をおいてからお試しください。"
+                Return Loc.S("ErrorReport_RateLimitExceeded")
             Case "invalid_json"
-                Return "リクエスト形式が不正です。"
+                Return Loc.S("ErrorReport_InvalidRequest")
             Case "internal_error"
-                Return "サーバー内部エラーが発生しました。しばらく時間をおいてからお試しください。"
+                Return Loc.S("ErrorReport_InternalError")
             Case Else
                 If errorCode IsNot Nothing AndAlso errorCode.Length > 0 Then
                     Return errorCode
                 End If
-                Return $"不明なエラーが発生しました (HTTP {CInt(statusCode)})"
+                Return Loc.SF("ErrorReport_UnknownError", CInt(statusCode))
         End Select
     End Function
 

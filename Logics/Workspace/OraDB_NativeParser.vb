@@ -362,7 +362,7 @@ Public Class OraDB_NativeParser
         Try
             Dim rc = odv_create_session(session)
             If rc <> ODV_OK Then
-                Throw New Exception($"セッション作成に失敗しました (rc={rc})")
+                Throw New Exception(Loc.SF("Parser_SessionCreateFailed", rc))
             End If
 
             ' セッションハンドルをコンテキストに保持（進捗%取得用）
@@ -371,7 +371,7 @@ Public Class OraDB_NativeParser
             rc = odv_set_dump_file(session, filePath)
             If rc <> ODV_OK Then
                 Dim errMsg = PtrToStringUTF8(odv_get_last_error(session))
-                Throw New Exception($"ダンプファイル設定エラー: {errMsg}")
+                Throw New Exception(Loc.SF("Parser_DumpFileSettingError", errMsg))
             End If
 
             ' エクスポートオプション適用（日付フォーマット等）
@@ -396,7 +396,7 @@ Public Class OraDB_NativeParser
             rc = odv_parse_dump(session)
             If rc <> ODV_OK AndAlso rc <> ODV_ERROR_CANCELLED Then
                 Dim errMsg = PtrToStringUTF8(odv_get_last_error(session))
-                Throw New Exception($"ダンプ解析エラー: {errMsg}")
+                Throw New Exception(Loc.SF("Parser_DumpParseError", errMsg))
             End If
 
             Return ctx.AllData

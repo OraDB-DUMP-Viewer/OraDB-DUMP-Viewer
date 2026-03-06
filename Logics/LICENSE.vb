@@ -81,7 +81,7 @@ Public Class LICENSE
             Using rsa As RSA = RSA.Create()
                 rsa.ImportSubjectPublicKeyInfo(Convert.FromBase64String(PublicKeyBase64), Nothing)
                 If Not rsa.VerifyData(payloadBytes, sigBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1) Then
-                    errMsg = "署名検証に失敗" : Return False
+                    errMsg = Loc.S("License_SignatureVerifyFailed") : Return False
                 End If
             End Using
 
@@ -89,11 +89,11 @@ Public Class LICENSE
             licenseKey = lk
             holder = hd
 
-            If Not DateTime.TryParse(ea, expiryDate) Then errMsg = "有効期限パース失敗" : Return False
-            If DateTime.Now.Date > expiryDate.Date Then errMsg = "有効期限切れ" : Return False
+            If Not DateTime.TryParse(ea, expiryDate) Then errMsg = Loc.S("License_ExpiryParseFailed") : Return False
+            If DateTime.Now.Date > expiryDate.Date Then errMsg = Loc.S("License_Expired") : Return False
             Return True
         Catch ex As Exception
-            errMsg = "検証エラー: " & ex.Message
+            errMsg = Loc.SF("License_VerifyError", ex.Message)
             Return False
         End Try
     End Function

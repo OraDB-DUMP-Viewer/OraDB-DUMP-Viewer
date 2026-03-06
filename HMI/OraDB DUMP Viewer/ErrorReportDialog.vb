@@ -4,6 +4,7 @@
 ''' 個人情報は収集しない（ユーザー名、PC名、ファイルパス等は含まない）
 ''' </summary>
 Partial Public Class ErrorReportDialog
+    Implements ILocalizable
 
     Private _sysInfo As ErrorReportLogic.SystemInfo
 
@@ -13,6 +14,7 @@ Partial Public Class ErrorReportDialog
     ''' </summary>
     Public Sub New(Optional dumpFilePath As String = Nothing)
         InitializeComponent()
+        ApplyLocalization()
 
         ' 個人情報を含まない環境情報を自動収集
         _sysInfo = ErrorReportLogic.CollectSystemInfo(dumpFilePath)
@@ -36,14 +38,14 @@ Partial Public Class ErrorReportDialog
     Private Async Sub btnSubmit_Click(sender As Object, e As EventArgs) Handles btnSubmit.Click
         ' ローカルバリデーション
         If String.IsNullOrWhiteSpace(txtTitle.Text) Then
-            MessageBox.Show("件名を入力してください。", "入力エラー",
+            MessageBox.Show(Loc.S("ErrorReport_SubjectRequired"), Loc.S("Title_InputError"),
                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtTitle.Focus()
             Return
         End If
 
         If String.IsNullOrWhiteSpace(txtDescription.Text) Then
-            MessageBox.Show("内容を入力してください。", "入力エラー",
+            MessageBox.Show(Loc.S("ErrorReport_DescriptionRequired"), Loc.S("Title_InputError"),
                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
             txtDescription.Focus()
             Return
@@ -63,22 +65,22 @@ Partial Public Class ErrorReportDialog
             prgSubmit.Visible = False
 
             If result.Success Then
-                lblStatus.Text = "送信が完了しました。ご報告ありがとうございます。"
+                lblStatus.Text = Loc.S("ErrorReport_SubmitSuccess")
                 lblStatus.ForeColor = Color.Green
                 lblStatus.Visible = True
 
                 If Not String.IsNullOrEmpty(result.IssueUrl) Then
-                    lnkIssue.Text = $"Issue #{result.IssueNumber} を確認する"
+                    lnkIssue.Text = Loc.SF("ErrorReport_ViewIssue", result.IssueNumber)
                     lnkIssue.Tag = result.IssueUrl
                     lnkIssue.Visible = True
                 End If
 
                 ' 送信成功後は「閉じる」ボタンのみ有効
-                btnCancel.Text = "閉じる"
+                btnCancel.Text = Loc.S("Button_Close")
                 btnCancel.Enabled = True
                 btnSubmit.Visible = False
             Else
-                lblStatus.Text = $"送信に失敗しました: {result.ErrorMessage}"
+                lblStatus.Text = Loc.SF("ErrorReport_SubmitFailed", result.ErrorMessage)
                 lblStatus.ForeColor = Color.Red
                 lblStatus.Visible = True
                 SetSubmitting(False)
@@ -86,7 +88,7 @@ Partial Public Class ErrorReportDialog
 
         Catch ex As Exception
             prgSubmit.Visible = False
-            lblStatus.Text = $"送信エラー: {ex.Message}"
+            lblStatus.Text = Loc.SF("ErrorReport_SubmitError", ex.Message)
             lblStatus.ForeColor = Color.Red
             lblStatus.Visible = True
             SetSubmitting(False)
@@ -105,7 +107,7 @@ Partial Public Class ErrorReportDialog
         prgSubmit.Visible = submitting
 
         If submitting Then
-            lblStatus.Text = "送信中..."
+            lblStatus.Text = Loc.S("ErrorReport_Submitting")
             lblStatus.ForeColor = SystemColors.ControlText
             lblStatus.Visible = True
         End If
@@ -124,5 +126,28 @@ Partial Public Class ErrorReportDialog
             ' ブラウザ起動失敗は無視
         End Try
     End Sub
+
+#Region "ローカライズ"
+    Public Sub ApplyLocalization() Implements ILocalizable.ApplyLocalization
+        Me.Text = Loc.S("ErrorReport_FormTitle")
+        lblTitleCaption.Text = Loc.S("ErrorReport_SubjectLabel")
+        lblDescCaption.Text = Loc.S("ErrorReport_DescriptionLabel")
+        lblContactCaption.Text = Loc.S("ErrorReport_ContactLabel")
+        lblContactHint.Text = Loc.S("ErrorReport_ContactHint")
+        lblSysInfoHeader.Text = Loc.S("ErrorReport_SysInfoHeader")
+        lblVersionCaption.Text = Loc.S("ErrorReport_AppLabel")
+        lblDllVersionCaption.Text = Loc.S("ErrorReport_DllLabel")
+        lblOSCaption.Text = Loc.S("ErrorReport_OsLabel")
+        lblDotNetCaption.Text = Loc.S("ErrorReport_DotNetLabel")
+        lblArchCaption.Text = Loc.S("ErrorReport_CpuLabel")
+        lblLocaleCaption.Text = Loc.S("ErrorReport_LocaleLabel")
+        lblDpiCaption.Text = Loc.S("ErrorReport_DpiLabel")
+        lblMemoryCaption.Text = Loc.S("ErrorReport_MemoryLabel")
+        lblScreenCaption.Text = Loc.S("ErrorReport_ScreenLabel")
+        lblDumpInfoCaption.Text = Loc.S("ErrorReport_DumpLabel")
+        btnSubmit.Text = Loc.S("Button_Submit")
+        btnCancel.Text = Loc.S("Button_Cancel")
+    End Sub
+#End Region
 
 End Class

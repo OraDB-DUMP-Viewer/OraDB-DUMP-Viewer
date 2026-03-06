@@ -9,6 +9,7 @@ Imports System.Text.Json
 ''' 新バージョンがある場合はMSIインストーラーをダウンロードして更新できる
 ''' </summary>
 Partial Public Class AboutDialog
+    Implements ILocalizable
 
     Private Const GitHubApiUrl As String = "https://api.github.com/repos/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases/latest"
     Private Const ReleasesPageUrl As String = "https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases/latest"
@@ -18,13 +19,14 @@ Partial Public Class AboutDialog
 
     Public Sub New()
         InitializeComponent()
+        ApplyLocalization()
 
         ' 現在のバージョン情報を設定
         Dim asm = Assembly.GetExecutingAssembly()
         Dim ver = asm.GetName().Version
         Dim currentVersion = $"{ver.Major}.{ver.Minor}.{ver.Build}"
 
-        lblVersion.Text = $"バージョン: v{currentVersion}"
+        lblVersion.Text = $"{Loc.S("About_VersionLabel")} v{currentVersion}"
         lblCopyright.Text = $"Copyright (C) {DateTime.Now.Year} YANAI Taketo"
 
         ' 最新バージョンを非同期で確認
@@ -43,7 +45,7 @@ Partial Public Class AboutDialog
 
                 Dim response = Await client.GetAsync(GitHubApiUrl)
                 If Not response.IsSuccessStatusCode Then
-                    lblLatestVersion.Text = "確認できませんでした"
+                    lblLatestVersion.Text = Loc.S("About_CheckFailed")
                     Return
                 End If
 
@@ -59,7 +61,7 @@ Partial Public Class AboutDialog
                     End If
 
                     If String.IsNullOrEmpty(tagName) Then
-                        lblLatestVersion.Text = "確認できませんでした"
+                        lblLatestVersion.Text = Loc.S("About_CheckFailed")
                         Return
                     End If
 
@@ -93,7 +95,7 @@ Partial Public Class AboutDialog
                     If canParseCurrent AndAlso canParseLatest Then
                         If latestVer > currentVer Then
                             ' 新しいバージョンがある
-                            lblLatestVersion.Text = $"v{latestVersion} (新しいバージョンがあります)"
+                            lblLatestVersion.Text = Loc.SF("About_NewVersionAvailable", latestVersion)
                             lblLatestVersion.ForeColor = Color.OrangeRed
 
                             ' 更新ボタンを表示（MSI URLがある場合のみ）
@@ -101,11 +103,11 @@ Partial Public Class AboutDialog
                                 btnUpdate.Visible = True
                             End If
 
-                            lnkReleasePage.Text = "リリースページを開く"
+                            lnkReleasePage.Text = Loc.S("About_OpenReleasePage")
                             lnkReleasePage.Visible = True
                         Else
                             ' 最新版を使用中
-                            lblLatestVersion.Text = $"v{latestVersion} (最新版を利用中)"
+                            lblLatestVersion.Text = Loc.SF("About_LatestInUse", latestVersion)
                             lblLatestVersion.ForeColor = Color.Green
                         End If
                     Else
@@ -115,7 +117,7 @@ Partial Public Class AboutDialog
             End Using
         Catch
             ' ネットワークエラー・タイムアウト等 → エラーにしない
-            lblLatestVersion.Text = "確認できませんでした（オフライン）"
+            lblLatestVersion.Text = Loc.S("About_CheckFailedOffline")
         End Try
     End Sub
 
@@ -127,15 +129,13 @@ Partial Public Class AboutDialog
 
         ' 確認ダイアログ
         Dim res = MessageBox.Show(
-            "最新バージョンのインストーラーをダウンロードして実行します。" & vbCrLf &
-            "アプリケーションは自動的に終了します。" & vbCrLf & vbCrLf &
-            "続行しますか？",
-            "更新の確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+            Loc.S("About_UpdateConfirmMessage"),
+            Loc.S("About_UpdateConfirmTitle"), MessageBoxButtons.YesNo, MessageBoxIcon.Question)
 
         If res <> DialogResult.Yes Then Return
 
         btnUpdate.Enabled = False
-        btnUpdate.Text = "ダウンロード中..."
+        btnUpdate.Text = Loc.S("About_Downloading")
         prgDownload.Visible = True
         prgDownload.Style = ProgressBarStyle.Marquee
 
@@ -181,16 +181,16 @@ Partial Public Class AboutDialog
             End Using
 
             prgDownload.Value = 100
-            btnUpdate.Text = "インストーラーを起動中..."
+            btnUpdate.Text = Loc.S("About_LaunchingInstaller")
 
             ' バッチファイルでアプリ終了後にMSIを実行
             LaunchInstallerAndExit(msiPath)
 
         Catch ex As Exception
             prgDownload.Visible = False
-            btnUpdate.Text = "最新バージョンに更新する"
+            btnUpdate.Text = Loc.S("Button_Update")
             btnUpdate.Enabled = True
-            MessageBox.Show($"ダウンロードに失敗しました: {ex.Message}", "エラー",
+            MessageBox.Show(Loc.SF("About_DownloadFailed", ex.Message), Loc.S("Title_Error"),
                            MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
@@ -202,7 +202,7 @@ Partial Public Class AboutDialog
         Dim batPath = Path.Combine(Path.GetTempPath(), "OraDBDumpViewer_Update", "update.bat")
         Dim batContent =
             "@echo off" & vbCrLf &
-            "echo OraDB DUMP Viewer を更新しています..." & vbCrLf &
+            Loc.S("About_UpdateBatchMessage") & vbCrLf &
             "timeout /t 2 /nobreak >nul" & vbCrLf &
             $"start """" ""{msiPath}""" & vbCrLf &
             "exit"
@@ -226,5 +226,15 @@ Partial Public Class AboutDialog
             ' ブラウザ起動失敗は無視
         End Try
     End Sub
+
+#Region "ローカライズ"
+    Public Sub ApplyLocalization() Implements ILocalizable.ApplyLocalization
+        Me.Text = Loc.S("About_FormTitle")
+        lblLatestCaption.Text = Loc.S("About_LatestVersionLabel")
+        lblLatestVersion.Text = Loc.S("About_Checking")
+        btnUpdate.Text = Loc.S("Button_Update")
+        btnClose.Text = Loc.S("Button_Close")
+    End Sub
+#End Region
 
 End Class

@@ -6,6 +6,7 @@ Imports Microsoft.Data.SqlClient
 ''' 接続テスト機能付き。
 ''' </summary>
 Public Class DatabaseConnectionDialog
+    Implements ILocalizable
 
     ''' <summary>接続種別: True=SQL Server, False=ODBC</summary>
     <ComponentModel.DesignerSerializationVisibility(ComponentModel.DesignerSerializationVisibility.Hidden)>
@@ -19,10 +20,11 @@ Public Class DatabaseConnectionDialog
 
     Public Sub New(Optional selectOdbcTab As Boolean = False)
         InitializeComponent()
+        ApplyLocalization()
 
         ' 認証方式の選択肢
-        cboAuth.Items.Add("Windows 認証")
-        cboAuth.Items.Add("SQL Server 認証")
+        cboAuth.Items.Add(Loc.S("DbConn_AuthWindows"))
+        cboAuth.Items.Add(Loc.S("DbConn_AuthSqlServer"))
         cboAuth.SelectedIndex = 1
 
         ' ODBC DSN 一覧を取得
@@ -100,7 +102,7 @@ Public Class DatabaseConnectionDialog
     ''' <summary>SQL Server 接続テスト</summary>
     Private Sub btnTest_Click(sender As Object, e As EventArgs) Handles btnTest.Click
         lblTestResult.ForeColor = Color.Black
-        lblTestResult.Text = "接続中..."
+        lblTestResult.Text = Loc.S("DbConn_Connecting")
         Application.DoEvents()
 
         Try
@@ -109,17 +111,17 @@ Public Class DatabaseConnectionDialog
                 conn.Open()
             End Using
             lblTestResult.ForeColor = Color.Green
-            lblTestResult.Text = "接続成功"
+            lblTestResult.Text = Loc.S("DbConn_Success")
         Catch ex As Exception
             lblTestResult.ForeColor = Color.Red
-            lblTestResult.Text = $"接続失敗: {ex.Message}"
+            lblTestResult.Text = Loc.SF("DbConn_Failed", ex.Message)
         End Try
     End Sub
 
     ''' <summary>ODBC 接続テスト</summary>
     Private Sub btnTestOdbc_Click(sender As Object, e As EventArgs) Handles btnTestOdbc.Click
         lblTestResultOdbc.ForeColor = Color.Black
-        lblTestResultOdbc.Text = "接続中..."
+        lblTestResultOdbc.Text = Loc.S("DbConn_Connecting")
         Application.DoEvents()
 
         Try
@@ -128,10 +130,10 @@ Public Class DatabaseConnectionDialog
                 conn.Open()
             End Using
             lblTestResultOdbc.ForeColor = Color.Green
-            lblTestResultOdbc.Text = "接続成功"
+            lblTestResultOdbc.Text = Loc.S("DbConn_Success")
         Catch ex As Exception
             lblTestResultOdbc.ForeColor = Color.Red
-            lblTestResultOdbc.Text = $"接続失敗: {ex.Message}"
+            lblTestResultOdbc.Text = Loc.SF("DbConn_Failed", ex.Message)
         End Try
     End Sub
 
@@ -141,7 +143,7 @@ Public Class DatabaseConnectionDialog
             IsSqlServer = True
             ConnectionString = BuildSqlServerConnectionString()
             If String.IsNullOrWhiteSpace(txtServer.Text) OrElse String.IsNullOrWhiteSpace(txtDatabase.Text) Then
-                MessageBox.Show("サーバー名とデータベース名を入力してください。", "入力エラー",
+                MessageBox.Show(Loc.S("DbConn_EnterServerAndDb"), Loc.S("Title_InputError"),
                                MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 DialogResult = DialogResult.None
             End If
@@ -149,11 +151,28 @@ Public Class DatabaseConnectionDialog
             IsSqlServer = False
             ConnectionString = BuildOdbcConnectionString()
             If String.IsNullOrEmpty(ConnectionString) Then
-                MessageBox.Show("DSN を選択するか接続文字列を入力してください。", "入力エラー",
+                MessageBox.Show(Loc.S("DbConn_EnterDsnOrConnStr"), Loc.S("Title_InputError"),
                                MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 DialogResult = DialogResult.None
             End If
         End If
     End Sub
+
+#Region "ローカライズ"
+    Public Sub ApplyLocalization() Implements ILocalizable.ApplyLocalization
+        Me.Text = Loc.S("DbConn_FormTitle")
+        lblServer.Text = Loc.S("DbConn_ServerNameLabel")
+        lblAuth.Text = Loc.S("DbConn_AuthLabel")
+        lblUser.Text = Loc.S("DbConn_UserNameLabel")
+        lblPassword.Text = Loc.S("DbConn_PasswordLabel")
+        lblDatabase.Text = Loc.S("DbConn_DatabaseNameLabel")
+        btnTest.Text = Loc.S("Button_ConnectionTest")
+        btnTestOdbc.Text = Loc.S("Button_ConnectionTest")
+        lblDsn.Text = Loc.S("DbConn_SystemDsnLabel")
+        lblConnStr.Text = Loc.S("DbConn_ConnectionStringLabel")
+        btnOK.Text = Loc.S("Button_OK")
+        btnCancel.Text = Loc.S("Button_Cancel")
+    End Sub
+#End Region
 
 End Class

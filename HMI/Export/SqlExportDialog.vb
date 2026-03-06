@@ -3,6 +3,7 @@
 ''' Oracle, PostgreSQL, MySQL, SQL Server から選択
 ''' </summary>
 Public Class SqlExportDialog
+    Implements ILocalizable
 
     ''' <summary>選択された DBMS タイプ</summary>
     <ComponentModel.DesignerSerializationVisibility(ComponentModel.DesignerSerializationVisibility.Hidden)>
@@ -11,6 +12,7 @@ Public Class SqlExportDialog
 
     Public Sub New()
         InitializeComponent()
+        ApplyLocalization()
 
         ' DBMS 一覧を設定
         cboDbms.Items.Add("Oracle")
@@ -28,5 +30,14 @@ Public Class SqlExportDialog
             Case 3 : SelectedDbmsType = ExportHelper.DBMS_SQLSERVER
         End Select
     End Sub
+
+#Region "ローカライズ"
+    Public Sub ApplyLocalization() Implements ILocalizable.ApplyLocalization
+        Me.Text = Loc.S("SqlExport_FormTitle")
+        lblDbms.Text = Loc.S("SqlExport_DatabaseLabel")
+        btnOK.Text = Loc.S("Button_OK")
+        btnCancel.Text = Loc.S("Button_Cancel")
+    End Sub
+#End Region
 
 End Class

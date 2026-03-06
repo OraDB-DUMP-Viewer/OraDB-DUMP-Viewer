@@ -5,6 +5,7 @@
 ''' 個別ファイルとして抽出する。
 ''' </summary>
 Public Class LobExtractDialog
+    Implements ILocalizable
 
 #Region "フィールド"
     Private _dumpFilePath As String
@@ -29,6 +30,7 @@ Public Class LobExtractDialog
                    columnNames As String(), columnTypes As String(),
                    Optional dataOffset As Long = 0)
         InitializeComponent()
+        ApplyLocalization()
 
         _dumpFilePath = dumpFilePath
         _schema = schema
@@ -37,11 +39,11 @@ Public Class LobExtractDialog
         _columnTypes = columnTypes
         _dataOffset = dataOffset
 
-        Me.Text = $"LOBファイル抽出 - {tableName}"
+        Me.Text = Loc.SF("LobExtract_FormTitle", tableName)
 
         ' ファイル名方式コンボボックス
-        cboFilenameMethod.Items.Add("連番")
-        cboFilenameMethod.Items.Add("カラム値")
+        cboFilenameMethod.Items.Add(Loc.S("LobExtract_Sequential"))
+        cboFilenameMethod.Items.Add(Loc.S("LobExtract_ColumnValue"))
         cboFilenameMethod.SelectedIndex = 0
 
         ' LOBカラムと全カラムをコンボに設定
@@ -76,7 +78,7 @@ Public Class LobExtractDialog
 #Region "イベントハンドラ"
     Private Sub btnBrowse_Click(sender As Object, e As EventArgs) Handles btnBrowse.Click
         Using dlg As New FolderBrowserDialog()
-            dlg.Description = "LOBファイルの出力先を選択"
+            dlg.Description = Loc.S("LobExtract_BrowseTitle")
             If txtOutputDir.Text.Length > 0 AndAlso IO.Directory.Exists(txtOutputDir.Text) Then
                 dlg.SelectedPath = txtOutputDir.Text
             End If
@@ -94,13 +96,13 @@ Public Class LobExtractDialog
     Private Sub btnExtract_Click(sender As Object, e As EventArgs) Handles btnExtract.Click
         ' バリデーション
         If cboLobColumn.SelectedIndex < 0 Then
-            MessageBox.Show("LOBカラムを選択してください。", "入力エラー",
+            MessageBox.Show(Loc.S("LobExtract_SelectLobColumn"), Loc.S("Title_InputError"),
                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
         If String.IsNullOrWhiteSpace(txtOutputDir.Text) Then
-            MessageBox.Show("出力フォルダを指定してください。", "入力エラー",
+            MessageBox.Show(Loc.S("LobExtract_SelectOutputFolder"), Loc.S("Title_InputError"),
                            MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
@@ -111,7 +113,7 @@ Public Class LobExtractDialog
                 IO.Directory.CreateDirectory(txtOutputDir.Text)
             End If
         Catch ex As Exception
-            MessageBox.Show($"出力フォルダの作成に失敗しました:{vbCrLf}{ex.Message}", "エラー",
+            MessageBox.Show(Loc.SF("LobExtract_CreateFolderError", ex.Message), Loc.S("Title_Error"),
                            MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return
         End Try
@@ -151,16 +153,29 @@ Public Class LobExtractDialog
                         End Sub)
 
                     If filesWritten < 0 Then
-                        Throw New Exception("LOB抽出処理でエラーが発生しました")
+                        Throw New Exception(Loc.S("LobExtract_ExtractError"))
                     End If
                     extractedCount = filesWritten
                 End Sub)
 
             If result Then
-                MessageBox.Show($"LOBファイルの抽出が完了しました。{vbCrLf}出力ファイル数: {extractedCount}",
-                               "完了", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                MessageBox.Show(Loc.SF("LobExtract_ExtractComplete", extractedCount),
+                               Loc.S("Title_Complete"), MessageBoxButtons.OK, MessageBoxIcon.Information)
             End If
         End Using
+    End Sub
+#End Region
+
+#Region "ローカライズ"
+    Public Sub ApplyLocalization() Implements ILocalizable.ApplyLocalization
+        Me.Text = Loc.S("Title_LobExtract")
+        lblLobColumn.Text = Loc.S("LobExtract_LobColumnLabel")
+        lblOutputDir.Text = Loc.S("LobExtract_OutputFolderLabel")
+        lblFilename.Text = Loc.S("LobExtract_FilenameLabel")
+        lblExtension.Text = Loc.S("LobExtract_ExtensionLabel")
+        grpSettings.Text = Loc.S("LobExtract_SettingsGroup")
+        btnExtract.Text = Loc.S("Button_Extract")
+        btnClose.Text = Loc.S("Button_Close")
     End Sub
 #End Region
 

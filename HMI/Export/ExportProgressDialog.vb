@@ -14,6 +14,7 @@
 '''   End Using
 ''' </summary>
 Public Class ExportProgressDialog
+    Implements ILocalizable
 
 #Region "フィールド"
     Private WithEvents _worker As New System.ComponentModel.BackgroundWorker()
@@ -57,6 +58,7 @@ Public Class ExportProgressDialog
 #Region "初期化"
     Public Sub New()
         InitializeComponent()
+        ApplyLocalization()
         _worker.WorkerReportsProgress = True
         _worker.WorkerSupportsCancellation = True
 
@@ -86,7 +88,7 @@ Public Class ExportProgressDialog
 
         ' 進捗報告がない場合に備えてマーキースタイルで開始
         prgExport.Style = ProgressBarStyle.Marquee
-        lblTable.Text = "エクスポート処理中..."
+        lblTable.Text = Loc.S("ExportProgress_Exporting")
         lblRows.Text = ""
 
         _startTime = DateTime.Now
@@ -99,7 +101,7 @@ Public Class ExportProgressDialog
         _elapsedTimer.Stop()
 
         If _exportError IsNot Nothing Then
-            MessageBox.Show($"エクスポートエラー: {_exportError.Message}", "エラー",
+            MessageBox.Show(Loc.SF("ExportProgress_ExportError", _exportError.Message), Loc.S("Title_Error"),
                            MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return False
         End If
@@ -122,13 +124,13 @@ Public Class ExportProgressDialog
         _cancelled = True
         _worker.CancelAsync()
         btnCancel.Enabled = False
-        btnCancel.Text = "中断中..."
+        btnCancel.Text = Loc.S("ExportProgress_Cancelling")
     End Sub
 
     Private Sub _elapsedTimer_Tick(sender As Object, e As EventArgs) Handles _elapsedTimer.Tick
         ' 経過時間を1秒ごとに更新 (進捗報告がない場合でも表示を更新)
         Dim elapsed = DateTime.Now - _startTime
-        lblElapsed.Text = $"経過時間: {FormatElapsed(elapsed)}"
+        lblElapsed.Text = Loc.SF("ExportProgress_Elapsed", FormatElapsed(elapsed))
     End Sub
 
     Private Sub _worker_ProgressChanged(sender As Object, e As System.ComponentModel.ProgressChangedEventArgs) Handles _worker.ProgressChanged
@@ -148,20 +150,20 @@ Public Class ExportProgressDialog
         Dim info = TryCast(e.UserState, ProgressInfo)
         If info IsNot Nothing Then
             If info.TotalTableCount > 0 Then
-                lblTable.Text = $"テーブル {info.CurrentTableIndex}/{info.TotalTableCount}: {info.TableName}"
+                lblTable.Text = Loc.SF("ExportProgress_Table", info.CurrentTableIndex, info.TotalTableCount, info.TableName)
             Else
-                lblTable.Text = $"テーブル: {info.TableName}"
+                lblTable.Text = Loc.SF("ExportProgress_TableName", info.TableName)
             End If
             If info.TotalRows > 0 Then
-                lblRows.Text = $"処理行数: {info.RowsProcessed:N0} / {info.TotalRows:N0}"
+                lblRows.Text = Loc.SF("ExportProgress_RowsProcessed", info.RowsProcessed.ToString("N0"), info.TotalRows.ToString("N0"))
             Else
-                lblRows.Text = $"処理行数: {info.RowsProcessed:N0}"
+                lblRows.Text = Loc.SF("ExportProgress_RowsProcessedOnly", info.RowsProcessed.ToString("N0"))
             End If
         End If
 
         ' 経過時間
         Dim elapsed = DateTime.Now - _startTime
-        lblElapsed.Text = $"経過時間: {FormatElapsed(elapsed)}"
+        lblElapsed.Text = Loc.SF("ExportProgress_Elapsed", FormatElapsed(elapsed))
     End Sub
 
     Private Sub _worker_RunWorkerCompleted(sender As Object, e As System.ComponentModel.RunWorkerCompletedEventArgs) Handles _worker.RunWorkerCompleted
@@ -192,9 +194,16 @@ Public Class ExportProgressDialog
         ElseIf ts.TotalMinutes >= 1 Then
             Return $"{ts.Minutes}:{ts.Seconds:D2}"
         Else
-            Return $"{ts.Seconds}秒"
+            Return Loc.SF("Time_SecondFormat", ts.Seconds)
         End If
     End Function
+#End Region
+
+#Region "ローカライズ"
+    Public Sub ApplyLocalization() Implements ILocalizable.ApplyLocalization
+        Me.Text = Loc.S("ExportProgress_FormTitle")
+        btnCancel.Text = Loc.S("Button_Cancel")
+    End Sub
 #End Region
 
 End Class

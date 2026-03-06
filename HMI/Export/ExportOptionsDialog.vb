@@ -3,9 +3,11 @@
 ''' 日付フォーマット、CSV オプション、SQL スクリプトオプションを設定
 ''' </summary>
 Public Class ExportOptionsDialog
+    Implements ILocalizable
 
     Public Sub New()
         InitializeComponent()
+        ApplyLocalization()
     End Sub
 
     Private Sub ExportOptionsDialog_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -50,5 +52,21 @@ Public Class ExportOptionsDialog
         ' 設定を永続化
         ExportOptions.Save()
     End Sub
+
+#Region "ローカライズ"
+    Public Sub ApplyLocalization() Implements ILocalizable.ApplyLocalization
+        Me.Text = Loc.S("ExportOptions_FormTitle")
+        grpDateFormat.Text = Loc.S("ExportOptions_DateFormat")
+        rdoSlash.Text = Loc.S("ExportOptions_DateSlash")
+        rdoCustom.Text = Loc.S("ExportOptions_DateCustom")
+        grpCsvOptions.Text = Loc.S("ExportOptions_CsvOptions")
+        chkCsvHeader.Text = Loc.S("ExportOptions_CsvWriteHeader")
+        chkCsvTypes.Text = Loc.S("ExportOptions_CsvWriteTypes")
+        grpSqlOptions.Text = Loc.S("ExportOptions_SqlOptions")
+        chkCreateTable.Text = Loc.S("ExportOptions_SqlCreateTable")
+        btnOK.Text = Loc.S("Button_OK")
+        btnCancel.Text = Loc.S("Button_Cancel")
+    End Sub
+#End Region
 
 End Class

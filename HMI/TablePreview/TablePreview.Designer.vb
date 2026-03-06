@@ -55,7 +55,7 @@ Partial Class TablePreview
         dataGridViewData.Name = "dataGridViewData"
         dataGridViewData.ReadOnly = True
         dataGridViewData.RowHeadersWidth = 62
-        dataGridViewData.Size = New Size(1293, 583)
+        dataGridViewData.Size = New Size(1293, 490)
         dataGridViewData.TabIndex = 0
         ' 
         ' panelSearch
@@ -142,9 +142,9 @@ Partial Class TablePreview
         buttonAdvancedSearch.TabIndex = 6
         buttonAdvancedSearch.Text = "高度な検索"
         buttonAdvancedSearch.UseVisualStyleBackColor = True
-        '
+        ' 
         ' labelRowCount
-        '
+        ' 
         labelRowCount.AutoSize = True
         labelRowCount.Location = New Point(708, 31)
         labelRowCount.Margin = New Padding(5, 0, 5, 0)
@@ -161,7 +161,7 @@ Partial Class TablePreview
         panelPaging.Controls.Add(buttonPrev)
         panelPaging.Controls.Add(buttonNext)
         panelPaging.Controls.Add(labelPageInfo)
-        panelPaging.Location = New Point(20, 804)
+        panelPaging.Location = New Point(20, 710)
         panelPaging.Margin = New Padding(5, 6, 5, 6)
         panelPaging.Name = "panelPaging"
         panelPaging.Size = New Size(1293, 88)
@@ -169,19 +169,22 @@ Partial Class TablePreview
         ' 
         ' labelPageSize
         ' 
-        labelPageSize.AutoSize = True
-        labelPageSize.Location = New Point(530, 27)
+        labelPageSize.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+        labelPageSize.AutoSize = False
+        labelPageSize.Location = New Point(1033, 23)
         labelPageSize.Margin = New Padding(5, 0, 5, 0)
         labelPageSize.Name = "labelPageSize"
-        labelPageSize.Size = New Size(68, 25)
+        labelPageSize.Size = New Size(140, 31)
         labelPageSize.TabIndex = 4
         labelPageSize.Text = "1ページ:"
+        labelPageSize.TextAlign = ContentAlignment.MiddleRight
         ' 
         ' numericUpDownPageCount
         ' 
-        numericUpDownPageCount.Location = New Point(635, 23)
+        numericUpDownPageCount.Anchor = AnchorStyles.Top Or AnchorStyles.Right
+        numericUpDownPageCount.Location = New Point(1183, 23)
         numericUpDownPageCount.Margin = New Padding(5, 6, 5, 6)
-        numericUpDownPageCount.Maximum = Decimal.MaxValue
+        numericUpDownPageCount.Maximum = New Decimal(New Integer() {-1, -1, -1, 0})
         numericUpDownPageCount.Minimum = New Decimal(New Integer() {1, 0, 0, 0})
         numericUpDownPageCount.Name = "numericUpDownPageCount"
         numericUpDownPageCount.Size = New Size(100, 31)
@@ -220,9 +223,9 @@ Partial Class TablePreview
         ' 
         ' TablePreview
         ' 
-        AutoScaleDimensions = New SizeF(10F, 25F)
+        AutoScaleDimensions = New SizeF(10.0F, 25.0F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(1333, 917)
+        ClientSize = New Size(1333, 810)
         Controls.Add(dataGridViewData)
         Controls.Add(panelSearch)
         Controls.Add(panelPaging)

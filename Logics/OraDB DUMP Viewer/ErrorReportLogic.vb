@@ -39,6 +39,8 @@ Public Class ErrorReportLogic
         Public Property DumpFileInfo As String
         ''' <summary>直前のスタックトレース (個人パスはマスク済み)</summary>
         Public Property StackTrace As String
+        ''' <summary>ダンプファイルのパス (送信せず添付時のみ使用)</summary>
+        Public Property DumpFilePath As String
     End Class
 
     ''' <summary>
@@ -116,6 +118,7 @@ Public Class ErrorReportLogic
                 Dim dumpType = OraDB_NativeParser.CheckDumpKind(dumpFilePath)
                 Dim typeName = DumpTypeName(dumpType)
                 info.DumpFileInfo = $"{typeName} / {sizeMB:F1} MB"
+                info.DumpFilePath = dumpFilePath
             Catch
                 info.DumpFileInfo = Loc.S("ErrorReport_RetrievalFailed")
             End Try
@@ -159,12 +162,13 @@ Public Class ErrorReportLogic
         title As String,
         description As String,
         contact As String,
-        sysInfo As SystemInfo
+        sysInfo As SystemInfo,
+        Optional attachDump As Boolean = False
     ) As Task(Of ReportResult)
 
         Using client As New HttpClient()
             client.DefaultRequestHeaders.UserAgent.ParseAdd("OraDB-DUMP-Viewer")
-            client.Timeout = TimeSpan.FromSeconds(15)
+            client.Timeout = TimeSpan.FromSeconds(If(attachDump, 120, 15))
 
             Dim payload As New Dictionary(Of String, String) From {
                 {"title", title},
@@ -183,6 +187,20 @@ Public Class ErrorReportLogic
                 {"dump_file_info", If(sysInfo.DumpFileInfo, "")},
                 {"stack_trace", If(sysInfo.StackTrace, "")}
             }
+
+            ' ユーザーが許可した場合のみダンプファイルを添付
+            If attachDump AndAlso sysInfo.DumpFilePath IsNot Nothing AndAlso IO.File.Exists(sysInfo.DumpFilePath) Then
+                Try
+                    Dim fi As New IO.FileInfo(sysInfo.DumpFilePath)
+                    If fi.Length <= 50L * 1024 * 1024 Then
+                        Dim bytes = IO.File.ReadAllBytes(sysInfo.DumpFilePath)
+                        payload("dump_file") = Convert.ToBase64String(bytes)
+                        payload("dump_file_name") = fi.Name
+                    End If
+                Catch
+                    ' ファイル読み取り失敗は無視
+                End Try
+            End If
 
             Dim jsonContent As New StringContent(
                 JsonSerializer.Serialize(payload),

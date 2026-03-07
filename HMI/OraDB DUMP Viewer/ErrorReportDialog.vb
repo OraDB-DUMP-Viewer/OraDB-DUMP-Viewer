@@ -30,6 +30,22 @@ Partial Public Class ErrorReportDialog
         lblMemoryValue.Text = _sysInfo.MemoryMB
         lblScreenValue.Text = _sysInfo.ScreenResolution
         lblDumpInfoValue.Text = _sysInfo.DumpFileInfo
+
+        ' ダンプファイルが開かれていて50MB以下の場合のみ添付チェックボックスを有効化
+        If _sysInfo.DumpFilePath IsNot Nothing AndAlso IO.File.Exists(_sysInfo.DumpFilePath) Then
+            Dim fi As New IO.FileInfo(_sysInfo.DumpFilePath)
+            If fi.Length <= 50L * 1024 * 1024 Then
+                chkAttachDump.Enabled = True
+                Dim sizeMB = fi.Length / (1024.0 * 1024.0)
+                chkAttachDump.Text = Loc.SF("ErrorReport_AttachDump", $"{sizeMB:F1}")
+            Else
+                chkAttachDump.Enabled = False
+                chkAttachDump.Text = Loc.S("ErrorReport_AttachDumpTooLarge")
+            End If
+        Else
+            chkAttachDump.Enabled = False
+            chkAttachDump.Text = Loc.S("ErrorReport_AttachDumpNoFile")
+        End If
     End Sub
 
     ''' <summary>
@@ -59,7 +75,8 @@ Partial Public Class ErrorReportDialog
                 txtTitle.Text.Trim(),
                 txtDescription.Text.Trim(),
                 txtContact.Text.Trim(),
-                _sysInfo
+                _sysInfo,
+                attachDump:=chkAttachDump.Checked
             )
 
             prgSubmit.Visible = False

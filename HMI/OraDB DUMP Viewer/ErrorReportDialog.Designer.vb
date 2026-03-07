@@ -20,6 +20,7 @@ Partial Class ErrorReportDialog
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         tblMain = New TableLayoutPanel()
+        chkAttachDump = New CheckBox()
         lblTitleCaption = New Label()
         txtTitle = New TextBox()
         lblDescCaption = New Label()
@@ -91,12 +92,13 @@ Partial Class ErrorReportDialog
         tblMain.Controls.Add(lblScreenValue, 1, 13)
         tblMain.Controls.Add(lblDumpInfoCaption, 0, 14)
         tblMain.Controls.Add(lblDumpInfoValue, 1, 14)
+        tblMain.Controls.Add(chkAttachDump, 1, 15)
         tblMain.Dock = DockStyle.Fill
         tblMain.Location = New Point(0, 0)
         tblMain.Margin = New Padding(4, 5, 4, 5)
         tblMain.Name = "tblMain"
         tblMain.Padding = New Padding(17, 20, 17, 7)
-        tblMain.RowCount = 15
+        tblMain.RowCount = 16
         tblMain.RowStyles.Add(New RowStyle(SizeType.Absolute, 50F))
         tblMain.RowStyles.Add(New RowStyle(SizeType.Percent, 100F))
         tblMain.RowStyles.Add(New RowStyle(SizeType.Absolute, 50F))
@@ -112,7 +114,8 @@ Partial Class ErrorReportDialog
         tblMain.RowStyles.Add(New RowStyle(SizeType.Absolute, 30F))
         tblMain.RowStyles.Add(New RowStyle(SizeType.Absolute, 30F))
         tblMain.RowStyles.Add(New RowStyle(SizeType.Absolute, 30F))
-        tblMain.Size = New Size(743, 730)
+        tblMain.RowStyles.Add(New RowStyle(SizeType.Absolute, 35F))
+        tblMain.Size = New Size(743, 765)
         tblMain.TabIndex = 0
         ' 
         ' lblTitleCaption
@@ -432,16 +435,27 @@ Partial Class ErrorReportDialog
         lblDumpInfoValue.Size = New Size(558, 30)
         lblDumpInfoValue.TabIndex = 27
         lblDumpInfoValue.TextAlign = ContentAlignment.MiddleLeft
-        ' 
+        '
+        ' chkAttachDump
+        '
+        chkAttachDump.Dock = DockStyle.Fill
+        chkAttachDump.ForeColor = Color.Gray
+        chkAttachDump.Location = New Point(164, 727)
+        chkAttachDump.Margin = New Padding(4, 0, 4, 0)
+        chkAttachDump.Name = "chkAttachDump"
+        chkAttachDump.Size = New Size(558, 35)
+        chkAttachDump.TabIndex = 28
+        chkAttachDump.Text = "ダンプファイルを添付する (50 MB以下)"
+        '
         ' pnlButtons
-        ' 
+        '
         pnlButtons.Controls.Add(lnkIssue)
         pnlButtons.Controls.Add(lblStatus)
         pnlButtons.Controls.Add(prgSubmit)
         pnlButtons.Controls.Add(btnCancel)
         pnlButtons.Controls.Add(btnSubmit)
         pnlButtons.Dock = DockStyle.Bottom
-        pnlButtons.Location = New Point(0, 730)
+        pnlButtons.Location = New Point(0, 765)
         pnlButtons.Margin = New Padding(4, 5, 4, 5)
         pnlButtons.Name = "pnlButtons"
         pnlButtons.Padding = New Padding(17, 7, 17, 13)
@@ -507,7 +521,7 @@ Partial Class ErrorReportDialog
         AutoScaleDimensions = New SizeF(10F, 25F)
         AutoScaleMode = AutoScaleMode.Font
         CancelButton = btnCancel
-        ClientSize = New Size(743, 897)
+        ClientSize = New Size(743, 932)
         Controls.Add(tblMain)
         Controls.Add(pnlButtons)
         FormBorderStyle = FormBorderStyle.FixedDialog
@@ -558,5 +572,6 @@ Partial Class ErrorReportDialog
     Friend WithEvents prgSubmit As ProgressBar
     Friend WithEvents lblStatus As Label
     Friend WithEvents lnkIssue As LinkLabel
+    Friend WithEvents chkAttachDump As CheckBox
 
 End Class

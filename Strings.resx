@@ -465,5 +465,8 @@ https://www.microsoft.com/ja-jp/download/details.aspx?id=54920</value></data>
   <data name="ErrorReport_InternalError" xml:space="preserve"><value>サーバー内部エラーが発生しました。しばらく時間をおいてからお試しください。</value></data>
   <data name="ErrorReport_UnknownError" xml:space="preserve"><value>不明なエラーが発生しました (HTTP {0})</value></data>
   <data name="ErrorReport_Process" xml:space="preserve"><value>プロセス:</value></data>
+  <data name="ErrorReport_AttachDump" xml:space="preserve"><value>ダンプファイルを添付する ({0} MB)</value></data>
+  <data name="ErrorReport_AttachDumpTooLarge" xml:space="preserve"><value>ダンプファイルが大きすぎます (50 MB超)</value></data>
+  <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve"><value>ダンプファイル未オープン</value></data>
 
 </root>

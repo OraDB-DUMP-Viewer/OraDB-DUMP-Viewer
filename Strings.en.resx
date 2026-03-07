@@ -458,5 +458,8 @@ https://www.microsoft.com/en-us/download/details.aspx?id=54920</value></data>
   <data name="ErrorReport_InternalError" xml:space="preserve"><value>Internal server error. Please try again later.</value></data>
   <data name="ErrorReport_UnknownError" xml:space="preserve"><value>An unknown error occurred (HTTP {0})</value></data>
   <data name="ErrorReport_Process" xml:space="preserve"><value>Process:</value></data>
+  <data name="ErrorReport_AttachDump" xml:space="preserve"><value>Attach dump file ({0} MB)</value></data>
+  <data name="ErrorReport_AttachDumpTooLarge" xml:space="preserve"><value>Dump file too large (over 50 MB)</value></data>
+  <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve"><value>No dump file opened</value></data>
 
 </root>

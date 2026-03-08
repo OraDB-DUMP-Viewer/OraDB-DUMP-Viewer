@@ -35,6 +35,47 @@
     <li><strong>日付書式</strong> &mdash; DATE/TIMESTAMP カラムの出力書式</li>
 </ul>
 
+<hr>
+
+<h1>その他のエクスポート形式</h1>
+
+<h2>Excel エクスポート</h2>
+<p>テーブルデータを Excel ファイル (.xlsx / .xls) に出力します。</p>
+<ol>
+    <li>テーブルを選択し、ツールバーの <strong>Excel</strong> ボタンをクリックします。</li>
+    <li>保存先のファイルパスを指定します。</li>
+    <li>Excel ファイルが生成されます。</li>
+</ol>
+
+<h2>Access エクスポート</h2>
+<p>テーブルデータを Microsoft Access データベース (.accdb / .mdb) に出力します。</p>
+<ol>
+    <li>テーブルを選択し、ツールバーの <strong>Access</strong> ボタンをクリックします。</li>
+    <li>保存先のファイルパスを指定します。</li>
+    <li>Access データベースにテーブルが作成され、データがインポートされます。</li>
+</ol>
+
+<h2>SQL Server エクスポート</h2>
+<p>テーブルデータを SQL Server データベースに直接出力します。</p>
+<ol>
+    <li>テーブルを選択し、ツールバーの <strong>SQL Server</strong> ボタンをクリックします。</li>
+    <li>接続ダイアログで SQL Server への接続情報を入力します。</li>
+    <li>対象データベースにテーブルが作成され、データが挿入されます。</li>
+</ol>
+
+<h2>ODBC エクスポート</h2>
+<p>テーブルデータを任意の ODBC 対応データベースに出力します。</p>
+<ol>
+    <li>テーブルを選択し、ツールバーの <strong>ODBC</strong> ボタンをクリックします。</li>
+    <li>接続ダイアログで ODBC 接続文字列または DSN を入力します。</li>
+    <li>対象データベースにテーブルが作成され、データが挿入されます。</li>
+</ol>
+
+<div class="note">
+<strong>注意:</strong> SQL Server エクスポートおよび ODBC エクスポートでは、
+接続先のデータベースが事前に作成されている必要があります。
+</div>
+
 <p><a href="toc.html">目次に戻る</a></p>
 
 </body>

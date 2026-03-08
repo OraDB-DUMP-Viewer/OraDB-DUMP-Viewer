@@ -444,6 +444,30 @@ https://www.microsoft.com/en-us/download/details.aspx?id=54920</value></data>
   <data name="License_RevokedByServer" xml:space="preserve"><value>This license has been revoked by the server. Please obtain a new license.
 Would you like to open the license activation dialog?</value></data>
 
+  <!-- ========== Help Viewer (HelpViewerForm) ========== -->
+  <data name="Help_FormTitle" xml:space="preserve"><value>Help - OraDB DUMP Viewer</value></data>
+  <data name="Help_Back" xml:space="preserve"><value>Back</value></data>
+  <data name="Help_Forward" xml:space="preserve"><value>Forward</value></data>
+  <data name="Help_Home" xml:space="preserve"><value>Contents</value></data>
+  <data name="Help_Search" xml:space="preserve"><value>Find</value></data>
+  <data name="Help_SearchPlaceholder" xml:space="preserve"><value>Find in page...</value></data>
+  <data name="Help_WebView2NotAvailable" xml:space="preserve"><value>The WebView2 runtime required to display help is not installed.
+Please install the Microsoft Edge WebView2 Runtime.</value></data>
+  <data name="Help_TOC_GettingStarted" xml:space="preserve"><value>Getting Started</value></data>
+  <data name="Help_TOC_OpenDump" xml:space="preserve"><value>Open Dump File</value></data>
+  <data name="Help_TOC_Workspace" xml:space="preserve"><value>Workspace</value></data>
+  <data name="Help_TOC_TablePreview" xml:space="preserve"><value>Table Preview</value></data>
+  <data name="Help_TOC_Search" xml:space="preserve"><value>Search &amp; Filter</value></data>
+  <data name="Help_TOC_Export" xml:space="preserve"><value>Export</value></data>
+  <data name="Help_TOC_ExportCsv" xml:space="preserve"><value>CSV Export</value></data>
+  <data name="Help_TOC_ExportSql" xml:space="preserve"><value>SQL Export</value></data>
+  <data name="Help_TOC_ExportBatch" xml:space="preserve"><value>Batch Export</value></data>
+  <data name="Help_TOC_ExportOptions" xml:space="preserve"><value>Export Options</value></data>
+  <data name="Help_TOC_LobExtract" xml:space="preserve"><value>LOB File Extraction</value></data>
+  <data name="Help_TOC_ShortcutKeys" xml:space="preserve"><value>Shortcut Keys</value></data>
+  <data name="Help_TOC_SupportedFormats" xml:space="preserve"><value>Supported Formats</value></data>
+  <data name="Help_TOC_About" xml:space="preserve"><value>About</value></data>
+
   <!-- ========== DLL parser errors ========== -->
   <data name="Parser_SessionCreateFailed" xml:space="preserve"><value>Session creation failed (rc={0})</value></data>
   <data name="Parser_DumpFileSettingError" xml:space="preserve"><value>Dump file setting error: {0}</value></data>

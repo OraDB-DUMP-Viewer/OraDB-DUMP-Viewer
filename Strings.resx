@@ -451,6 +451,30 @@ https://www.microsoft.com/ja-jp/download/details.aspx?id=54920</value></data>
   <data name="License_RevokedByServer" xml:space="preserve"><value>このライセンスはサーバーにより無効化されています。新しいライセンスを取得してください。
 ライセンス認証画面を開きますか？</value></data>
 
+  <!-- ========== ヘルプビューアー (HelpViewerForm) ========== -->
+  <data name="Help_FormTitle" xml:space="preserve"><value>ヘルプ - OraDB DUMP Viewer</value></data>
+  <data name="Help_Back" xml:space="preserve"><value>戻る</value></data>
+  <data name="Help_Forward" xml:space="preserve"><value>進む</value></data>
+  <data name="Help_Home" xml:space="preserve"><value>目次</value></data>
+  <data name="Help_Search" xml:space="preserve"><value>検索</value></data>
+  <data name="Help_SearchPlaceholder" xml:space="preserve"><value>ページ内検索...</value></data>
+  <data name="Help_WebView2NotAvailable" xml:space="preserve"><value>ヘルプの表示に必要な WebView2 ランタイムがインストールされていません。
+Microsoft Edge WebView2 ランタイムをインストールしてください。</value></data>
+  <data name="Help_TOC_GettingStarted" xml:space="preserve"><value>はじめに</value></data>
+  <data name="Help_TOC_OpenDump" xml:space="preserve"><value>ダンプファイルを開く</value></data>
+  <data name="Help_TOC_Workspace" xml:space="preserve"><value>ワークスペース</value></data>
+  <data name="Help_TOC_TablePreview" xml:space="preserve"><value>テーブルプレビュー</value></data>
+  <data name="Help_TOC_Search" xml:space="preserve"><value>検索・フィルタ</value></data>
+  <data name="Help_TOC_Export" xml:space="preserve"><value>エクスポート</value></data>
+  <data name="Help_TOC_ExportCsv" xml:space="preserve"><value>CSV エクスポート</value></data>
+  <data name="Help_TOC_ExportSql" xml:space="preserve"><value>SQL エクスポート</value></data>
+  <data name="Help_TOC_ExportBatch" xml:space="preserve"><value>一括エクスポート</value></data>
+  <data name="Help_TOC_ExportOptions" xml:space="preserve"><value>エクスポートオプション</value></data>
+  <data name="Help_TOC_LobExtract" xml:space="preserve"><value>LOB ファイル抽出</value></data>
+  <data name="Help_TOC_ShortcutKeys" xml:space="preserve"><value>ショートカットキー</value></data>
+  <data name="Help_TOC_SupportedFormats" xml:space="preserve"><value>対応形式・制限事項</value></data>
+  <data name="Help_TOC_About" xml:space="preserve"><value>バージョン情報</value></data>
+
   <!-- ========== DLLパーサーエラー ========== -->
   <data name="Parser_SessionCreateFailed" xml:space="preserve"><value>セッション作成に失敗しました (rc={0})</value></data>
   <data name="Parser_DumpFileSettingError" xml:space="preserve"><value>ダンプファイル設定エラー: {0}</value></data>

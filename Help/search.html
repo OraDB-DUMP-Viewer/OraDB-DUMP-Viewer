@@ -19,6 +19,48 @@
     <li>テキストを空にするとフィルタが解除されます。</li>
 </ul>
 
+<h2>高度な検索 (テーブルデータ検索)</h2>
+<p>テーブルプレビュー画面で、データに対して高度な条件検索が行えます。
+プレビュー画面の <strong>高度な検索</strong> ボタンをクリックすると、検索条件ダイアログが表示されます。</p>
+
+<h3>検索条件の設定</h3>
+<p>各条件行で以下の項目を指定します:</p>
+<ol>
+    <li><strong>列名</strong> &mdash; 検索対象のカラムを選択</li>
+    <li><strong>演算子</strong> &mdash; 12種類の演算子から選択</li>
+    <li><strong>検索値</strong> &mdash; 比較する値を入力 (Null / Not Null 演算子の場合は不要)</li>
+    <li><strong>大文字小文字区別</strong> &mdash; チェックすると大文字・小文字を区別して比較</li>
+</ol>
+
+<h3>演算子一覧</h3>
+<table>
+<tr><th>演算子</th><th>説明</th><th>例</th></tr>
+<tr><td>含む</td><td>値が検索文字列を含む</td><td>NAME 含む "田中"</td></tr>
+<tr><td>含まない</td><td>値が検索文字列を含まない</td><td>NAME 含まない "test"</td></tr>
+<tr><td>等しい</td><td>値が検索文字列と完全一致</td><td>STATUS 等しい "ACTIVE"</td></tr>
+<tr><td>等しくない</td><td>値が検索文字列と不一致</td><td>TYPE 等しくない "TEMP"</td></tr>
+<tr><td>で始まる</td><td>値が検索文字列で始まる</td><td>CODE で始まる "A"</td></tr>
+<tr><td>で終わる</td><td>値が検索文字列で終わる</td><td>EMAIL で終わる ".jp"</td></tr>
+<tr><td>&gt;</td><td>値が検索値より大きい</td><td>AMOUNT &gt; "1000"</td></tr>
+<tr><td>&lt;</td><td>値が検索値より小さい</td><td>AGE &lt; "30"</td></tr>
+<tr><td>&gt;=</td><td>値が検索値以上</td><td>SCORE &gt;= "80"</td></tr>
+<tr><td>&lt;=</td><td>値が検索値以下</td><td>PRICE &lt;= "500"</td></tr>
+<tr><td>Null</td><td>値が NULL</td><td>MEMO Null</td></tr>
+<tr><td>Not Null</td><td>値が NULL でない</td><td>EMAIL Not Null</td></tr>
+</table>
+
+<h3>複合条件 (AND / OR)</h3>
+<p>条件を追加すると、条件間の論理演算子を <strong>AND</strong> または <strong>OR</strong> で指定できます。</p>
+<ul>
+    <li><strong>AND</strong> &mdash; すべての条件を満たす行のみ表示</li>
+    <li><strong>OR</strong> &mdash; いずれかの条件を満たす行を表示</li>
+</ul>
+<p>条件行は自由に追加・削除でき、複雑なフィルタリングが可能です。</p>
+
+<h3>検索条件の保持</h3>
+<p>設定した検索条件は、同じテーブルを再度開いた際に自動的に復元されます。
+検索条件をクリアするには、プレビュー画面の <strong>検索解除</strong> ボタンを使用します。</p>
+
 <h2>選択の反転</h2>
 <p>テーブル一覧の選択状態を反転できます。
 右クリックメニューの <strong>選択を反転</strong> を使用します。</p>

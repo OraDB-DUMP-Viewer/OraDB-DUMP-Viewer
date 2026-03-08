@@ -22,6 +22,38 @@
     <li>LOB データ (BLOB/CLOB/NCLOB) は <code>%BLOB%</code>, <code>%CLOB%</code>, <code>%NCLOB%</code> と表示されます。</li>
 </ul>
 
+<h2>ページング</h2>
+<p>データが大量にある場合、ページ単位で表示されます。</p>
+<ul>
+    <li><strong>1ページあたりの行数</strong> &mdash; 画面右上の数値入力で変更可能 (デフォルト: 100行)</li>
+    <li><strong>ページ情報</strong> &mdash; 現在のページ番号と総ページ数が表示されます</li>
+    <li>ナビゲーションボタンでページを切り替えます</li>
+</ul>
+
+<h2>ソート</h2>
+<p>列ヘッダーをクリックすると、その列でデータをソートできます。
+再度クリックすると昇順/降順が切り替わります。</p>
+
+<h2>セルのコピー</h2>
+<p>プレビュー上のセルを選択し、<span class="shortcut">Ctrl+C</span> でクリップボードにコピーできます。
+複数セルの選択・コピーにも対応しています。</p>
+
+<h2>高度な検索</h2>
+<p>プレビュー画面の <strong>高度な検索</strong> ボタンをクリックすると、
+12種類の演算子と AND/OR 複合条件でデータをフィルタリングできます。
+詳しくは <a href="search.html">検索・フィルタ</a> を参照してください。</p>
+
+<h2>プレビューからのエクスポート</h2>
+<p>プレビュー画面のツールバーからも以下のエクスポートが実行できます:</p>
+<ul>
+    <li><strong>SQL</strong> &mdash; SQL スクリプト出力</li>
+    <li><strong>CSV</strong> &mdash; CSV ファイル出力</li>
+    <li><strong>Excel</strong> &mdash; Excel ファイル出力</li>
+    <li><strong>Access</strong> &mdash; Access データベース出力</li>
+    <li><strong>SQL Server</strong> &mdash; SQL Server に直接出力</li>
+    <li><strong>ODBC</strong> &mdash; ODBC 対応データベースに出力</li>
+</ul>
+
 <h2>テーブルプロパティ</h2>
 <p>テーブルを右クリックして <strong>プロパティ(&amp;P)</strong> を選択すると、
 テーブルのカラム定義（カラム名、データ型、長さ等）が表示されます。</p>

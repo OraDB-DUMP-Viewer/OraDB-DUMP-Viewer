@@ -674,19 +674,7 @@ Public Class OraDB_DUMP_Viewer
 
 #Region "メニューイベント: 目次 (ヘルプ)"
     Private Sub MokujiToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles MokujiToolStripMenuItem.Click
-        Dim chmPath = Path.Combine(Application.StartupPath, "OraDBDumpViewer.chm")
-        If File.Exists(chmPath) Then
-            Help.ShowHelp(Me, chmPath)
-        Else
-            ' CHM がない場合は HTML ヘルプをブラウザで表示
-            Dim htmlPath = Path.Combine(Application.StartupPath, "Help", "toc.html")
-            If File.Exists(htmlPath) Then
-                Process.Start(New ProcessStartInfo(htmlPath) With {.UseShellExecute = True})
-            Else
-                MessageBox.Show(Loc.S("Msg_HelpNotFound"), Loc.S("Menu_Help"),
-                               MessageBoxButtons.OK, MessageBoxIcon.Information)
-            End If
-        End If
+        HelpViewerForm.ShowHelp("toc.html")
     End Sub
 #End Region
 

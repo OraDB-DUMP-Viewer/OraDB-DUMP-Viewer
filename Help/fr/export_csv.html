@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Export CSV - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Export CSV</h1>
+
+<h2>&Eacute;tapes</h2>
+<ol>
+    <li>S&eacute;lectionnez la table que vous souhaitez exporter dans la liste des tables.</li>
+    <li>Cliquez sur le bouton <strong>CSV</strong> de la barre d'outils,
+        ou s&eacute;lectionnez <strong>Objet(&amp;O)</strong> &gt; <strong>Exporter</strong> &gt; <strong>Donn&eacute;es(&amp;D)</strong>.</li>
+    <li>Sp&eacute;cifiez le chemin du fichier de destination.</li>
+    <li>L'export s'ex&eacute;cute et une bo&icirc;te de dialogue de progression s'affiche.</li>
+</ol>
+
+<h2>Format de sortie</h2>
+<ul>
+    <li>Encodage : UTF-8 (avec BOM)</li>
+    <li>D&eacute;limiteur : Virgule (<code>,</code>)</li>
+    <li>Guillemets : Guillemets doubles (<code>"</code>) &mdash; appliqu&eacute;s lorsque les valeurs contiennent des virgules, des retours &agrave; la ligne ou des guillemets doubles</li>
+    <li>Fin de ligne : CRLF (<code>\r\n</code>)</li>
+    <li>Conforme &agrave; la RFC 4180</li>
+</ul>
+
+<h2>Options</h2>
+<p>Les &eacute;l&eacute;ments suivants peuvent &ecirc;tre configur&eacute;s dans les <a href="export_options.html">Options d'export</a> :</p>
+<ul>
+    <li><strong>Ligne d'en-t&ecirc;te</strong> &mdash; Inclure ou non les noms de colonnes dans la premi&egrave;re ligne</li>
+    <li><strong>Ligne d'informations de type</strong> &mdash; Inclure les informations de type de colonnes dans la ligne suivant l'en-t&ecirc;te</li>
+    <li><strong>Format de date</strong> &mdash; Format de sortie pour les colonnes DATE/TIMESTAMP</li>
+</ul>
+
+<hr>
+
+<h1>Autres formats d'export</h1>
+
+<h2>Export Excel</h2>
+<p>Exporte les donn&eacute;es de table vers un fichier Excel (.xlsx / .xls).</p>
+<ol>
+    <li>S&eacute;lectionnez une table et cliquez sur le bouton <strong>Excel</strong> de la barre d'outils.</li>
+    <li>Sp&eacute;cifiez le chemin du fichier de destination.</li>
+    <li>Un fichier Excel est g&eacute;n&eacute;r&eacute;.</li>
+</ol>
+
+<h2>Export Access</h2>
+<p>Exporte les donn&eacute;es de table vers une base de donn&eacute;es Microsoft Access (.accdb / .mdb).</p>
+<ol>
+    <li>S&eacute;lectionnez une table et cliquez sur le bouton <strong>Access</strong> de la barre d'outils.</li>
+    <li>Sp&eacute;cifiez le chemin du fichier de destination.</li>
+    <li>Une table est cr&eacute;&eacute;e dans la base de donn&eacute;es Access et les donn&eacute;es sont import&eacute;es.</li>
+</ol>
+
+<h2>Export SQL Server</h2>
+<p>Exporte les donn&eacute;es de table directement vers une base de donn&eacute;es SQL Server.</p>
+<ol>
+    <li>S&eacute;lectionnez une table et cliquez sur le bouton <strong>SQL Server</strong> de la barre d'outils.</li>
+    <li>Saisissez les informations de connexion SQL Server dans la bo&icirc;te de dialogue de connexion.</li>
+    <li>Une table est cr&eacute;&eacute;e dans la base de donn&eacute;es cible et les donn&eacute;es sont ins&eacute;r&eacute;es.</li>
+</ol>
+<p>Si une table du m&ecirc;me nom existe d&eacute;j&agrave;, elle est automatiquement supprim&eacute;e et recr&eacute;&eacute;e.</p>
+
+<h2>Export ODBC</h2>
+<p>Exporte les donn&eacute;es de table vers toute base de donn&eacute;es compatible ODBC.</p>
+<ol>
+    <li>S&eacute;lectionnez une table et cliquez sur le bouton <strong>ODBC</strong> de la barre d'outils.</li>
+    <li>Saisissez la cha&icirc;ne de connexion ODBC ou le DSN dans la bo&icirc;te de dialogue de connexion.</li>
+    <li>Une table est cr&eacute;&eacute;e dans la base de donn&eacute;es cible et les donn&eacute;es sont ins&eacute;r&eacute;es.</li>
+</ol>
+<p>Si une table du m&ecirc;me nom existe d&eacute;j&agrave;, elle est automatiquement supprim&eacute;e et recr&eacute;&eacute;e.</p>
+
+<h2>Gestion des tables existantes</h2>
+<table>
+<tr><th>Cible d'export</th><th>Comportement avec une table existante</th></tr>
+<tr><td>Script SQL</td><td>DROP TABLE IF EXISTS (activable/d&eacute;sactivable via case &agrave; cocher)</td></tr>
+<tr><td>SQL Server</td><td>Suppression automatique + recr&eacute;ation</td></tr>
+<tr><td>ODBC</td><td>Suppression automatique + recr&eacute;ation</td></tr>
+<tr><td>Access</td><td>Recr&eacute;ation du fichier entier</td></tr>
+<tr><td>Excel</td><td>&Eacute;crasement du fichier</td></tr>
+</table>
+
+<div class="note">
+<strong>Remarque :</strong> Pour les exports SQL Server et ODBC,
+la base de donn&eacute;es cible doit &ecirc;tre cr&eacute;&eacute;e au pr&eacute;alable.
+</div>
+
+<p><a href="toc.html">Retour &agrave; la table des mati&egrave;res</a></p>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>내보내기 옵션 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>내보내기 옵션</h1>
+
+<h2>접근 방법</h2>
+<p>도구 모음의 <strong>옵션</strong> 버튼을 클릭하면
+내보내기 옵션 대화 상자가 열립니다.</p>
+
+<h2>날짜 형식</h2>
+<table>
+<tr><th>형식</th><th>예시</th><th>설명</th></tr>
+<tr><td>YYYY/MM/DD HH:MI:SS</td><td>2026/01/15 09:30:00</td><td>표준 형식 (기본값)</td></tr>
+<tr><td>YYYYMMDD</td><td>20260115</td><td>간결한 형식 (날짜만)</td></tr>
+<tr><td>YYYYMMDDHH24MISS</td><td>20260115093000</td><td>간결한 형식 (날짜와 시간)</td></tr>
+<tr><td>사용자 정의</td><td>임의</td><td>토큰: YYYY, MM, DD, HH24, MI, SS</td></tr>
+</table>
+
+<h2>CSV 옵션</h2>
+<table>
+<tr><th>설정</th><th>기본값</th><th>설명</th></tr>
+<tr><td>헤더 행 출력</td><td>ON</td><td>첫 번째 행에 컬럼 이름 출력</td></tr>
+<tr><td>유형 정보 행 출력</td><td>OFF</td><td>헤더 다음 행에 컬럼 유형 출력</td></tr>
+</table>
+
+<h2>SQL 옵션</h2>
+<p>SQL 내보내기 전에 대화 상자가 표시됩니다.
+다음 옵션을 체크박스로 전환할 수 있습니다:</p>
+<table>
+<tr><th>설정</th><th>기본값</th><th>설명</th></tr>
+<tr><td>DROP TABLE + CREATE TABLE 출력</td><td>ON</td><td>INSERT 문 앞에 DROP TABLE IF EXISTS 및 CREATE TABLE DDL을 출력합니다. 체크박스로 전환 가능. 기존 테이블을 삭제 후 재생성합니다</td></tr>
+<tr><td>DBMS 유형</td><td>Oracle</td><td>Oracle / PostgreSQL / MySQL / SQL Server</td></tr>
+</table>
+
+<div class="note">
+<strong>참고:</strong> 옵션 설정은 애플리케이션 설정에 저장되며 재시작 후에도 유지됩니다.
+</div>
+
+<p><a href="toc.html">목차로 돌아가기</a></p>
+
+</body>
+</html>

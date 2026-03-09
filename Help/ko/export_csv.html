@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>CSV 내보내기 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>CSV 내보내기</h1>
+
+<h2>절차</h2>
+<ol>
+    <li>테이블 목록에서 내보낼 테이블을 선택합니다.</li>
+    <li>도구 모음의 <strong>CSV</strong> 버튼을 클릭하거나
+        <strong>개체(&amp;O)</strong> &gt; <strong>내보내기</strong> &gt; <strong>데이터(&amp;D)</strong>를 선택합니다.</li>
+    <li>대상 파일 경로를 지정합니다.</li>
+    <li>내보내기가 실행되고 진행률 대화 상자가 표시됩니다.</li>
+</ol>
+
+<h2>출력 형식</h2>
+<ul>
+    <li>인코딩: UTF-8 (BOM 포함)</li>
+    <li>구분자: 쉼표 (<code>,</code>)</li>
+    <li>인용 부호: 큰따옴표 (<code>"</code>) &mdash; 값에 쉼표, 줄 바꿈 또는 큰따옴표가 포함된 경우 적용</li>
+    <li>줄 끝: CRLF (<code>\r\n</code>)</li>
+    <li>RFC 4180 준수</li>
+</ul>
+
+<h2>옵션</h2>
+<p><a href="export_options.html">내보내기 옵션</a>에서 다음을 설정할 수 있습니다:</p>
+<ul>
+    <li><strong>헤더 행</strong> &mdash; 첫 번째 행에 컬럼 이름을 출력할지 여부</li>
+    <li><strong>유형 정보 행</strong> &mdash; 헤더 다음 행에 컬럼 유형 정보를 출력</li>
+    <li><strong>날짜 형식</strong> &mdash; DATE/TIMESTAMP 컬럼의 출력 형식</li>
+</ul>
+
+<hr>
+
+<h1>기타 내보내기 형식</h1>
+
+<h2>Excel 내보내기</h2>
+<p>테이블 데이터를 Excel 파일(.xlsx / .xls)로 내보냅니다.</p>
+<ol>
+    <li>테이블을 선택하고 도구 모음의 <strong>Excel</strong> 버튼을 클릭합니다.</li>
+    <li>대상 파일 경로를 지정합니다.</li>
+    <li>Excel 파일이 생성됩니다.</li>
+</ol>
+
+<h2>Access 내보내기</h2>
+<p>테이블 데이터를 Microsoft Access 데이터베이스(.accdb / .mdb)로 내보냅니다.</p>
+<ol>
+    <li>테이블을 선택하고 도구 모음의 <strong>Access</strong> 버튼을 클릭합니다.</li>
+    <li>대상 파일 경로를 지정합니다.</li>
+    <li>Access 데이터베이스에 테이블이 생성되고 데이터가 가져오기됩니다.</li>
+</ol>
+
+<h2>SQL Server 내보내기</h2>
+<p>테이블 데이터를 SQL Server 데이터베이스로 직접 내보냅니다.</p>
+<ol>
+    <li>테이블을 선택하고 도구 모음의 <strong>SQL Server</strong> 버튼을 클릭합니다.</li>
+    <li>연결 대화 상자에서 SQL Server 연결 정보를 입력합니다.</li>
+    <li>대상 데이터베이스에 테이블이 생성되고 데이터가 삽입됩니다.</li>
+</ol>
+<p>동일한 이름의 테이블이 이미 존재하는 경우 자동으로 삭제 후 다시 생성됩니다.</p>
+
+<h2>ODBC 내보내기</h2>
+<p>테이블 데이터를 ODBC 호환 데이터베이스로 내보냅니다.</p>
+<ol>
+    <li>테이블을 선택하고 도구 모음의 <strong>ODBC</strong> 버튼을 클릭합니다.</li>
+    <li>연결 대화 상자에서 ODBC 연결 문자열 또는 DSN을 입력합니다.</li>
+    <li>대상 데이터베이스에 테이블이 생성되고 데이터가 삽입됩니다.</li>
+</ol>
+<p>동일한 이름의 테이블이 이미 존재하는 경우 자동으로 삭제 후 다시 생성됩니다.</p>
+
+<h2>기존 테이블 처리</h2>
+<table>
+<tr><th>내보내기 대상</th><th>기존 테이블 동작</th></tr>
+<tr><td>SQL 스크립트</td><td>DROP TABLE IF EXISTS (체크박스로 전환 가능)</td></tr>
+<tr><td>SQL Server</td><td>자동 삭제 + 재생성</td></tr>
+<tr><td>ODBC</td><td>자동 삭제 + 재생성</td></tr>
+<tr><td>Access</td><td>전체 파일 재생성</td></tr>
+<tr><td>Excel</td><td>파일 덮어쓰기</td></tr>
+</table>
+
+<div class="note">
+<strong>참고:</strong> SQL Server 및 ODBC 내보내기의 경우
+대상 데이터베이스를 사전에 생성해야 합니다.
+</div>
+
+<p><a href="toc.html">목차로 돌아가기</a></p>
+
+</body>
+</html>

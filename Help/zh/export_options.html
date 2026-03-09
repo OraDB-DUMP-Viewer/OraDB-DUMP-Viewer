@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>导出选项 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>导出选项</h1>
+
+<h2>访问方式</h2>
+<p>单击工具栏上的 <strong>选项</strong> 按钮以打开导出选项对话框。</p>
+
+<h2>日期格式</h2>
+<table>
+<tr><th>格式</th><th>示例</th><th>说明</th></tr>
+<tr><td>YYYY/MM/DD HH:MI:SS</td><td>2026/01/15 09:30:00</td><td>标准格式（默认）</td></tr>
+<tr><td>YYYYMMDD</td><td>20260115</td><td>紧凑格式（仅日期）</td></tr>
+<tr><td>YYYYMMDDHH24MISS</td><td>20260115093000</td><td>紧凑格式（日期和时间）</td></tr>
+<tr><td>自定义</td><td>任意</td><td>标记：YYYY, MM, DD, HH24, MI, SS</td></tr>
+</table>
+
+<h2>CSV 选项</h2>
+<table>
+<tr><th>设置</th><th>默认值</th><th>说明</th></tr>
+<tr><td>输出标题行</td><td>开启</td><td>在第一行输出列名</td></tr>
+<tr><td>输出类型信息行</td><td>关闭</td><td>在标题行之后输出列类型</td></tr>
+</table>
+
+<h2>SQL 选项</h2>
+<p>SQL 导出前会显示一个对话框。
+以下选项可通过复选框切换：</p>
+<table>
+<tr><th>设置</th><th>默认值</th><th>说明</th></tr>
+<tr><td>输出 DROP TABLE + CREATE TABLE</td><td>开启</td><td>在 INSERT 语句之前输出 DROP TABLE IF EXISTS 和 CREATE TABLE DDL。可通过复选框切换。删除并重新创建现有表</td></tr>
+<tr><td>DBMS 类型</td><td>Oracle</td><td>Oracle / PostgreSQL / MySQL / SQL Server</td></tr>
+</table>
+
+<div class="note">
+<strong>注意：</strong> 选项设置保存在应用程序设置中，重启后仍然有效。
+</div>
+
+<p><a href="toc.html">返回目录</a></p>
+
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>CSV-Export - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>CSV-Export</h1>
+
+<h2>Vorgehensweise</h2>
+<ol>
+    <li>W&auml;hlen Sie die zu exportierende Tabelle in der Tabellenliste aus.</li>
+    <li>Klicken Sie auf die Schaltfl&auml;che <strong>CSV</strong> in der Symbolleiste,
+        oder w&auml;hlen Sie <strong>Objekt(&amp;O)</strong> &gt; <strong>Export</strong> &gt; <strong>Daten(&amp;D)</strong>.</li>
+    <li>Geben Sie den Zieldateipfad an.</li>
+    <li>Der Export wird ausgef&uuml;hrt und ein Fortschrittsdialog wird angezeigt.</li>
+</ol>
+
+<h2>Ausgabeformat</h2>
+<ul>
+    <li>Kodierung: UTF-8 (mit BOM)</li>
+    <li>Trennzeichen: Komma (<code>,</code>)</li>
+    <li>Anf&uuml;hrungszeichen: Doppelte Anf&uuml;hrungszeichen (<code>"</code>) &mdash; werden angewendet, wenn Werte Kommas, Zeilenumbr&uuml;che oder doppelte Anf&uuml;hrungszeichen enthalten</li>
+    <li>Zeilenende: CRLF (<code>\r\n</code>)</li>
+    <li>RFC 4180 konform</li>
+</ul>
+
+<h2>Optionen</h2>
+<p>Folgendes kann in den <a href="export_options.html">Exportoptionen</a> konfiguriert werden:</p>
+<ul>
+    <li><strong>Kopfzeile</strong> &mdash; Ob Spaltennamen in der ersten Zeile ausgegeben werden sollen</li>
+    <li><strong>Typinformationszeile</strong> &mdash; Spaltentyp-Informationen in der Zeile nach der Kopfzeile ausgeben</li>
+    <li><strong>Datumsformat</strong> &mdash; Ausgabeformat f&uuml;r DATE/TIMESTAMP-Spalten</li>
+</ul>
+
+<hr>
+
+<h1>Weitere Exportformate</h1>
+
+<h2>Excel-Export</h2>
+<p>Exportiert Tabellendaten in eine Excel-Datei (.xlsx / .xls).</p>
+<ol>
+    <li>W&auml;hlen Sie eine Tabelle aus und klicken Sie auf die Schaltfl&auml;che <strong>Excel</strong> in der Symbolleiste.</li>
+    <li>Geben Sie den Zieldateipfad an.</li>
+    <li>Eine Excel-Datei wird erstellt.</li>
+</ol>
+
+<h2>Access-Export</h2>
+<p>Exportiert Tabellendaten in eine Microsoft Access-Datenbank (.accdb / .mdb).</p>
+<ol>
+    <li>W&auml;hlen Sie eine Tabelle aus und klicken Sie auf die Schaltfl&auml;che <strong>Access</strong> in der Symbolleiste.</li>
+    <li>Geben Sie den Zieldateipfad an.</li>
+    <li>Eine Tabelle wird in der Access-Datenbank erstellt und die Daten werden importiert.</li>
+</ol>
+
+<h2>SQL Server-Export</h2>
+<p>Exportiert Tabellendaten direkt in eine SQL Server-Datenbank.</p>
+<ol>
+    <li>W&auml;hlen Sie eine Tabelle aus und klicken Sie auf die Schaltfl&auml;che <strong>SQL Server</strong> in der Symbolleiste.</li>
+    <li>Geben Sie die SQL Server-Verbindungsinformationen im Verbindungsdialog ein.</li>
+    <li>Eine Tabelle wird in der Zieldatenbank erstellt und die Daten werden eingef&uuml;gt.</li>
+</ol>
+<p>Wenn bereits eine Tabelle mit demselben Namen existiert, wird sie automatisch gel&ouml;scht und neu erstellt.</p>
+
+<h2>ODBC-Export</h2>
+<p>Exportiert Tabellendaten in eine beliebige ODBC-kompatible Datenbank.</p>
+<ol>
+    <li>W&auml;hlen Sie eine Tabelle aus und klicken Sie auf die Schaltfl&auml;che <strong>ODBC</strong> in der Symbolleiste.</li>
+    <li>Geben Sie die ODBC-Verbindungszeichenkette oder den DSN im Verbindungsdialog ein.</li>
+    <li>Eine Tabelle wird in der Zieldatenbank erstellt und die Daten werden eingef&uuml;gt.</li>
+</ol>
+<p>Wenn bereits eine Tabelle mit demselben Namen existiert, wird sie automatisch gel&ouml;scht und neu erstellt.</p>
+
+<h2>Umgang mit vorhandenen Tabellen</h2>
+<table>
+<tr><th>Exportziel</th><th>Verhalten bei vorhandener Tabelle</th></tr>
+<tr><td>SQL-Skript</td><td>DROP TABLE IF EXISTS (per Kontrollk&auml;stchen umschaltbar)</td></tr>
+<tr><td>SQL Server</td><td>Automatisches L&ouml;schen + Neuerstellen</td></tr>
+<tr><td>ODBC</td><td>Automatisches L&ouml;schen + Neuerstellen</td></tr>
+<tr><td>Access</td><td>Gesamte Datei neu erstellen</td></tr>
+<tr><td>Excel</td><td>Datei &uuml;berschreiben</td></tr>
+</table>
+
+<div class="note">
+<strong>Hinweis:</strong> F&uuml;r SQL Server- und ODBC-Exporte
+muss die Zieldatenbank vorab erstellt werden.
+</div>
+
+<p><a href="toc.html">Zur&uuml;ck zum Inhaltsverzeichnis</a></p>
+
+</body>
+</html>

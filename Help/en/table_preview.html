@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Table Preview - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Table Preview</h1>
+
+<h2>Opening a Table</h2>
+<p>Double-click a table name in the table list to open the data preview.
+Or right-click the table and select <strong>Open(&amp;O)</strong>.</p>
+
+<h2>Data Display</h2>
+<p>Data is displayed in a DataGridView.</p>
+<ul>
+    <li>Column names appear in the column headers.</li>
+    <li>Each row displays one record.</li>
+    <li>NULL values are shown as blank.</li>
+    <li>LOB data (BLOB/CLOB/NCLOB) is shown as <code>%BLOB%</code>, <code>%CLOB%</code>, <code>%NCLOB%</code>.</li>
+</ul>
+
+<h2>Paging</h2>
+<p>When there is a large amount of data, it is displayed page by page.</p>
+<ul>
+    <li><strong>Rows per page</strong> &mdash; Adjustable via the numeric input at the top right (default: 100 rows)</li>
+    <li><strong>Page info</strong> &mdash; Current page number and total pages are displayed</li>
+    <li>Use navigation buttons to switch between pages</li>
+</ul>
+
+<h2>Sorting</h2>
+<p>Click a column header to sort data by that column.
+Click again to toggle between ascending and descending order.</p>
+
+<h2>Copying Cells</h2>
+<p>Select cells in the preview and press <span class="shortcut">Ctrl+C</span> to copy to the clipboard.
+Multi-cell selection and copying is also supported.</p>
+
+<h2>Advanced Search</h2>
+<p>Click the <strong>Advanced Search</strong> button on the preview screen to filter data
+using 12 operators with AND/OR compound conditions.
+See <a href="search.html">Search &amp; Filter</a> for details.</p>
+
+<h2>Exporting from Preview</h2>
+<p>The following exports are available from the preview toolbar:</p>
+<ul>
+    <li><strong>SQL</strong> &mdash; SQL script output</li>
+    <li><strong>CSV</strong> &mdash; CSV file output</li>
+    <li><strong>Excel</strong> &mdash; Excel file output</li>
+    <li><strong>Access</strong> &mdash; Access database output</li>
+    <li><strong>SQL Server</strong> &mdash; Direct output to SQL Server</li>
+    <li><strong>ODBC</strong> &mdash; Output to an ODBC-compatible database</li>
+</ul>
+
+<h2>Table Properties</h2>
+<p>Right-click a table and select <strong>Properties(&amp;P)</strong> to view
+column definitions (column name, data type, length, etc.).</p>
+
+<h2>Table Exclusion</h2>
+<p>You can temporarily hide unwanted tables.</p>
+<ol>
+    <li>Select tables in the table list (multi-select supported).</li>
+    <li>Choose <strong>Delete(&amp;D)</strong> from the context menu,
+        or press the <span class="shortcut">Delete</span> key.</li>
+    <li>Excluded tables are shown in the status bar.</li>
+</ol>
+
+<p>To undo exclusion:</p>
+<ul>
+    <li><strong>Edit(&amp;E)</strong> &gt; <strong>Undo</strong>
+        (<span class="shortcut">Ctrl+Z</span>)</li>
+    <li><strong>Object(&amp;O)</strong> &gt; <strong>Clear All Filters(&amp;F)</strong>
+        to remove all exclusions</li>
+</ul>
+
+<p><a href="toc.html">Back to Table of Contents</a></p>
+
+</body>
+</html>

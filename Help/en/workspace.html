@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Workspace - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Workspace</h1>
+
+<h2>Overview</h2>
+<p>The workspace is a feature that manages dump file analysis results and working state together.
+You can save and restore table exclusion states and filter settings.</p>
+
+<h2>Saving a Workspace</h2>
+<ol>
+    <li>Select <strong>File(&amp;F)</strong> &gt; <strong>Save Workspace(&amp;S)</strong> from the menu.</li>
+    <li>On the first save, specify the file path (extension: <code>.odvw</code>).</li>
+    <li>Subsequent saves will overwrite the existing file.</li>
+</ol>
+
+<h2>Save As</h2>
+<p><strong>File(&amp;F)</strong> &gt; <strong>Save As(&amp;A)</strong> lets you save the workspace
+under a different file name.</p>
+
+<h2>Opening a Workspace</h2>
+<ol>
+    <li>Select <strong>File(&amp;F)</strong> &gt; <strong>Workspace(&amp;W)...</strong> from the menu.</li>
+    <li>Select an <code>.odvw</code> file.</li>
+    <li>The dump file is loaded automatically, and exclusion states and filters are restored.</li>
+</ol>
+
+<h2>Saved Information</h2>
+<table>
+<tr><th>Item</th><th>Description</th></tr>
+<tr><td>Dump File Path</td><td>Absolute path to the original dump file</td></tr>
+<tr><td>Excluded Tables</td><td>List of hidden tables</td></tr>
+<tr><td>Search Filter</td><td>Table name search text</td></tr>
+<tr><td>Schema</td><td>Currently selected schema</td></tr>
+<tr><td>Expanded Nodes</td><td>Tree view expansion state</td></tr>
+</table>
+
+<h2>Recent Files</h2>
+<p>Up to 5 recent workspaces and dump files are displayed at the bottom of the <strong>File</strong> menu.
+Click to quickly reopen them.</p>
+
+<div class="tip">
+<strong>Tip:</strong> A save confirmation dialog appears before closing a workspace.
+If there are unsaved changes, select "Yes" to save them.
+</div>
+
+<p><a href="toc.html">Back to Table of Contents</a></p>
+
+</body>
+</html>

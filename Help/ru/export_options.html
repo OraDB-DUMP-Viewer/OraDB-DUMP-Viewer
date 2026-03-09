@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Параметры экспорта - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Параметры экспорта</h1>
+
+<h2>Как открыть</h2>
+<p>Нажмите кнопку <strong>Параметры</strong> на панели инструментов,
+чтобы открыть диалог параметров экспорта.</p>
+
+<h2>Формат даты</h2>
+<table>
+<tr><th>Формат</th><th>Пример</th><th>Описание</th></tr>
+<tr><td>YYYY/MM/DD HH:MI:SS</td><td>2026/01/15 09:30:00</td><td>Стандартный формат (по умолчанию)</td></tr>
+<tr><td>YYYYMMDD</td><td>20260115</td><td>Компактный (только дата)</td></tr>
+<tr><td>YYYYMMDDHH24MISS</td><td>20260115093000</td><td>Компактный (дата и время)</td></tr>
+<tr><td>Пользовательский</td><td>Любой</td><td>Токены: YYYY, MM, DD, HH24, MI, SS</td></tr>
+</table>
+
+<h2>Параметры CSV</h2>
+<table>
+<tr><th>Настройка</th><th>По умолчанию</th><th>Описание</th></tr>
+<tr><td>Выводить строку заголовка</td><td>ВКЛ</td><td>Выводить имена столбцов в первой строке</td></tr>
+<tr><td>Выводить строку типов</td><td>ВЫКЛ</td><td>Выводить типы столбцов в строке после заголовка</td></tr>
+</table>
+
+<h2>Параметры SQL</h2>
+<p>Перед экспортом SQL отображается диалоговое окно.
+Следующие параметры переключаются флажками:</p>
+<table>
+<tr><th>Настройка</th><th>По умолчанию</th><th>Описание</th></tr>
+<tr><td>Выводить DROP TABLE + CREATE TABLE</td><td>ВКЛ</td><td>Выводить DROP TABLE IF EXISTS и CREATE TABLE DDL перед операторами INSERT. Переключается флажком. Удаляет и пересоздаёт существующие таблицы</td></tr>
+<tr><td>Тип СУБД</td><td>Oracle</td><td>Oracle / PostgreSQL / MySQL / SQL Server</td></tr>
+</table>
+
+<div class="note">
+<strong>Примечание:</strong> Настройки параметров сохраняются в настройках приложения и сохраняются между перезапусками.
+</div>
+
+<p><a href="toc.html">Вернуться к содержанию</a></p>
+
+</body>
+</html>

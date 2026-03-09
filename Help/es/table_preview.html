@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Vista previa de tablas - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Vista previa de tablas</h1>
+
+<h2>Abrir una tabla</h2>
+<p>Haga doble clic en un nombre de tabla en la lista de tablas para abrir la vista previa de datos.
+O haga clic derecho en la tabla y seleccione <strong>Abrir(&amp;O)</strong>.</p>
+
+<h2>Visualización de datos</h2>
+<p>Los datos se muestran en un DataGridView.</p>
+<ul>
+    <li>Los nombres de columnas aparecen en los encabezados de columna.</li>
+    <li>Cada fila muestra un registro.</li>
+    <li>Los valores NULL se muestran en blanco.</li>
+    <li>Los datos LOB (BLOB/CLOB/NCLOB) se muestran como <code>%BLOB%</code>, <code>%CLOB%</code>, <code>%NCLOB%</code>.</li>
+</ul>
+
+<h2>Paginación</h2>
+<p>Cuando hay una gran cantidad de datos, se muestran página por página.</p>
+<ul>
+    <li><strong>Filas por página</strong> &mdash; Ajustable mediante el campo numérico en la parte superior derecha (predeterminado: 100 filas)</li>
+    <li><strong>Información de página</strong> &mdash; Se muestra el número de página actual y el total de páginas</li>
+    <li>Use los botones de navegación para cambiar entre páginas</li>
+</ul>
+
+<h2>Ordenación</h2>
+<p>Haga clic en un encabezado de columna para ordenar los datos por esa columna.
+Haga clic de nuevo para alternar entre orden ascendente y descendente.</p>
+
+<h2>Copiar celdas</h2>
+<p>Seleccione celdas en la vista previa y presione <span class="shortcut">Ctrl+C</span> para copiar al portapapeles.
+También se admite la selección y copia de múltiples celdas.</p>
+
+<h2>Búsqueda avanzada</h2>
+<p>Haga clic en el botón <strong>Búsqueda avanzada</strong> en la pantalla de vista previa para filtrar datos
+utilizando 12 operadores con condiciones compuestas AND/OR.
+Consulte <a href="search.html">Búsqueda y filtrado</a> para más detalles.</p>
+
+<h2>Exportar desde la vista previa</h2>
+<p>Las siguientes exportaciones están disponibles desde la barra de herramientas de la vista previa:</p>
+<ul>
+    <li><strong>SQL</strong> &mdash; Salida de script SQL</li>
+    <li><strong>CSV</strong> &mdash; Salida de archivo CSV</li>
+    <li><strong>Excel</strong> &mdash; Salida de archivo Excel</li>
+    <li><strong>Access</strong> &mdash; Salida a base de datos Access</li>
+    <li><strong>SQL Server</strong> &mdash; Salida directa a SQL Server</li>
+    <li><strong>ODBC</strong> &mdash; Salida a base de datos compatible con ODBC</li>
+</ul>
+
+<h2>Propiedades de la tabla</h2>
+<p>Haga clic derecho en una tabla y seleccione <strong>Propiedades(&amp;P)</strong> para ver
+las definiciones de columnas (nombre de columna, tipo de dato, longitud, etc.).</p>
+
+<h2>Exclusión de tablas</h2>
+<p>Puede ocultar temporalmente las tablas no deseadas.</p>
+<ol>
+    <li>Seleccione tablas en la lista de tablas (se admite selección múltiple).</li>
+    <li>Elija <strong>Eliminar(&amp;D)</strong> en el menú contextual,
+        o presione la tecla <span class="shortcut">Delete</span>.</li>
+    <li>Las tablas excluidas se muestran en la barra de estado.</li>
+</ol>
+
+<p>Para deshacer la exclusión:</p>
+<ul>
+    <li><strong>Editar(&amp;E)</strong> &gt; <strong>Deshacer</strong>
+        (<span class="shortcut">Ctrl+Z</span>)</li>
+    <li><strong>Objeto(&amp;O)</strong> &gt; <strong>Borrar todos los filtros(&amp;F)</strong>
+        para eliminar todas las exclusiones</li>
+</ul>
+
+<p><a href="toc.html">Volver a la tabla de contenido</a></p>
+
+</body>
+</html>

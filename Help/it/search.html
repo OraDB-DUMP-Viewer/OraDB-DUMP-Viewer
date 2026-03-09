@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Ricerca e filtro - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Ricerca e filtro</h1>
+
+<h2>Filtro per nome tabella</h2>
+<p>Digitare parte del nome di una tabella nella casella di ricerca in alto nell'area di lavoro
+per filtrare l'elenco delle tabelle in tempo reale.</p>
+
+<ul>
+    <li>Non distingue tra maiuscole e minuscole.</li>
+    <li>Corrispondenza parziale sui nomi delle tabelle.</li>
+    <li>Cancellare il testo per rimuovere il filtro.</li>
+</ul>
+
+<h2>Ricerca avanzata (ricerca dati tabella)</h2>
+<p>Nella schermata di anteprima della tabella è possibile eseguire ricerche avanzate basate su condizioni.
+Fare clic sul pulsante <strong>Ricerca avanzata</strong> per aprire la finestra di dialogo delle condizioni di ricerca.</p>
+
+<h3>Impostazione delle condizioni di ricerca</h3>
+<p>Specificare i seguenti parametri per ogni riga di condizione:</p>
+<ol>
+    <li><strong>Nome colonna</strong> &mdash; Selezionare la colonna di destinazione</li>
+    <li><strong>Operatore</strong> &mdash; Scegliere tra 12 operatori</li>
+    <li><strong>Valore di ricerca</strong> &mdash; Inserire il valore di confronto (non richiesto per gli operatori Null / Not Null)</li>
+    <li><strong>Distinzione maiuscole/minuscole</strong> &mdash; Selezionare per effettuare un confronto con distinzione tra maiuscole e minuscole</li>
+</ol>
+
+<h3>Elenco degli operatori</h3>
+<table>
+<tr><th>Operatore</th><th>Descrizione</th><th>Esempio</th></tr>
+<tr><td>Contiene</td><td>Il valore contiene la stringa di ricerca</td><td>NAME Contiene "Smith"</td></tr>
+<tr><td>Non contiene</td><td>Il valore non contiene la stringa di ricerca</td><td>NAME Non contiene "test"</td></tr>
+<tr><td>Uguale</td><td>Il valore corrisponde esattamente alla stringa di ricerca</td><td>STATUS Uguale "ACTIVE"</td></tr>
+<tr><td>Diverso</td><td>Il valore non corrisponde alla stringa di ricerca</td><td>TYPE Diverso "TEMP"</td></tr>
+<tr><td>Inizia con</td><td>Il valore inizia con la stringa di ricerca</td><td>CODE Inizia con "A"</td></tr>
+<tr><td>Termina con</td><td>Il valore termina con la stringa di ricerca</td><td>EMAIL Termina con ".com"</td></tr>
+<tr><td>&gt;</td><td>Il valore è maggiore del valore di ricerca</td><td>AMOUNT &gt; "1000"</td></tr>
+<tr><td>&lt;</td><td>Il valore è minore del valore di ricerca</td><td>AGE &lt; "30"</td></tr>
+<tr><td>&gt;=</td><td>Il valore è maggiore o uguale al valore di ricerca</td><td>SCORE &gt;= "80"</td></tr>
+<tr><td>&lt;=</td><td>Il valore è minore o uguale al valore di ricerca</td><td>PRICE &lt;= "500"</td></tr>
+<tr><td>Null</td><td>Il valore è NULL</td><td>MEMO Null</td></tr>
+<tr><td>Not Null</td><td>Il valore non è NULL</td><td>EMAIL Not Null</td></tr>
+</table>
+
+<h3>Condizioni composte (AND / OR)</h3>
+<p>Quando si aggiungono condizioni, è possibile specificare l'operatore logico tra di esse come <strong>AND</strong> o <strong>OR</strong>.</p>
+<ul>
+    <li><strong>AND</strong> &mdash; Mostra solo le righe che soddisfano tutte le condizioni</li>
+    <li><strong>OR</strong> &mdash; Mostra le righe che soddisfano almeno una delle condizioni</li>
+</ul>
+<p>Le righe di condizione possono essere aggiunte o rimosse liberamente, consentendo un filtraggio complesso.</p>
+
+<h3>Conservazione delle condizioni di ricerca</h3>
+<p>Le condizioni di ricerca vengono ripristinate automaticamente alla riapertura della stessa tabella.
+Per cancellare le condizioni, utilizzare il pulsante <strong>Cancella ricerca</strong> nella schermata di anteprima.</p>
+
+<h2>Inverti selezione</h2>
+<p>È possibile invertire lo stato di selezione dell'elenco delle tabelle.
+Utilizzare <strong>Inverti selezione</strong> dal menu contestuale.</p>
+
+<p><a href="toc.html">Torna al sommario</a></p>
+
+</body>
+</html>

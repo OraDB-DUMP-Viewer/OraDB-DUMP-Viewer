@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Ouvrir un fichier dump - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Ouvrir un fichier dump</h1>
+
+<h2>&Eacute;tapes</h2>
+<ol>
+    <li>S&eacute;lectionnez <strong>Fichier(&amp;F)</strong> &gt; <strong>Ouvrir un fichier dump(&amp;O)...</strong> dans le menu.
+        <br>Ou cliquez sur le bouton <strong>Ouvrir</strong> de la barre d'outils.</li>
+    <li>Dans la bo&icirc;te de dialogue, s&eacute;lectionnez un fichier dump (<code>.dmp</code>).</li>
+    <li>L'analyse d&eacute;marre et une barre de progression s'affiche.</li>
+    <li>Une fois termin&eacute;, la liste des tables appara&icirc;t dans l'espace de travail.</li>
+</ol>
+
+<h2>D&eacute;tection automatique</h2>
+<p>Le format du fichier dump (EXP / EXPDP / EXPDP compress&eacute;) est d&eacute;tect&eacute; automatiquement
+en analysant les octets d'en-t&ecirc;te et les octets marqueurs du fichier.</p>
+
+<table>
+<tr><th>Format</th><th>M&eacute;thode de d&eacute;tection</th></tr>
+<tr><td>EXP</td><td>Octets d'en-t&ecirc;te 0x01-0x05 + cha&icirc;ne "EXPORT:"</td></tr>
+<tr><td>EXPDP</td><td>Cha&icirc;ne "xml version"</td></tr>
+<tr><td>EXPDP (Compress&eacute;)</td><td>Marqueurs "KGC" + "HDR"</td></tr>
+</table>
+
+<h2>Jeu de caract&egrave;res</h2>
+<p>Le jeu de caract&egrave;res du fichier dump est &eacute;galement d&eacute;tect&eacute; automatiquement.
+Jeux de caract&egrave;res pris en charge :</p>
+<ul>
+    <li>AL32UTF8 / UTF8</li>
+    <li>JA16SJIS (Shift_JIS)</li>
+    <li>JA16EUC (EUC-JP)</li>
+    <li>AL16UTF16</li>
+    <li>US7ASCII</li>
+    <li>WE8ISO8859P1 / WE8MSWIN1252</li>
+</ul>
+
+<div class="note">
+<strong>Remarque :</strong> Pour les dumps EXPDP compress&eacute;s, seules les d&eacute;finitions de tables (DDL) peuvent &ecirc;tre lues.
+La d&eacute;compression des enregistrements de donn&eacute;es n'est pas prise en charge.
+</div>
+
+<p><a href="toc.html">Retour &agrave; la table des mati&egrave;res</a></p>
+
+</body>
+</html>

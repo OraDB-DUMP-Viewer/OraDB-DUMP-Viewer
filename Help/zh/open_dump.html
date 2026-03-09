@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>打开转储文件 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>打开转储文件</h1>
+
+<h2>操作步骤</h2>
+<ol>
+    <li>从菜单选择 <strong>文件(&amp;F)</strong> &gt; <strong>打开转储文件(&amp;O)...</strong>。
+        <br>或单击工具栏上的 <strong>打开</strong> 按钮。</li>
+    <li>在文件对话框中，选择一个转储文件（<code>.dmp</code>）。</li>
+    <li>开始分析并显示进度条。</li>
+    <li>完成后，表列表将显示在工作区中。</li>
+</ol>
+
+<h2>自动检测</h2>
+<p>转储文件格式（EXP / EXPDP / EXPDP 压缩）通过分析文件的前导字节和标记字节来自动检测。</p>
+
+<table>
+<tr><th>格式</th><th>检测方法</th></tr>
+<tr><td>EXP</td><td>前导字节 0x01-0x05 + "EXPORT:" 字符串</td></tr>
+<tr><td>EXPDP</td><td>"xml version" 字符串</td></tr>
+<tr><td>EXPDP（压缩）</td><td>"KGC" + "HDR" 标记</td></tr>
+</table>
+
+<h2>字符集</h2>
+<p>转储文件的字符集也会自动检测。
+支持的字符集：</p>
+<ul>
+    <li>AL32UTF8 / UTF8</li>
+    <li>JA16SJIS (Shift_JIS)</li>
+    <li>JA16EUC (EUC-JP)</li>
+    <li>AL16UTF16</li>
+    <li>US7ASCII</li>
+    <li>WE8ISO8859P1 / WE8MSWIN1252</li>
+</ul>
+
+<div class="note">
+<strong>注意：</strong> 对于压缩的 EXPDP 转储文件，只能读取表定义（DDL）。
+不支持数据记录的解压。
+</div>
+
+<p><a href="toc.html">返回目录</a></p>
+
+</body>
+</html>

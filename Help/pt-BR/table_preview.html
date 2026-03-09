@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Visualização de Tabela - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Visualização de Tabela</h1>
+
+<h2>Abrindo uma Tabela</h2>
+<p>Clique duas vezes em um nome de tabela na lista de tabelas para abrir a visualização de dados.
+Ou clique com o botão direito na tabela e selecione <strong>Abrir(&amp;O)</strong>.</p>
+
+<h2>Exibição de Dados</h2>
+<p>Os dados são exibidos em um DataGridView.</p>
+<ul>
+    <li>Os nomes das colunas aparecem nos cabeçalhos das colunas.</li>
+    <li>Cada linha exibe um registro.</li>
+    <li>Valores NULL são exibidos em branco.</li>
+    <li>Dados LOB (BLOB/CLOB/NCLOB) são exibidos como <code>%BLOB%</code>, <code>%CLOB%</code>, <code>%NCLOB%</code>.</li>
+</ul>
+
+<h2>Paginação</h2>
+<p>Quando há uma grande quantidade de dados, eles são exibidos página por página.</p>
+<ul>
+    <li><strong>Linhas por página</strong> &mdash; Ajustável pelo campo numérico no canto superior direito (padrão: 100 linhas)</li>
+    <li><strong>Informação da página</strong> &mdash; O número da página atual e o total de páginas são exibidos</li>
+    <li>Use os botões de navegação para alternar entre as páginas</li>
+</ul>
+
+<h2>Ordenação</h2>
+<p>Clique no cabeçalho de uma coluna para ordenar os dados por essa coluna.
+Clique novamente para alternar entre ordem crescente e decrescente.</p>
+
+<h2>Copiando Células</h2>
+<p>Selecione as células na visualização e pressione <span class="shortcut">Ctrl+C</span> para copiar para a área de transferência.
+A seleção e cópia de múltiplas células também é suportada.</p>
+
+<h2>Pesquisa Avançada</h2>
+<p>Clique no botão <strong>Pesquisa Avançada</strong> na tela de visualização para filtrar dados
+usando 12 operadores com condições compostas AND/OR.
+Consulte <a href="search.html">Pesquisa &amp; Filtro</a> para detalhes.</p>
+
+<h2>Exportando a partir da Visualização</h2>
+<p>As seguintes exportações estão disponíveis na barra de ferramentas da visualização:</p>
+<ul>
+    <li><strong>SQL</strong> &mdash; Saída de script SQL</li>
+    <li><strong>CSV</strong> &mdash; Saída de arquivo CSV</li>
+    <li><strong>Excel</strong> &mdash; Saída de arquivo Excel</li>
+    <li><strong>Access</strong> &mdash; Saída para banco de dados Access</li>
+    <li><strong>SQL Server</strong> &mdash; Saída direta para SQL Server</li>
+    <li><strong>ODBC</strong> &mdash; Saída para um banco de dados compatível com ODBC</li>
+</ul>
+
+<h2>Propriedades da Tabela</h2>
+<p>Clique com o botão direito em uma tabela e selecione <strong>Propriedades(&amp;P)</strong> para visualizar
+as definições de colunas (nome da coluna, tipo de dados, tamanho, etc.).</p>
+
+<h2>Exclusão de Tabelas</h2>
+<p>Você pode ocultar temporariamente tabelas indesejadas.</p>
+<ol>
+    <li>Selecione tabelas na lista de tabelas (seleção múltipla é suportada).</li>
+    <li>Escolha <strong>Excluir(&amp;D)</strong> no menu de contexto,
+        ou pressione a tecla <span class="shortcut">Delete</span>.</li>
+    <li>As tabelas excluídas são exibidas na barra de status.</li>
+</ol>
+
+<p>Para desfazer a exclusão:</p>
+<ul>
+    <li><strong>Editar(&amp;E)</strong> &gt; <strong>Desfazer</strong>
+        (<span class="shortcut">Ctrl+Z</span>)</li>
+    <li><strong>Objeto(&amp;O)</strong> &gt; <strong>Limpar Todos os Filtros(&amp;F)</strong>
+        para remover todas as exclusões</li>
+</ul>
+
+<p><a href="toc.html">Voltar ao Sumário</a></p>
+
+</body>
+</html>

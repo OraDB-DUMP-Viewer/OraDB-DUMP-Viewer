@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>CSV 导出 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>CSV 导出</h1>
+
+<h2>操作步骤</h2>
+<ol>
+    <li>在表列表中选择要导出的表。</li>
+    <li>单击工具栏上的 <strong>CSV</strong> 按钮，或选择 <strong>对象(&amp;O)</strong> &gt; <strong>导出</strong> &gt; <strong>数据(&amp;D)</strong>。</li>
+    <li>指定目标文件路径。</li>
+    <li>开始导出并显示进度对话框。</li>
+</ol>
+
+<h2>输出格式</h2>
+<ul>
+    <li>编码：UTF-8（带 BOM）</li>
+    <li>分隔符：逗号（<code>,</code>）</li>
+    <li>引号：双引号（<code>"</code>）&mdash; 当值包含逗号、换行符或双引号时使用</li>
+    <li>换行符：CRLF（<code>\r\n</code>）</li>
+    <li>符合 RFC 4180 标准</li>
+</ul>
+
+<h2>选项</h2>
+<p>以下设置可在<a href="export_options.html">导出选项</a>中配置：</p>
+<ul>
+    <li><strong>标题行</strong> &mdash; 是否在第一行输出列名</li>
+    <li><strong>类型信息行</strong> &mdash; 在标题行之后输出列类型信息</li>
+    <li><strong>日期格式</strong> &mdash; DATE/TIMESTAMP 列的输出格式</li>
+</ul>
+
+<hr>
+
+<h1>其他导出格式</h1>
+
+<h2>Excel 导出</h2>
+<p>将表数据导出为 Excel 文件（.xlsx / .xls）。</p>
+<ol>
+    <li>选择一个表并单击工具栏上的 <strong>Excel</strong> 按钮。</li>
+    <li>指定目标文件路径。</li>
+    <li>生成 Excel 文件。</li>
+</ol>
+
+<h2>Access 导出</h2>
+<p>将表数据导出到 Microsoft Access 数据库（.accdb / .mdb）。</p>
+<ol>
+    <li>选择一个表并单击工具栏上的 <strong>Access</strong> 按钮。</li>
+    <li>指定目标文件路径。</li>
+    <li>在 Access 数据库中创建表并导入数据。</li>
+</ol>
+
+<h2>SQL Server 导出</h2>
+<p>将表数据直接导出到 SQL Server 数据库。</p>
+<ol>
+    <li>选择一个表并单击工具栏上的 <strong>SQL Server</strong> 按钮。</li>
+    <li>在连接对话框中输入 SQL Server 连接信息。</li>
+    <li>在目标数据库中创建表并插入数据。</li>
+</ol>
+<p>如果存在同名表，将自动删除并重新创建。</p>
+
+<h2>ODBC 导出</h2>
+<p>将表数据导出到任何兼容 ODBC 的数据库。</p>
+<ol>
+    <li>选择一个表并单击工具栏上的 <strong>ODBC</strong> 按钮。</li>
+    <li>在连接对话框中输入 ODBC 连接字符串或 DSN。</li>
+    <li>在目标数据库中创建表并插入数据。</li>
+</ol>
+<p>如果存在同名表，将自动删除并重新创建。</p>
+
+<h2>现有表的处理</h2>
+<table>
+<tr><th>导出目标</th><th>现有表行为</th></tr>
+<tr><td>SQL 脚本</td><td>DROP TABLE IF EXISTS（可通过复选框切换）</td></tr>
+<tr><td>SQL Server</td><td>自动删除 + 重新创建</td></tr>
+<tr><td>ODBC</td><td>自动删除 + 重新创建</td></tr>
+<tr><td>Access</td><td>重新创建整个文件</td></tr>
+<tr><td>Excel</td><td>覆盖文件</td></tr>
+</table>
+
+<div class="note">
+<strong>注意：</strong> 对于 SQL Server 和 ODBC 导出，必须事先创建目标数据库。
+</div>
+
+<p><a href="toc.html">返回目录</a></p>
+
+</body>
+</html>

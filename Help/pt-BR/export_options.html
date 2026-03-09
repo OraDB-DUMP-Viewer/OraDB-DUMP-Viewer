@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Opções de Exportação - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Opções de Exportação</h1>
+
+<h2>Como Acessar</h2>
+<p>Clique no botão <strong>Opções</strong> na barra de ferramentas
+para abrir a caixa de diálogo de Opções de Exportação.</p>
+
+<h2>Formato de Data</h2>
+<table>
+<tr><th>Formato</th><th>Exemplo</th><th>Descrição</th></tr>
+<tr><td>YYYY/MM/DD HH:MI:SS</td><td>2026/01/15 09:30:00</td><td>Formato padrão (padrão)</td></tr>
+<tr><td>YYYYMMDD</td><td>20260115</td><td>Compacto (somente data)</td></tr>
+<tr><td>YYYYMMDDHH24MISS</td><td>20260115093000</td><td>Compacto (data e hora)</td></tr>
+<tr><td>Personalizado</td><td>Qualquer</td><td>Tokens: YYYY, MM, DD, HH24, MI, SS</td></tr>
+</table>
+
+<h2>Opções de CSV</h2>
+<table>
+<tr><th>Configuração</th><th>Padrão</th><th>Descrição</th></tr>
+<tr><td>Gerar Linha de Cabeçalho</td><td>ATIVADO</td><td>Exibir nomes das colunas na primeira linha</td></tr>
+<tr><td>Gerar Linha de Informação de Tipo</td><td>DESATIVADO</td><td>Exibir tipos das colunas na linha após o cabeçalho</td></tr>
+</table>
+
+<h2>Opções de SQL</h2>
+<p>Uma caixa de diálogo é exibida antes da exportação SQL.
+As seguintes opções podem ser alternadas via caixas de seleção:</p>
+<table>
+<tr><th>Configuração</th><th>Padrão</th><th>Descrição</th></tr>
+<tr><td>Gerar DROP TABLE + CREATE TABLE</td><td>ATIVADO</td><td>Gera DROP TABLE IF EXISTS e CREATE TABLE DDL antes das instruções INSERT. Alternável via caixa de seleção. Exclui e recria tabelas existentes</td></tr>
+<tr><td>Tipo de SGBD</td><td>Oracle</td><td>Oracle / PostgreSQL / MySQL / SQL Server</td></tr>
+</table>
+
+<div class="note">
+<strong>Nota:</strong> As configurações de opções são salvas nas configurações do aplicativo e persistem entre reinicializações.
+</div>
+
+<p><a href="toc.html">Voltar ao Sumário</a></p>
+
+</body>
+</html>

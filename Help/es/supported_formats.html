@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Formatos compatibles y limitaciones - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Formatos compatibles y limitaciones</h1>
+
+<h2>Formatos de volcado compatibles</h2>
+<table>
+<tr><th>Formato</th><th>Compatibilidad</th><th>Notas</th></tr>
+<tr><td>EXP (comando exp)</td><td>Compatible</td><td>Oracle 7&ndash;11g</td></tr>
+<tr><td>EXPDP (comando expdp)</td><td>Compatible</td><td>Oracle 10g&ndash;23ai</td></tr>
+<tr><td>EXPDP Comprimido</td><td>Parcial</td><td>Solo definiciones de tablas (datos no soportados)</td></tr>
+</table>
+
+<h2>Tipos de datos compatibles</h2>
+<table>
+<tr><th>Tipo de dato</th><th>Vista previa</th><th>Exportación CSV/SQL</th><th>Extracción LOB</th></tr>
+<tr><td>CHAR / VARCHAR2</td><td>Compatible</td><td>Compatible</td><td>-</td></tr>
+<tr><td>NCHAR / NVARCHAR2</td><td>Compatible</td><td>Compatible</td><td>-</td></tr>
+<tr><td>NUMBER</td><td>Compatible</td><td>Compatible</td><td>-</td></tr>
+<tr><td>BINARY_FLOAT</td><td>Compatible</td><td>Compatible</td><td>-</td></tr>
+<tr><td>BINARY_DOUBLE</td><td>Compatible</td><td>Compatible</td><td>-</td></tr>
+<tr><td>DATE</td><td>Compatible</td><td>Compatible</td><td>-</td></tr>
+<tr><td>TIMESTAMP</td><td>Compatible</td><td>Compatible</td><td>-</td></tr>
+<tr><td>TIMESTAMP WITH TIME ZONE</td><td>Compatible</td><td>Compatible</td><td>-</td></tr>
+<tr><td>TIMESTAMP WITH LOCAL TIME ZONE</td><td>Compatible</td><td>Compatible</td><td>-</td></tr>
+<tr><td>INTERVAL YEAR TO MONTH</td><td>Compatible</td><td>Compatible</td><td>-</td></tr>
+<tr><td>INTERVAL DAY TO SECOND</td><td>Compatible</td><td>Compatible</td><td>-</td></tr>
+<tr><td>RAW / LONG RAW</td><td>Compatible</td><td>Compatible</td><td>-</td></tr>
+<tr><td>BLOB</td><td>%BLOB%</td><td>Omitido</td><td>Compatible</td></tr>
+<tr><td>CLOB</td><td>%CLOB%</td><td>Omitido</td><td>Compatible</td></tr>
+<tr><td>NCLOB</td><td>%NCLOB%</td><td>Omitido</td><td>Compatible</td></tr>
+<tr><td>XMLTYPE</td><td>Compatible</td><td>Compatible</td><td>-</td></tr>
+<tr><td>ROWID</td><td>Compatible</td><td>Compatible</td><td>-</td></tr>
+</table>
+
+<h2>Limitaciones</h2>
+<ul>
+    <li>No se pueden leer los registros de datos en volcados EXPDP comprimidos (solo metadatos)</li>
+    <li>No se pueden extraer los datos reales del tipo BFILE (solo información de ruta)</li>
+    <li>Los archivos de volcado cifrados no son compatibles</li>
+    <li>Los volcados mediante enlace de red no son compatibles</li>
+    <li>Número máximo de tablas: 1.000</li>
+    <li>Número máximo de columnas: 1.000 (por tabla)</li>
+</ul>
+
+<h2>Juegos de caracteres</h2>
+<p>Los siguientes juegos de caracteres NLS son compatibles:</p>
+<ul>
+    <li>AL32UTF8 / UTF8</li>
+    <li>JA16SJIS</li>
+    <li>JA16EUC</li>
+    <li>AL16UTF16</li>
+    <li>US7ASCII</li>
+    <li>WE8ISO8859P1 / WE8MSWIN1252</li>
+</ul>
+
+<p><a href="toc.html">Volver a la tabla de contenido</a></p>
+
+</body>
+</html>

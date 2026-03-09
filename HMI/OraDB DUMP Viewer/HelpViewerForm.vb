@@ -86,6 +86,7 @@ Partial Public Class HelpViewerForm
     ''' <summary>
     ''' 指定ページにナビゲートする
     ''' WebView2 未初期化の場合はキューに入れる
+    ''' 言語別ディレクトリ (Help/{lang}/) を優先し、なければ Help/ (日本語) にフォールバック
     ''' </summary>
     Public Sub NavigateTo(pageName As String)
         If Not _webViewReady Then
@@ -93,18 +94,38 @@ Partial Public Class HelpViewerForm
             Return
         End If
 
-        Dim fullPath = Path.Combine(_helpBasePath, pageName)
-        If Not File.Exists(fullPath) Then
-            fullPath = Path.Combine(_helpBasePath, "toc.html")
+        Dim fullPath = GetLocalizedHelpPath(pageName)
+        If fullPath Is Nothing Then
+            fullPath = GetLocalizedHelpPath("toc.html")
         End If
 
-        If File.Exists(fullPath) Then
+        If fullPath IsNot Nothing Then
             webView.CoreWebView2.Navigate(New Uri(fullPath).AbsoluteUri)
         End If
 
         ' TOC のハイライトを更新
         HighlightTocNode(pageName)
     End Sub
+
+    ''' <summary>
+    ''' 言語別ヘルプファイルのパスを解決する
+    ''' Help/{lang}/pageName → Help/pageName の順にフォールバック
+    ''' </summary>
+    Private Function GetLocalizedHelpPath(pageName As String) As String
+        Dim lang = LocaleManager.CurrentLanguage()
+
+        ' 日本語はデフォルト (Help/ 直下) なのでスキップ
+        If lang <> "ja" Then
+            Dim langPath = Path.Combine(_helpBasePath, lang, pageName)
+            If File.Exists(langPath) Then Return langPath
+        End If
+
+        ' フォールバック: Help/ 直下 (日本語)
+        Dim defaultPath = Path.Combine(_helpBasePath, pageName)
+        If File.Exists(defaultPath) Then Return defaultPath
+
+        Return Nothing
+    End Function
 
 #Region "TOC ツリー構築"
 

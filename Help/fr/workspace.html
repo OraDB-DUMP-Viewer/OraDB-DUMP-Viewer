@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Espace de travail - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Espace de travail</h1>
+
+<h2>Pr&eacute;sentation</h2>
+<p>L'espace de travail est une fonctionnalit&eacute; qui g&egrave;re ensemble les r&eacute;sultats d'analyse des fichiers dump et l'&eacute;tat de travail.
+Vous pouvez sauvegarder et restaurer les &eacute;tats d'exclusion de tables et les param&egrave;tres de filtrage.</p>
+
+<h2>Sauvegarder un espace de travail</h2>
+<ol>
+    <li>S&eacute;lectionnez <strong>Fichier(&amp;F)</strong> &gt; <strong>Enregistrer l'espace de travail(&amp;S)</strong> dans le menu.</li>
+    <li>Lors de la premi&egrave;re sauvegarde, sp&eacute;cifiez le chemin du fichier (extension : <code>.odvw</code>).</li>
+    <li>Les sauvegardes suivantes &eacute;craseront le fichier existant.</li>
+</ol>
+
+<h2>Enregistrer sous</h2>
+<p><strong>Fichier(&amp;F)</strong> &gt; <strong>Enregistrer sous(&amp;A)</strong> permet de sauvegarder l'espace de travail
+sous un nom de fichier diff&eacute;rent.</p>
+
+<h2>Ouvrir un espace de travail</h2>
+<ol>
+    <li>S&eacute;lectionnez <strong>Fichier(&amp;F)</strong> &gt; <strong>Espace de travail(&amp;W)...</strong> dans le menu.</li>
+    <li>S&eacute;lectionnez un fichier <code>.odvw</code>.</li>
+    <li>Le fichier dump est charg&eacute; automatiquement, et les &eacute;tats d'exclusion et les filtres sont restaur&eacute;s.</li>
+</ol>
+
+<h2>Informations sauvegard&eacute;es</h2>
+<table>
+<tr><th>&Eacute;l&eacute;ment</th><th>Description</th></tr>
+<tr><td>Chemin du fichier dump</td><td>Chemin absolu vers le fichier dump d'origine</td></tr>
+<tr><td>Tables exclues</td><td>Liste des tables masqu&eacute;es</td></tr>
+<tr><td>Filtre de recherche</td><td>Texte de recherche de nom de table</td></tr>
+<tr><td>Sch&eacute;ma</td><td>Sch&eacute;ma actuellement s&eacute;lectionn&eacute;</td></tr>
+<tr><td>N&oelig;uds d&eacute;pli&eacute;s</td><td>&Eacute;tat de d&eacute;pliage de l'arborescence</td></tr>
+</table>
+
+<h2>Fichiers r&eacute;cents</h2>
+<p>Jusqu'&agrave; 5 espaces de travail et fichiers dump r&eacute;cents sont affich&eacute;s en bas du menu <strong>Fichier</strong>.
+Cliquez pour les rouvrir rapidement.</p>
+
+<div class="tip">
+<strong>Astuce :</strong> Une bo&icirc;te de dialogue de confirmation de sauvegarde appara&icirc;t avant la fermeture d'un espace de travail.
+S'il y a des modifications non enregistr&eacute;es, s&eacute;lectionnez &laquo; Oui &raquo; pour les sauvegarder.
+</div>
+
+<p><a href="toc.html">Retour &agrave; la table des mati&egrave;res</a></p>
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>덤프 파일 열기 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>덤프 파일 열기</h1>
+
+<h2>절차</h2>
+<ol>
+    <li>메뉴에서 <strong>파일(&amp;F)</strong> &gt; <strong>덤프 파일 열기(&amp;O)...</strong>를 선택합니다.
+        <br>또는 도구 모음의 <strong>열기</strong> 버튼을 클릭합니다.</li>
+    <li>파일 대화 상자에서 덤프 파일(<code>.dmp</code>)을 선택합니다.</li>
+    <li>분석이 시작되고 진행률 표시줄이 표시됩니다.</li>
+    <li>완료되면 워크스페이스에 테이블 목록이 표시됩니다.</li>
+</ol>
+
+<h2>자동 감지</h2>
+<p>덤프 파일 형식(EXP / EXPDP / EXPDP 압축)은 파일의 선행 바이트와
+마커 바이트를 분석하여 자동으로 감지됩니다.</p>
+
+<table>
+<tr><th>형식</th><th>감지 방법</th></tr>
+<tr><td>EXP</td><td>선행 바이트 0x01-0x05 + "EXPORT:" 문자열</td></tr>
+<tr><td>EXPDP</td><td>"xml version" 문자열</td></tr>
+<tr><td>EXPDP (압축)</td><td>"KGC" + "HDR" 마커</td></tr>
+</table>
+
+<h2>문자 집합</h2>
+<p>덤프 파일의 문자 집합도 자동으로 감지됩니다.
+지원되는 문자 집합:</p>
+<ul>
+    <li>AL32UTF8 / UTF8</li>
+    <li>JA16SJIS (Shift_JIS)</li>
+    <li>JA16EUC (EUC-JP)</li>
+    <li>AL16UTF16</li>
+    <li>US7ASCII</li>
+    <li>WE8ISO8859P1 / WE8MSWIN1252</li>
+</ul>
+
+<div class="note">
+<strong>참고:</strong> 압축된 EXPDP 덤프의 경우 테이블 정의(DDL)만 읽을 수 있습니다.
+데이터 레코드의 압축 해제는 지원되지 않습니다.
+</div>
+
+<p><a href="toc.html">목차로 돌아가기</a></p>
+
+</body>
+</html>

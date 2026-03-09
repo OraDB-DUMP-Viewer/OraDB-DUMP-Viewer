@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>表预览 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>表预览</h1>
+
+<h2>打开表</h2>
+<p>在表列表中双击表名以打开数据预览。
+或右键单击表并选择 <strong>打开(&amp;O)</strong>。</p>
+
+<h2>数据显示</h2>
+<p>数据在 DataGridView 中显示。</p>
+<ul>
+    <li>列名显示在列标题中。</li>
+    <li>每行显示一条记录。</li>
+    <li>NULL 值显示为空白。</li>
+    <li>LOB 数据（BLOB/CLOB/NCLOB）显示为 <code>%BLOB%</code>、<code>%CLOB%</code>、<code>%NCLOB%</code>。</li>
+</ul>
+
+<h2>分页</h2>
+<p>当数据量较大时，将分页显示。</p>
+<ul>
+    <li><strong>每页行数</strong> &mdash; 可通过右上角的数字输入框调整（默认：100 行）</li>
+    <li><strong>页面信息</strong> &mdash; 显示当前页码和总页数</li>
+    <li>使用导航按钮在页面之间切换</li>
+</ul>
+
+<h2>排序</h2>
+<p>单击列标题可按该列排序数据。
+再次单击可在升序和降序之间切换。</p>
+
+<h2>复制单元格</h2>
+<p>在预览中选择单元格，按 <span class="shortcut">Ctrl+C</span> 复制到剪贴板。
+也支持多单元格选择和复制。</p>
+
+<h2>高级搜索</h2>
+<p>单击预览画面上的 <strong>高级搜索</strong> 按钮，可使用 12 种运算符和 AND/OR 复合条件筛选数据。
+详细信息请参阅 <a href="search.html">搜索与筛选</a>。</p>
+
+<h2>从预览导出</h2>
+<p>可从预览工具栏进行以下导出：</p>
+<ul>
+    <li><strong>SQL</strong> &mdash; SQL 脚本输出</li>
+    <li><strong>CSV</strong> &mdash; CSV 文件输出</li>
+    <li><strong>Excel</strong> &mdash; Excel 文件输出</li>
+    <li><strong>Access</strong> &mdash; Access 数据库输出</li>
+    <li><strong>SQL Server</strong> &mdash; 直接输出到 SQL Server</li>
+    <li><strong>ODBC</strong> &mdash; 输出到兼容 ODBC 的数据库</li>
+</ul>
+
+<h2>表属性</h2>
+<p>右键单击表并选择 <strong>属性(&amp;P)</strong> 可查看列定义（列名、数据类型、长度等）。</p>
+
+<h2>表排除</h2>
+<p>您可以临时隐藏不需要的表。</p>
+<ol>
+    <li>在表列表中选择表（支持多选）。</li>
+    <li>从右键菜单选择 <strong>删除(&amp;D)</strong>，或按 <span class="shortcut">Delete</span> 键。</li>
+    <li>被排除的表会显示在状态栏中。</li>
+</ol>
+
+<p>撤销排除：</p>
+<ul>
+    <li><strong>编辑(&amp;E)</strong> &gt; <strong>撤销</strong>（<span class="shortcut">Ctrl+Z</span>）</li>
+    <li><strong>对象(&amp;O)</strong> &gt; <strong>清除所有筛选(&amp;F)</strong> 可移除所有排除</li>
+</ul>
+
+<p><a href="toc.html">返回目录</a></p>
+
+</body>
+</html>

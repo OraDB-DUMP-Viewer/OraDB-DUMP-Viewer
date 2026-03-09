@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>LOB File Extraction - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>LOB File Extraction</h1>
+
+<h2>Overview</h2>
+<p>Extracts data stored in BLOB / CLOB / NCLOB columns of a table
+as one file per record.</p>
+
+<h2>Supported Data Types</h2>
+<table>
+<tr><th>Column Type</th><th>Output Content</th></tr>
+<tr><td>BLOB</td><td>Binary files (images, PDF, ZIP, etc.)</td></tr>
+<tr><td>CLOB</td><td>Text files (decoded using the dump file's character set)</td></tr>
+<tr><td>NCLOB</td><td>Unicode text files</td></tr>
+</table>
+
+<h2>Steps</h2>
+<ol>
+    <li>Select a table containing LOB columns in the table list.</li>
+    <li>Select <strong>File(&amp;F)</strong> &gt; <strong>Extract Files(&amp;F)</strong> from the menu.</li>
+    <li>The LOB extraction dialog is displayed.</li>
+    <li>Configure the following:
+        <ul>
+            <li><strong>LOB Column</strong> &mdash; Select the LOB column to extract</li>
+            <li><strong>Output Folder</strong> &mdash; Directory for the output files</li>
+            <li><strong>File Naming</strong> &mdash; Sequential numbering or column value</li>
+            <li><strong>Extension</strong> &mdash; File extension for output files (default: <code>lob</code>)</li>
+        </ul>
+    </li>
+    <li>Click the <strong>Extract</strong> button.</li>
+</ol>
+
+<h2>File Naming Methods</h2>
+<table>
+<tr><th>Method</th><th>Example</th><th>Description</th></tr>
+<tr><td>Sequential</td><td><code>000001.jpg</code>, <code>000002.jpg</code></td><td>6-digit sequential numbers starting from 1</td></tr>
+<tr><td>Column Value</td><td><code>filename_col_value.jpg</code></td><td>Uses the value of a specified column as the file name</td></tr>
+</table>
+
+<h2>Usage Examples</h2>
+<h3>Extracting Image Files</h3>
+<p>When JPEG images are stored in a BLOB column:</p>
+<ol>
+    <li>LOB Column: Select <code>IMAGE_DATA (BLOB)</code></li>
+    <li>Extension: <code>jpg</code></li>
+    <li>File Naming: Sequential or ID column value</li>
+</ol>
+
+<h3>Extracting Text Data</h3>
+<p>When XML or JSON is stored in a CLOB column:</p>
+<ol>
+    <li>LOB Column: Select <code>XML_CONTENT (CLOB)</code></li>
+    <li>Extension: <code>xml</code></li>
+</ol>
+
+<div class="caution">
+<strong>Caution:</strong> Extraction may take time when there are many LOB records.
+You can cancel via the progress dialog.
+</div>
+
+<div class="note">
+<strong>Note:</strong> In the table preview, LOB data is displayed as placeholders:
+<code>%BLOB%</code>, <code>%CLOB%</code>, <code>%NCLOB%</code>.
+Use this LOB File Extraction feature to retrieve the actual data.
+</div>
+
+<p><a href="toc.html">Back to Table of Contents</a></p>
+
+</body>
+</html>

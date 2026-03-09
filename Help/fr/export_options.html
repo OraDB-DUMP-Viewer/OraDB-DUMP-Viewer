@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Options d'export - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Options d'export</h1>
+
+<h2>Comment y acc&eacute;der</h2>
+<p>Cliquez sur le bouton <strong>Options</strong> de la barre d'outils
+pour ouvrir la bo&icirc;te de dialogue des options d'export.</p>
+
+<h2>Format de date</h2>
+<table>
+<tr><th>Format</th><th>Exemple</th><th>Description</th></tr>
+<tr><td>YYYY/MM/DD HH:MI:SS</td><td>2026/01/15 09:30:00</td><td>Format standard (par d&eacute;faut)</td></tr>
+<tr><td>YYYYMMDD</td><td>20260115</td><td>Compact (date uniquement)</td></tr>
+<tr><td>YYYYMMDDHH24MISS</td><td>20260115093000</td><td>Compact (date et heure)</td></tr>
+<tr><td>Personnalis&eacute;</td><td>Quelconque</td><td>Jetons : YYYY, MM, DD, HH24, MI, SS</td></tr>
+</table>
+
+<h2>Options CSV</h2>
+<table>
+<tr><th>Param&egrave;tre</th><th>Par d&eacute;faut</th><th>Description</th></tr>
+<tr><td>Inclure la ligne d'en-t&ecirc;te</td><td>ACTIV&Eacute;</td><td>Inclure les noms de colonnes dans la premi&egrave;re ligne</td></tr>
+<tr><td>Inclure la ligne d'informations de type</td><td>D&Eacute;SACTIV&Eacute;</td><td>Inclure les types de colonnes dans la ligne suivant l'en-t&ecirc;te</td></tr>
+</table>
+
+<h2>Options SQL</h2>
+<p>Une bo&icirc;te de dialogue s'affiche avant l'export SQL.
+Les options suivantes peuvent &ecirc;tre activ&eacute;es/d&eacute;sactiv&eacute;es via des cases &agrave; cocher :</p>
+<table>
+<tr><th>Param&egrave;tre</th><th>Par d&eacute;faut</th><th>Description</th></tr>
+<tr><td>Sortie DROP TABLE + CREATE TABLE</td><td>ACTIV&Eacute;</td><td>G&eacute;n&eacute;rer les DDL DROP TABLE IF EXISTS et CREATE TABLE avant les instructions INSERT. Activable/d&eacute;sactivable via case &agrave; cocher. Supprime et recr&eacute;e les tables existantes</td></tr>
+<tr><td>Type de SGBD</td><td>Oracle</td><td>Oracle / PostgreSQL / MySQL / SQL Server</td></tr>
+</table>
+
+<div class="note">
+<strong>Remarque :</strong> Les param&egrave;tres d'options sont enregistr&eacute;s dans les param&egrave;tres de l'application et persistent apr&egrave;s red&eacute;marrage.
+</div>
+
+<p><a href="toc.html">Retour &agrave; la table des mati&egrave;res</a></p>
+
+</body>
+</html>

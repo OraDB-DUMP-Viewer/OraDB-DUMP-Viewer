@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Opciones de exportación - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Opciones de exportación</h1>
+
+<h2>Cómo acceder</h2>
+<p>Haga clic en el botón <strong>Opciones</strong> de la barra de herramientas
+para abrir el cuadro de diálogo de opciones de exportación.</p>
+
+<h2>Formato de fecha</h2>
+<table>
+<tr><th>Formato</th><th>Ejemplo</th><th>Descripción</th></tr>
+<tr><td>YYYY/MM/DD HH:MI:SS</td><td>2026/01/15 09:30:00</td><td>Formato estándar (predeterminado)</td></tr>
+<tr><td>YYYYMMDD</td><td>20260115</td><td>Compacto (solo fecha)</td></tr>
+<tr><td>YYYYMMDDHH24MISS</td><td>20260115093000</td><td>Compacto (fecha y hora)</td></tr>
+<tr><td>Personalizado</td><td>Cualquiera</td><td>Tokens: YYYY, MM, DD, HH24, MI, SS</td></tr>
+</table>
+
+<h2>Opciones CSV</h2>
+<table>
+<tr><th>Configuración</th><th>Predeterminado</th><th>Descripción</th></tr>
+<tr><td>Incluir fila de encabezado</td><td>ON</td><td>Incluir nombres de columna en la primera fila</td></tr>
+<tr><td>Incluir fila de información de tipos</td><td>OFF</td><td>Incluir tipos de columna en la fila posterior al encabezado</td></tr>
+</table>
+
+<h2>Opciones SQL</h2>
+<p>Se muestra un cuadro de diálogo antes de la exportación SQL.
+Las siguientes opciones se pueden activar mediante casillas de verificación:</p>
+<table>
+<tr><th>Configuración</th><th>Predeterminado</th><th>Descripción</th></tr>
+<tr><td>Incluir DROP TABLE + CREATE TABLE</td><td>ON</td><td>Incluir DROP TABLE IF EXISTS y CREATE TABLE DDL antes de las sentencias INSERT. Activable mediante casilla de verificación. Elimina y recrea tablas existentes</td></tr>
+<tr><td>Tipo de DBMS</td><td>Oracle</td><td>Oracle / PostgreSQL / MySQL / SQL Server</td></tr>
+</table>
+
+<div class="note">
+<strong>Nota:</strong> La configuración de opciones se guarda en los ajustes de la aplicación y persiste entre reinicios.
+</div>
+
+<p><a href="toc.html">Volver a la tabla de contenido</a></p>
+
+</body>
+</html>

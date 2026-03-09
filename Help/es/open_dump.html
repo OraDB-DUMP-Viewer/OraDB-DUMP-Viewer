@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Abrir un archivo de volcado - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Abrir un archivo de volcado</h1>
+
+<h2>Pasos</h2>
+<ol>
+    <li>Seleccione <strong>Archivo(&amp;F)</strong> &gt; <strong>Abrir archivo de volcado(&amp;O)...</strong> en el menú.
+        <br>O haga clic en el botón <strong>Abrir</strong> de la barra de herramientas.</li>
+    <li>En el cuadro de diálogo de archivos, seleccione un archivo de volcado (<code>.dmp</code>).</li>
+    <li>El análisis comienza y se muestra una barra de progreso.</li>
+    <li>Al finalizar, la lista de tablas aparece en el espacio de trabajo.</li>
+</ol>
+
+<h2>Detección automática</h2>
+<p>El formato del archivo de volcado (EXP / EXPDP / EXPDP Comprimido) se detecta automáticamente
+analizando los bytes iniciales y los bytes marcadores del archivo.</p>
+
+<table>
+<tr><th>Formato</th><th>Método de detección</th></tr>
+<tr><td>EXP</td><td>Bytes iniciales 0x01-0x05 + cadena "EXPORT:"</td></tr>
+<tr><td>EXPDP</td><td>Cadena "xml version"</td></tr>
+<tr><td>EXPDP (Comprimido)</td><td>Marcadores "KGC" + "HDR"</td></tr>
+</table>
+
+<h2>Juego de caracteres</h2>
+<p>El juego de caracteres del archivo de volcado también se detecta automáticamente.
+Juegos de caracteres compatibles:</p>
+<ul>
+    <li>AL32UTF8 / UTF8</li>
+    <li>JA16SJIS (Shift_JIS)</li>
+    <li>JA16EUC (EUC-JP)</li>
+    <li>AL16UTF16</li>
+    <li>US7ASCII</li>
+    <li>WE8ISO8859P1 / WE8MSWIN1252</li>
+</ul>
+
+<div class="note">
+<strong>Nota:</strong> Para volcados EXPDP comprimidos, solo se pueden leer las definiciones de tablas (DDL).
+La descompresión de registros de datos no está soportada.
+</div>
+
+<p><a href="toc.html">Volver a la tabla de contenido</a></p>
+
+</body>
+</html>

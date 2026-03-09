@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Eine Dump-Datei &ouml;ffnen - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Eine Dump-Datei &ouml;ffnen</h1>
+
+<h2>Vorgehensweise</h2>
+<ol>
+    <li>W&auml;hlen Sie <strong>Datei(&amp;F)</strong> &gt; <strong>Dump-Datei &ouml;ffnen(&amp;O)...</strong> aus dem Men&uuml;.
+        <br>Oder klicken Sie auf die Schaltfl&auml;che <strong>&Ouml;ffnen</strong> in der Symbolleiste.</li>
+    <li>W&auml;hlen Sie im Dateidialog eine Dump-Datei (<code>.dmp</code>) aus.</li>
+    <li>Die Analyse beginnt und ein Fortschrittsbalken wird angezeigt.</li>
+    <li>Nach Abschluss erscheint die Tabellenliste im Arbeitsbereich.</li>
+</ol>
+
+<h2>Automatische Erkennung</h2>
+<p>Das Dump-Dateiformat (EXP / EXPDP / EXPDP komprimiert) wird automatisch
+durch Analyse der f&uuml;hrenden Bytes und Markierungsbytes der Datei erkannt.</p>
+
+<table>
+<tr><th>Format</th><th>Erkennungsmethode</th></tr>
+<tr><td>EXP</td><td>F&uuml;hrende Bytes 0x01-0x05 + &bdquo;EXPORT:&ldquo;-Zeichenkette</td></tr>
+<tr><td>EXPDP</td><td>&bdquo;xml version&ldquo;-Zeichenkette</td></tr>
+<tr><td>EXPDP (komprimiert)</td><td>&bdquo;KGC&ldquo; + &bdquo;HDR&ldquo;-Markierungen</td></tr>
+</table>
+
+<h2>Zeichensatz</h2>
+<p>Der Zeichensatz der Dump-Datei wird ebenfalls automatisch erkannt.
+Unterst&uuml;tzte Zeichens&auml;tze:</p>
+<ul>
+    <li>AL32UTF8 / UTF8</li>
+    <li>JA16SJIS (Shift_JIS)</li>
+    <li>JA16EUC (EUC-JP)</li>
+    <li>AL16UTF16</li>
+    <li>US7ASCII</li>
+    <li>WE8ISO8859P1 / WE8MSWIN1252</li>
+</ul>
+
+<div class="note">
+<strong>Hinweis:</strong> Bei komprimierten EXPDP-Dumps k&ouml;nnen nur Tabellendefinitionen (DDL) gelesen werden.
+Die Dekomprimierung von Datens&auml;tzen wird nicht unterst&uuml;tzt.
+</div>
+
+<p><a href="toc.html">Zur&uuml;ck zum Inhaltsverzeichnis</a></p>
+
+</body>
+</html>

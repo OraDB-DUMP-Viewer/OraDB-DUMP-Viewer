@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Tabellenvorschau - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Tabellenvorschau</h1>
+
+<h2>Eine Tabelle &ouml;ffnen</h2>
+<p>Doppelklicken Sie auf einen Tabellennamen in der Tabellenliste, um die Datenvorschau zu &ouml;ffnen.
+Oder klicken Sie mit der rechten Maustaste auf die Tabelle und w&auml;hlen Sie <strong>&Ouml;ffnen(&amp;O)</strong>.</p>
+
+<h2>Datenanzeige</h2>
+<p>Daten werden in einem DataGridView angezeigt.</p>
+<ul>
+    <li>Spaltennamen erscheinen in den Spalten&uuml;berschriften.</li>
+    <li>Jede Zeile zeigt einen Datensatz an.</li>
+    <li>NULL-Werte werden als leer dargestellt.</li>
+    <li>LOB-Daten (BLOB/CLOB/NCLOB) werden als <code>%BLOB%</code>, <code>%CLOB%</code>, <code>%NCLOB%</code> angezeigt.</li>
+</ul>
+
+<h2>Seitennavigation</h2>
+<p>Bei gro&szlig;en Datenmengen werden die Daten seitenweise angezeigt.</p>
+<ul>
+    <li><strong>Zeilen pro Seite</strong> &mdash; Einstellbar &uuml;ber das Zahleneingabefeld oben rechts (Standard: 100 Zeilen)</li>
+    <li><strong>Seiteninformation</strong> &mdash; Aktuelle Seitennummer und Gesamtseitenzahl werden angezeigt</li>
+    <li>Verwenden Sie die Navigationsschaltfl&auml;chen zum Seitenwechsel</li>
+</ul>
+
+<h2>Sortierung</h2>
+<p>Klicken Sie auf eine Spalten&uuml;berschrift, um die Daten nach dieser Spalte zu sortieren.
+Klicken Sie erneut, um zwischen aufsteigender und absteigender Reihenfolge zu wechseln.</p>
+
+<h2>Zellen kopieren</h2>
+<p>W&auml;hlen Sie Zellen in der Vorschau aus und dr&uuml;cken Sie <span class="shortcut">Ctrl+C</span>, um sie in die Zwischenablage zu kopieren.
+Mehrfachauswahl und Kopieren werden ebenfalls unterst&uuml;tzt.</p>
+
+<h2>Erweiterte Suche</h2>
+<p>Klicken Sie auf die Schaltfl&auml;che <strong>Erweiterte Suche</strong> im Vorschaubildschirm, um Daten
+mit 12 Operatoren und UND/ODER-Verkn&uuml;pfungen zu filtern.
+Siehe <a href="search.html">Suche &amp; Filter</a> f&uuml;r Details.</p>
+
+<h2>Export aus der Vorschau</h2>
+<p>Folgende Exporte sind &uuml;ber die Vorschau-Symbolleiste verf&uuml;gbar:</p>
+<ul>
+    <li><strong>SQL</strong> &mdash; SQL-Skriptausgabe</li>
+    <li><strong>CSV</strong> &mdash; CSV-Dateiausgabe</li>
+    <li><strong>Excel</strong> &mdash; Excel-Dateiausgabe</li>
+    <li><strong>Access</strong> &mdash; Access-Datenbankausgabe</li>
+    <li><strong>SQL Server</strong> &mdash; Direktausgabe an SQL Server</li>
+    <li><strong>ODBC</strong> &mdash; Ausgabe an eine ODBC-kompatible Datenbank</li>
+</ul>
+
+<h2>Tabelleneigenschaften</h2>
+<p>Klicken Sie mit der rechten Maustaste auf eine Tabelle und w&auml;hlen Sie <strong>Eigenschaften(&amp;P)</strong>, um
+Spaltendefinitionen (Spaltenname, Datentyp, L&auml;nge usw.) anzuzeigen.</p>
+
+<h2>Tabellenausschluss</h2>
+<p>Sie k&ouml;nnen unerw&uuml;nschte Tabellen vor&uuml;bergehend ausblenden.</p>
+<ol>
+    <li>W&auml;hlen Sie Tabellen in der Tabellenliste aus (Mehrfachauswahl m&ouml;glich).</li>
+    <li>W&auml;hlen Sie <strong>L&ouml;schen(&amp;D)</strong> aus dem Kontextmen&uuml;,
+        oder dr&uuml;cken Sie die <span class="shortcut">Entf</span>-Taste.</li>
+    <li>Ausgeschlossene Tabellen werden in der Statusleiste angezeigt.</li>
+</ol>
+
+<p>Um den Ausschluss r&uuml;ckg&auml;ngig zu machen:</p>
+<ul>
+    <li><strong>Bearbeiten(&amp;E)</strong> &gt; <strong>R&uuml;ckg&auml;ngig</strong>
+        (<span class="shortcut">Ctrl+Z</span>)</li>
+    <li><strong>Objekt(&amp;O)</strong> &gt; <strong>Alle Filter l&ouml;schen(&amp;F)</strong>
+        um alle Ausschl&uuml;sse zu entfernen</li>
+</ul>
+
+<p><a href="toc.html">Zur&uuml;ck zum Inhaltsverzeichnis</a></p>
+
+</body>
+</html>

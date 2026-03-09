@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Suche &amp; Filter - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Suche &amp; Filter</h1>
+
+<h2>Tabellennamenfilter</h2>
+<p>Geben Sie einen Teil des Tabellennamens in das Suchtextfeld oben im Arbeitsbereich ein,
+um die Tabellenliste in Echtzeit zu filtern.</p>
+
+<ul>
+    <li>Gro&szlig;-/Kleinschreibung wird nicht unterschieden.</li>
+    <li>Teilweise &Uuml;bereinstimmung bei Tabellennamen.</li>
+    <li>L&ouml;schen Sie den Text, um den Filter zu entfernen.</li>
+</ul>
+
+<h2>Erweiterte Suche (Tabellendatensuche)</h2>
+<p>Im Tabellenvorschau-Bildschirm k&ouml;nnen Sie erweiterte bedingungsbasierte Suchen in den Daten durchf&uuml;hren.
+Klicken Sie auf die Schaltfl&auml;che <strong>Erweiterte Suche</strong>, um den Suchbedingungsdialog zu &ouml;ffnen.</p>
+
+<h3>Suchbedingungen festlegen</h3>
+<p>Geben Sie f&uuml;r jede Bedingungszeile Folgendes an:</p>
+<ol>
+    <li><strong>Spaltenname</strong> &mdash; W&auml;hlen Sie die Zielspalte aus</li>
+    <li><strong>Operator</strong> &mdash; W&auml;hlen Sie aus 12 Operatoren</li>
+    <li><strong>Suchwert</strong> &mdash; Geben Sie den Vergleichswert ein (nicht erforderlich bei Null / Nicht Null Operatoren)</li>
+    <li><strong>Gro&szlig;-/Kleinschreibung beachten</strong> &mdash; Aktivieren f&uuml;r Vergleich mit Ber&uuml;cksichtigung der Gro&szlig;-/Kleinschreibung</li>
+</ol>
+
+<h3>Operatorliste</h3>
+<table>
+<tr><th>Operator</th><th>Beschreibung</th><th>Beispiel</th></tr>
+<tr><td>Enth&auml;lt</td><td>Wert enth&auml;lt die Suchzeichenkette</td><td>NAME Enth&auml;lt &bdquo;Smith&ldquo;</td></tr>
+<tr><td>Enth&auml;lt nicht</td><td>Wert enth&auml;lt die Suchzeichenkette nicht</td><td>NAME Enth&auml;lt nicht &bdquo;test&ldquo;</td></tr>
+<tr><td>Gleich</td><td>Wert stimmt exakt mit der Suchzeichenkette &uuml;berein</td><td>STATUS Gleich &bdquo;ACTIVE&ldquo;</td></tr>
+<tr><td>Ungleich</td><td>Wert stimmt nicht mit der Suchzeichenkette &uuml;berein</td><td>TYPE Ungleich &bdquo;TEMP&ldquo;</td></tr>
+<tr><td>Beginnt mit</td><td>Wert beginnt mit der Suchzeichenkette</td><td>CODE Beginnt mit &bdquo;A&ldquo;</td></tr>
+<tr><td>Endet mit</td><td>Wert endet mit der Suchzeichenkette</td><td>EMAIL Endet mit &bdquo;.com&ldquo;</td></tr>
+<tr><td>&gt;</td><td>Wert ist gr&ouml;&szlig;er als der Suchwert</td><td>AMOUNT &gt; &bdquo;1000&ldquo;</td></tr>
+<tr><td>&lt;</td><td>Wert ist kleiner als der Suchwert</td><td>AGE &lt; &bdquo;30&ldquo;</td></tr>
+<tr><td>&gt;=</td><td>Wert ist gr&ouml;&szlig;er oder gleich dem Suchwert</td><td>SCORE &gt;= &bdquo;80&ldquo;</td></tr>
+<tr><td>&lt;=</td><td>Wert ist kleiner oder gleich dem Suchwert</td><td>PRICE &lt;= &bdquo;500&ldquo;</td></tr>
+<tr><td>Null</td><td>Wert ist NULL</td><td>MEMO Null</td></tr>
+<tr><td>Nicht Null</td><td>Wert ist nicht NULL</td><td>EMAIL Nicht Null</td></tr>
+</table>
+
+<h3>Zusammengesetzte Bedingungen (AND / OR)</h3>
+<p>Beim Hinzuf&uuml;gen von Bedingungen k&ouml;nnen Sie den logischen Operator dazwischen als <strong>AND</strong> oder <strong>OR</strong> festlegen.</p>
+<ul>
+    <li><strong>AND</strong> &mdash; Nur Zeilen anzeigen, die alle Bedingungen erf&uuml;llen</li>
+    <li><strong>OR</strong> &mdash; Zeilen anzeigen, die eine der Bedingungen erf&uuml;llen</li>
+</ul>
+<p>Bedingungszeilen k&ouml;nnen frei hinzugef&uuml;gt oder entfernt werden, was eine komplexe Filterung erm&ouml;glicht.</p>
+
+<h3>Suchbedingungen beibehalten</h3>
+<p>Suchbedingungen werden beim erneuten &Ouml;ffnen derselben Tabelle automatisch wiederhergestellt.
+Um Bedingungen zu l&ouml;schen, verwenden Sie die Schaltfl&auml;che <strong>Suche l&ouml;schen</strong> im Vorschaubildschirm.</p>
+
+<h2>Auswahl umkehren</h2>
+<p>Sie k&ouml;nnen den Auswahlzustand der Tabellenliste umkehren.
+Verwenden Sie <strong>Auswahl umkehren</strong> aus dem Kontextmen&uuml;.</p>
+
+<p><a href="toc.html">Zur&uuml;ck zum Inhaltsverzeichnis</a></p>
+
+</body>
+</html>

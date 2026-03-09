@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>LOB 文件提取 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>LOB 文件提取</h1>
+
+<h2>概述</h2>
+<p>将表中 BLOB / CLOB / NCLOB 列存储的数据按每条记录提取为一个文件。</p>
+
+<h2>支持的数据类型</h2>
+<table>
+<tr><th>列类型</th><th>输出内容</th></tr>
+<tr><td>BLOB</td><td>二进制文件（图片、PDF、ZIP 等）</td></tr>
+<tr><td>CLOB</td><td>文本文件（使用转储文件的字符集进行解码）</td></tr>
+<tr><td>NCLOB</td><td>Unicode 文本文件</td></tr>
+</table>
+
+<h2>操作步骤</h2>
+<ol>
+    <li>在表列表中选择包含 LOB 列的表。</li>
+    <li>从菜单选择 <strong>文件(&amp;F)</strong> &gt; <strong>提取文件(&amp;F)</strong>。</li>
+    <li>显示 LOB 提取对话框。</li>
+    <li>配置以下项目：
+        <ul>
+            <li><strong>LOB 列</strong> &mdash; 选择要提取的 LOB 列</li>
+            <li><strong>输出文件夹</strong> &mdash; 输出文件的目录</li>
+            <li><strong>文件命名</strong> &mdash; 顺序编号或列值</li>
+            <li><strong>扩展名</strong> &mdash; 输出文件的扩展名（默认：<code>lob</code>）</li>
+        </ul>
+    </li>
+    <li>单击 <strong>提取</strong> 按钮。</li>
+</ol>
+
+<h2>文件命名方式</h2>
+<table>
+<tr><th>方式</th><th>示例</th><th>说明</th></tr>
+<tr><td>顺序编号</td><td><code>000001.jpg</code>、<code>000002.jpg</code></td><td>从 1 开始的 6 位顺序编号</td></tr>
+<tr><td>列值</td><td><code>filename_col_value.jpg</code></td><td>使用指定列的值作为文件名</td></tr>
+</table>
+
+<h2>使用示例</h2>
+<h3>提取图片文件</h3>
+<p>当 JPEG 图片存储在 BLOB 列中时：</p>
+<ol>
+    <li>LOB 列：选择 <code>IMAGE_DATA (BLOB)</code></li>
+    <li>扩展名：<code>jpg</code></li>
+    <li>文件命名：顺序编号或 ID 列值</li>
+</ol>
+
+<h3>提取文本数据</h3>
+<p>当 XML 或 JSON 存储在 CLOB 列中时：</p>
+<ol>
+    <li>LOB 列：选择 <code>XML_CONTENT (CLOB)</code></li>
+    <li>扩展名：<code>xml</code></li>
+</ol>
+
+<div class="caution">
+<strong>注意：</strong> 当 LOB 记录较多时，提取可能需要较长时间。
+可通过进度对话框取消操作。
+</div>
+
+<div class="note">
+<strong>说明：</strong> 在表预览中，LOB 数据显示为占位符：
+<code>%BLOB%</code>、<code>%CLOB%</code>、<code>%NCLOB%</code>。
+请使用此 LOB 文件提取功能获取实际数据。
+</div>
+
+<p><a href="toc.html">返回目录</a></p>
+
+</body>
+</html>

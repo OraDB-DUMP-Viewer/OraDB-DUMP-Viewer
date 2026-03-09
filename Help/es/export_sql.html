@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Exportación SQL - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Exportación SQL</h1>
+
+<h2>Pasos</h2>
+<ol>
+    <li>Seleccione la tabla que desea exportar en la lista de tablas.</li>
+    <li>Haga clic en el botón <strong>SQL</strong> de la barra de herramientas,
+        o seleccione <strong>Objeto(&amp;O)</strong> &gt; <strong>Exportar</strong> &gt; <strong>Script(&amp;S)</strong>.</li>
+    <li>Especifique la ruta del archivo de destino.</li>
+    <li>La exportación se ejecuta.</li>
+</ol>
+
+<h2>DBMS compatibles</h2>
+<p>Se pueden generar sentencias INSERT para los siguientes DBMS:</p>
+<table>
+<tr><th>DBMS</th><th>Diferencias de sintaxis</th></tr>
+<tr><td>Oracle</td><td>Función TO_DATE, tipo NUMBER tal cual</td></tr>
+<tr><td>PostgreSQL</td><td>Sintaxis CAST, tipo TIMESTAMP</td></tr>
+<tr><td>MySQL</td><td>Identificadores con acento grave, tipo DATETIME</td></tr>
+<tr><td>SQL Server</td><td>Identificadores con corchetes, tipo DATETIME2</td></tr>
+</table>
+
+<h2>Opciones</h2>
+<p>Se muestra un cuadro de diálogo antes de la exportación al hacer clic en el botón SQL.
+Se pueden configurar las siguientes opciones:</p>
+<ul>
+    <li><strong>Tipo de DBMS</strong> &mdash; Elija entre Oracle / PostgreSQL / MySQL / SQL Server</li>
+    <li><strong>Salida de DROP TABLE + CREATE TABLE</strong> (predeterminado: ON) &mdash;
+        Activable mediante casilla de verificación.
+        Cuando está activado, genera <code>DROP TABLE IF EXISTS</code> y <code>CREATE TABLE</code> DDL antes de las sentencias INSERT.
+        Elimina y recrea la tabla si ya existe en la base de datos de destino.</li>
+    <li><strong>Formato de fecha</strong> &mdash; Formato literal o llamada a función</li>
+</ul>
+
+<h3>Sintaxis de DROP TABLE por DBMS</h3>
+<table>
+<tr><th>DBMS</th><th>Sintaxis</th></tr>
+<tr><td>Oracle / PostgreSQL</td><td><code>DROP TABLE IF EXISTS "table_name" CASCADE;</code></td></tr>
+<tr><td>MySQL</td><td><code>DROP TABLE IF EXISTS `table_name`;</code></td></tr>
+<tr><td>SQL Server</td><td><code>IF OBJECT_ID('table_name', 'U') IS NOT NULL DROP TABLE [table_name];</code></td></tr>
+</table>
+
+<div class="note">
+<strong>Nota:</strong> Los datos LOB (BLOB/CLOB) no se incluyen en las exportaciones SQL.
+Use la <a href="lob_extract.html">Extracción de archivos LOB</a> para exportar datos LOB.
+</div>
+
+<p><a href="toc.html">Volver a la tabla de contenido</a></p>
+
+</body>
+</html>

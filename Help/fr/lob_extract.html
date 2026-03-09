@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Extraction de fichiers LOB - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Extraction de fichiers LOB</h1>
+
+<h2>Pr&eacute;sentation</h2>
+<p>Extrait les donn&eacute;es stock&eacute;es dans les colonnes BLOB / CLOB / NCLOB d'une table
+en un fichier par enregistrement.</p>
+
+<h2>Types de donn&eacute;es pris en charge</h2>
+<table>
+<tr><th>Type de colonne</th><th>Contenu de sortie</th></tr>
+<tr><td>BLOB</td><td>Fichiers binaires (images, PDF, ZIP, etc.)</td></tr>
+<tr><td>CLOB</td><td>Fichiers texte (d&eacute;cod&eacute;s avec le jeu de caract&egrave;res du fichier dump)</td></tr>
+<tr><td>NCLOB</td><td>Fichiers texte Unicode</td></tr>
+</table>
+
+<h2>&Eacute;tapes</h2>
+<ol>
+    <li>S&eacute;lectionnez une table contenant des colonnes LOB dans la liste des tables.</li>
+    <li>S&eacute;lectionnez <strong>Fichier(&amp;F)</strong> &gt; <strong>Extraire les fichiers(&amp;F)</strong> dans le menu.</li>
+    <li>La bo&icirc;te de dialogue d'extraction LOB s'affiche.</li>
+    <li>Configurez les &eacute;l&eacute;ments suivants :
+        <ul>
+            <li><strong>Colonne LOB</strong> &mdash; S&eacute;lectionnez la colonne LOB &agrave; extraire</li>
+            <li><strong>Dossier de sortie</strong> &mdash; R&eacute;pertoire pour les fichiers de sortie</li>
+            <li><strong>Nommage des fichiers</strong> &mdash; Num&eacute;rotation s&eacute;quentielle ou valeur de colonne</li>
+            <li><strong>Extension</strong> &mdash; Extension des fichiers de sortie (par d&eacute;faut : <code>lob</code>)</li>
+        </ul>
+    </li>
+    <li>Cliquez sur le bouton <strong>Extraire</strong>.</li>
+</ol>
+
+<h2>M&eacute;thodes de nommage des fichiers</h2>
+<table>
+<tr><th>M&eacute;thode</th><th>Exemple</th><th>Description</th></tr>
+<tr><td>S&eacute;quentiel</td><td><code>000001.jpg</code>, <code>000002.jpg</code></td><td>Num&eacute;ros s&eacute;quentiels &agrave; 6 chiffres &agrave; partir de 1</td></tr>
+<tr><td>Valeur de colonne</td><td><code>valeur_col_nom.jpg</code></td><td>Utilise la valeur d'une colonne sp&eacute;cifi&eacute;e comme nom de fichier</td></tr>
+</table>
+
+<h2>Exemples d'utilisation</h2>
+<h3>Extraction de fichiers image</h3>
+<p>Lorsque des images JPEG sont stock&eacute;es dans une colonne BLOB :</p>
+<ol>
+    <li>Colonne LOB : S&eacute;lectionnez <code>IMAGE_DATA (BLOB)</code></li>
+    <li>Extension : <code>jpg</code></li>
+    <li>Nommage : S&eacute;quentiel ou valeur de la colonne ID</li>
+</ol>
+
+<h3>Extraction de donn&eacute;es texte</h3>
+<p>Lorsque du XML ou du JSON est stock&eacute; dans une colonne CLOB :</p>
+<ol>
+    <li>Colonne LOB : S&eacute;lectionnez <code>XML_CONTENT (CLOB)</code></li>
+    <li>Extension : <code>xml</code></li>
+</ol>
+
+<div class="caution">
+<strong>Attention :</strong> L'extraction peut prendre du temps lorsqu'il y a de nombreux enregistrements LOB.
+Vous pouvez annuler via la bo&icirc;te de dialogue de progression.
+</div>
+
+<div class="note">
+<strong>Remarque :</strong> Dans l'aper&ccedil;u de table, les donn&eacute;es LOB sont affich&eacute;es sous forme d'espaces r&eacute;serv&eacute;s :
+<code>%BLOB%</code>, <code>%CLOB%</code>, <code>%NCLOB%</code>.
+Utilisez cette fonctionnalit&eacute; d'extraction de fichiers LOB pour r&eacute;cup&eacute;rer les donn&eacute;es r&eacute;elles.
+</div>
+
+<p><a href="toc.html">Retour &agrave; la table des mati&egrave;res</a></p>
+
+</body>
+</html>

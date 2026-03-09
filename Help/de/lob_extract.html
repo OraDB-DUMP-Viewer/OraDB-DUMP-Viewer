@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>LOB-Dateiextraktion - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>LOB-Dateiextraktion</h1>
+
+<h2>&Uuml;bersicht</h2>
+<p>Extrahiert Daten aus BLOB / CLOB / NCLOB-Spalten einer Tabelle
+als eine Datei pro Datensatz.</p>
+
+<h2>Unterst&uuml;tzte Datentypen</h2>
+<table>
+<tr><th>Spaltentyp</th><th>Ausgabeinhalt</th></tr>
+<tr><td>BLOB</td><td>Bin&auml;rdateien (Bilder, PDF, ZIP usw.)</td></tr>
+<tr><td>CLOB</td><td>Textdateien (dekodiert mit dem Zeichensatz der Dump-Datei)</td></tr>
+<tr><td>NCLOB</td><td>Unicode-Textdateien</td></tr>
+</table>
+
+<h2>Vorgehensweise</h2>
+<ol>
+    <li>W&auml;hlen Sie eine Tabelle mit LOB-Spalten in der Tabellenliste aus.</li>
+    <li>W&auml;hlen Sie <strong>Datei(&amp;F)</strong> &gt; <strong>Dateien extrahieren(&amp;F)</strong> aus dem Men&uuml;.</li>
+    <li>Der LOB-Extraktionsdialog wird angezeigt.</li>
+    <li>Konfigurieren Sie Folgendes:
+        <ul>
+            <li><strong>LOB-Spalte</strong> &mdash; W&auml;hlen Sie die zu extrahierende LOB-Spalte aus</li>
+            <li><strong>Ausgabeordner</strong> &mdash; Verzeichnis f&uuml;r die Ausgabedateien</li>
+            <li><strong>Dateibenennung</strong> &mdash; Fortlaufende Nummerierung oder Spaltenwert</li>
+            <li><strong>Erweiterung</strong> &mdash; Dateierweiterung f&uuml;r Ausgabedateien (Standard: <code>lob</code>)</li>
+        </ul>
+    </li>
+    <li>Klicken Sie auf die Schaltfl&auml;che <strong>Extrahieren</strong>.</li>
+</ol>
+
+<h2>Dateibenennungsmethoden</h2>
+<table>
+<tr><th>Methode</th><th>Beispiel</th><th>Beschreibung</th></tr>
+<tr><td>Fortlaufend</td><td><code>000001.jpg</code>, <code>000002.jpg</code></td><td>6-stellige fortlaufende Nummern ab 1</td></tr>
+<tr><td>Spaltenwert</td><td><code>dateiname_spalte_wert.jpg</code></td><td>Verwendet den Wert einer angegebenen Spalte als Dateinamen</td></tr>
+</table>
+
+<h2>Anwendungsbeispiele</h2>
+<h3>Bilddateien extrahieren</h3>
+<p>Wenn JPEG-Bilder in einer BLOB-Spalte gespeichert sind:</p>
+<ol>
+    <li>LOB-Spalte: <code>IMAGE_DATA (BLOB)</code> ausw&auml;hlen</li>
+    <li>Erweiterung: <code>jpg</code></li>
+    <li>Dateibenennung: Fortlaufend oder ID-Spaltenwert</li>
+</ol>
+
+<h3>Textdaten extrahieren</h3>
+<p>Wenn XML oder JSON in einer CLOB-Spalte gespeichert ist:</p>
+<ol>
+    <li>LOB-Spalte: <code>XML_CONTENT (CLOB)</code> ausw&auml;hlen</li>
+    <li>Erweiterung: <code>xml</code></li>
+</ol>
+
+<div class="caution">
+<strong>Achtung:</strong> Die Extraktion kann bei vielen LOB-Datens&auml;tzen einige Zeit dauern.
+Sie k&ouml;nnen den Vorgang &uuml;ber den Fortschrittsdialog abbrechen.
+</div>
+
+<div class="note">
+<strong>Hinweis:</strong> In der Tabellenvorschau werden LOB-Daten als Platzhalter angezeigt:
+<code>%BLOB%</code>, <code>%CLOB%</code>, <code>%NCLOB%</code>.
+Verwenden Sie diese LOB-Dateiextraktionsfunktion, um die tats&auml;chlichen Daten abzurufen.
+</div>
+
+<p><a href="toc.html">Zur&uuml;ck zum Inhaltsverzeichnis</a></p>
+
+</body>
+</html>

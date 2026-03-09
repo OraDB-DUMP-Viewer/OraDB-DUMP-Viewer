@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Espacio de trabajo - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Espacio de trabajo</h1>
+
+<h2>Descripción general</h2>
+<p>El espacio de trabajo es una función que gestiona conjuntamente los resultados del análisis de archivos de volcado y el estado de trabajo.
+Puede guardar y restaurar los estados de exclusión de tablas y la configuración de filtros.</p>
+
+<h2>Guardar un espacio de trabajo</h2>
+<ol>
+    <li>Seleccione <strong>Archivo(&amp;F)</strong> &gt; <strong>Guardar espacio de trabajo(&amp;S)</strong> en el menú.</li>
+    <li>En la primera vez que guarde, especifique la ruta del archivo (extensión: <code>.odvw</code>).</li>
+    <li>Los guardados posteriores sobrescribirán el archivo existente.</li>
+</ol>
+
+<h2>Guardar como</h2>
+<p><strong>Archivo(&amp;F)</strong> &gt; <strong>Guardar como(&amp;A)</strong> permite guardar el espacio de trabajo
+con un nombre de archivo diferente.</p>
+
+<h2>Abrir un espacio de trabajo</h2>
+<ol>
+    <li>Seleccione <strong>Archivo(&amp;F)</strong> &gt; <strong>Espacio de trabajo(&amp;W)...</strong> en el menú.</li>
+    <li>Seleccione un archivo <code>.odvw</code>.</li>
+    <li>El archivo de volcado se carga automáticamente, y se restauran los estados de exclusión y los filtros.</li>
+</ol>
+
+<h2>Información guardada</h2>
+<table>
+<tr><th>Elemento</th><th>Descripción</th></tr>
+<tr><td>Ruta del archivo de volcado</td><td>Ruta absoluta al archivo de volcado original</td></tr>
+<tr><td>Tablas excluidas</td><td>Lista de tablas ocultas</td></tr>
+<tr><td>Filtro de búsqueda</td><td>Texto de búsqueda por nombre de tabla</td></tr>
+<tr><td>Esquema</td><td>Esquema seleccionado actualmente</td></tr>
+<tr><td>Nodos expandidos</td><td>Estado de expansión de la vista de árbol</td></tr>
+</table>
+
+<h2>Archivos recientes</h2>
+<p>Se muestran hasta 5 espacios de trabajo y archivos de volcado recientes en la parte inferior del menú <strong>Archivo</strong>.
+Haga clic para reabrirlos rápidamente.</p>
+
+<div class="tip">
+<strong>Consejo:</strong> Aparece un cuadro de diálogo de confirmación de guardado antes de cerrar un espacio de trabajo.
+Si hay cambios sin guardar, seleccione "Sí" para guardarlos.
+</div>
+
+<p><a href="toc.html">Volver a la tabla de contenido</a></p>
+
+</body>
+</html>

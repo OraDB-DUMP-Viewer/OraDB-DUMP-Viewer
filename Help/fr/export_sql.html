@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Export SQL - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Export SQL</h1>
+
+<h2>&Eacute;tapes</h2>
+<ol>
+    <li>S&eacute;lectionnez la table que vous souhaitez exporter dans la liste des tables.</li>
+    <li>Cliquez sur le bouton <strong>SQL</strong> de la barre d'outils,
+        ou s&eacute;lectionnez <strong>Objet(&amp;O)</strong> &gt; <strong>Exporter</strong> &gt; <strong>Script(&amp;S)</strong>.</li>
+    <li>Sp&eacute;cifiez le chemin du fichier de destination.</li>
+    <li>L'export s'ex&eacute;cute.</li>
+</ol>
+
+<h2>SGBD pris en charge</h2>
+<p>Les instructions INSERT peuvent &ecirc;tre g&eacute;n&eacute;r&eacute;es pour les SGBD suivants :</p>
+<table>
+<tr><th>SGBD</th><th>Diff&eacute;rences de syntaxe</th></tr>
+<tr><td>Oracle</td><td>Fonction TO_DATE, type NUMBER tel quel</td></tr>
+<tr><td>PostgreSQL</td><td>Syntaxe CAST, type TIMESTAMP</td></tr>
+<tr><td>MySQL</td><td>Identifiants avec accents graves, type DATETIME</td></tr>
+<tr><td>SQL Server</td><td>Identifiants entre crochets, type DATETIME2</td></tr>
+</table>
+
+<h2>Options</h2>
+<p>Une bo&icirc;te de dialogue s'affiche avant l'export lorsque vous cliquez sur le bouton SQL.
+Les options suivantes peuvent &ecirc;tre configur&eacute;es :</p>
+<ul>
+    <li><strong>Type de SGBD</strong> &mdash; Choisir parmi Oracle / PostgreSQL / MySQL / SQL Server</li>
+    <li><strong>Sortie DROP TABLE + CREATE TABLE</strong> (par d&eacute;faut : activ&eacute;) &mdash;
+        Activable/d&eacute;sactivable via case &agrave; cocher.
+        Lorsqu'activ&eacute;, g&eacute;n&egrave;re le DDL <code>DROP TABLE IF EXISTS</code> et <code>CREATE TABLE</code> avant les instructions INSERT.
+        Supprime et recr&eacute;e la table si elle existe d&eacute;j&agrave; dans la base de donn&eacute;es cible.</li>
+    <li><strong>Format de date</strong> &mdash; Format litt&eacute;ral ou appel de fonction</li>
+</ul>
+
+<h3>Syntaxe DROP TABLE par SGBD</h3>
+<table>
+<tr><th>SGBD</th><th>Syntaxe</th></tr>
+<tr><td>Oracle / PostgreSQL</td><td><code>DROP TABLE IF EXISTS "table_name" CASCADE;</code></td></tr>
+<tr><td>MySQL</td><td><code>DROP TABLE IF EXISTS `table_name`;</code></td></tr>
+<tr><td>SQL Server</td><td><code>IF OBJECT_ID('table_name', 'U') IS NOT NULL DROP TABLE [table_name];</code></td></tr>
+</table>
+
+<div class="note">
+<strong>Remarque :</strong> Les donn&eacute;es LOB (BLOB/CLOB) ne sont pas incluses dans les exports SQL.
+Utilisez l'<a href="lob_extract.html">Extraction de fichiers LOB</a> pour exporter les donn&eacute;es LOB.
+</div>
+
+<p><a href="toc.html">Retour &agrave; la table des mati&egrave;res</a></p>
+
+</body>
+</html>

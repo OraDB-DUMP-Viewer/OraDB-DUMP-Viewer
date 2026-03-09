@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Aper&ccedil;u des tables - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Aper&ccedil;u des tables</h1>
+
+<h2>Ouvrir une table</h2>
+<p>Double-cliquez sur un nom de table dans la liste des tables pour ouvrir l'aper&ccedil;u des donn&eacute;es.
+Vous pouvez aussi faire un clic droit sur la table et s&eacute;lectionner <strong>Ouvrir(&amp;O)</strong>.</p>
+
+<h2>Affichage des donn&eacute;es</h2>
+<p>Les donn&eacute;es sont affich&eacute;es dans un DataGridView.</p>
+<ul>
+    <li>Les noms de colonnes apparaissent dans les en-t&ecirc;tes de colonnes.</li>
+    <li>Chaque ligne affiche un enregistrement.</li>
+    <li>Les valeurs NULL sont affich&eacute;es comme vides.</li>
+    <li>Les donn&eacute;es LOB (BLOB/CLOB/NCLOB) sont affich&eacute;es sous forme de <code>%BLOB%</code>, <code>%CLOB%</code>, <code>%NCLOB%</code>.</li>
+</ul>
+
+<h2>Pagination</h2>
+<p>Lorsqu'il y a un grand volume de donn&eacute;es, celles-ci sont affich&eacute;es page par page.</p>
+<ul>
+    <li><strong>Lignes par page</strong> &mdash; Ajustable via le champ num&eacute;rique en haut &agrave; droite (par d&eacute;faut : 100 lignes)</li>
+    <li><strong>Info de page</strong> &mdash; Le num&eacute;ro de page actuel et le nombre total de pages sont affich&eacute;s</li>
+    <li>Utilisez les boutons de navigation pour changer de page</li>
+</ul>
+
+<h2>Tri</h2>
+<p>Cliquez sur un en-t&ecirc;te de colonne pour trier les donn&eacute;es par cette colonne.
+Cliquez &agrave; nouveau pour alterner entre l'ordre croissant et d&eacute;croissant.</p>
+
+<h2>Copie de cellules</h2>
+<p>S&eacute;lectionnez des cellules dans l'aper&ccedil;u et appuyez sur <span class="shortcut">Ctrl+C</span> pour copier dans le presse-papiers.
+La s&eacute;lection et la copie multi-cellules sont &eacute;galement prises en charge.</p>
+
+<h2>Recherche avanc&eacute;e</h2>
+<p>Cliquez sur le bouton <strong>Recherche avanc&eacute;e</strong> sur l'&eacute;cran d'aper&ccedil;u pour filtrer les donn&eacute;es
+avec 12 op&eacute;rateurs et des conditions compos&eacute;es AND/OR.
+Consultez <a href="search.html">Recherche et filtrage</a> pour plus de d&eacute;tails.</p>
+
+<h2>Exporter depuis l'aper&ccedil;u</h2>
+<p>Les exports suivants sont disponibles depuis la barre d'outils de l'aper&ccedil;u :</p>
+<ul>
+    <li><strong>SQL</strong> &mdash; Sortie de script SQL</li>
+    <li><strong>CSV</strong> &mdash; Sortie de fichier CSV</li>
+    <li><strong>Excel</strong> &mdash; Sortie de fichier Excel</li>
+    <li><strong>Access</strong> &mdash; Sortie vers une base de donn&eacute;es Access</li>
+    <li><strong>SQL Server</strong> &mdash; Sortie directe vers SQL Server</li>
+    <li><strong>ODBC</strong> &mdash; Sortie vers une base de donn&eacute;es compatible ODBC</li>
+</ul>
+
+<h2>Propri&eacute;t&eacute;s de la table</h2>
+<p>Faites un clic droit sur une table et s&eacute;lectionnez <strong>Propri&eacute;t&eacute;s(&amp;P)</strong> pour afficher
+les d&eacute;finitions de colonnes (nom de colonne, type de donn&eacute;es, longueur, etc.).</p>
+
+<h2>Exclusion de tables</h2>
+<p>Vous pouvez masquer temporairement les tables non souhait&eacute;es.</p>
+<ol>
+    <li>S&eacute;lectionnez des tables dans la liste des tables (s&eacute;lection multiple possible).</li>
+    <li>Choisissez <strong>Supprimer(&amp;D)</strong> dans le menu contextuel,
+        ou appuyez sur la touche <span class="shortcut">Suppr</span>.</li>
+    <li>Les tables exclues sont affich&eacute;es dans la barre d'&eacute;tat.</li>
+</ol>
+
+<p>Pour annuler l'exclusion :</p>
+<ul>
+    <li><strong>&Eacute;dition(&amp;E)</strong> &gt; <strong>Annuler</strong>
+        (<span class="shortcut">Ctrl+Z</span>)</li>
+    <li><strong>Objet(&amp;O)</strong> &gt; <strong>Effacer tous les filtres(&amp;F)</strong>
+        pour supprimer toutes les exclusions</li>
+</ul>
+
+<p><a href="toc.html">Retour &agrave; la table des mati&egrave;res</a></p>
+
+</body>
+</html>

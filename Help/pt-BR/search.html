@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Pesquisa &amp; Filtro - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Pesquisa &amp; Filtro</h1>
+
+<h2>Filtro de Nome de Tabela</h2>
+<p>Digite parte de um nome de tabela na caixa de pesquisa no topo da área de trabalho
+para filtrar a lista de tabelas em tempo real.</p>
+
+<ul>
+    <li>Não diferencia maiúsculas de minúsculas.</li>
+    <li>Correspondência parcial nos nomes das tabelas.</li>
+    <li>Limpe o texto para remover o filtro.</li>
+</ul>
+
+<h2>Pesquisa Avançada (Pesquisa de Dados da Tabela)</h2>
+<p>Na tela de visualização da tabela, você pode realizar pesquisas avançadas baseadas em condições nos dados.
+Clique no botão <strong>Pesquisa Avançada</strong> para abrir a caixa de diálogo de condições de pesquisa.</p>
+
+<h3>Configurando Condições de Pesquisa</h3>
+<p>Especifique o seguinte para cada linha de condição:</p>
+<ol>
+    <li><strong>Nome da Coluna</strong> &mdash; Selecione a coluna de destino</li>
+    <li><strong>Operador</strong> &mdash; Escolha entre 12 operadores</li>
+    <li><strong>Valor de Pesquisa</strong> &mdash; Insira o valor de comparação (não necessário para operadores Nulo / Não Nulo)</li>
+    <li><strong>Diferenciar Maiúsculas/Minúsculas</strong> &mdash; Marque para realizar comparação com distinção de maiúsculas e minúsculas</li>
+</ol>
+
+<h3>Lista de Operadores</h3>
+<table>
+<tr><th>Operador</th><th>Descrição</th><th>Exemplo</th></tr>
+<tr><td>Contém</td><td>O valor contém a string de pesquisa</td><td>NAME Contém "Smith"</td></tr>
+<tr><td>Não Contém</td><td>O valor não contém a string de pesquisa</td><td>NAME Não Contém "test"</td></tr>
+<tr><td>Igual</td><td>O valor corresponde exatamente à string de pesquisa</td><td>STATUS Igual "ACTIVE"</td></tr>
+<tr><td>Diferente</td><td>O valor não corresponde à string de pesquisa</td><td>TYPE Diferente "TEMP"</td></tr>
+<tr><td>Começa Com</td><td>O valor começa com a string de pesquisa</td><td>CODE Começa Com "A"</td></tr>
+<tr><td>Termina Com</td><td>O valor termina com a string de pesquisa</td><td>EMAIL Termina Com ".com"</td></tr>
+<tr><td>&gt;</td><td>O valor é maior que o valor de pesquisa</td><td>AMOUNT &gt; "1000"</td></tr>
+<tr><td>&lt;</td><td>O valor é menor que o valor de pesquisa</td><td>AGE &lt; "30"</td></tr>
+<tr><td>&gt;=</td><td>O valor é maior ou igual ao valor de pesquisa</td><td>SCORE &gt;= "80"</td></tr>
+<tr><td>&lt;=</td><td>O valor é menor ou igual ao valor de pesquisa</td><td>PRICE &lt;= "500"</td></tr>
+<tr><td>Nulo</td><td>O valor é NULL</td><td>MEMO Nulo</td></tr>
+<tr><td>Não Nulo</td><td>O valor não é NULL</td><td>EMAIL Não Nulo</td></tr>
+</table>
+
+<h3>Condições Compostas (AND / OR)</h3>
+<p>Ao adicionar condições, você pode especificar o operador lógico entre elas como <strong>AND</strong> ou <strong>OR</strong>.</p>
+<ul>
+    <li><strong>AND</strong> &mdash; Exibir somente as linhas que satisfazem todas as condições</li>
+    <li><strong>OR</strong> &mdash; Exibir as linhas que satisfazem qualquer uma das condições</li>
+</ul>
+<p>Linhas de condição podem ser adicionadas ou removidas livremente, permitindo filtragem complexa.</p>
+
+<h3>Preservando Condições de Pesquisa</h3>
+<p>As condições de pesquisa são restauradas automaticamente ao reabrir a mesma tabela.
+Para limpar as condições, use o botão <strong>Limpar Pesquisa</strong> na tela de visualização.</p>
+
+<h2>Inverter Seleção</h2>
+<p>Você pode inverter o estado de seleção da lista de tabelas.
+Use <strong>Inverter Seleção</strong> no menu de contexto.</p>
+
+<p><a href="toc.html">Voltar ao Sumário</a></p>
+
+</body>
+</html>

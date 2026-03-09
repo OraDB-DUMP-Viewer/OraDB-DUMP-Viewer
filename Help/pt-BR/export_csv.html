@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Exportação CSV - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Exportação CSV</h1>
+
+<h2>Passos</h2>
+<ol>
+    <li>Selecione a tabela que deseja exportar na lista de tabelas.</li>
+    <li>Clique no botão <strong>CSV</strong> na barra de ferramentas,
+        ou selecione <strong>Objeto(&amp;O)</strong> &gt; <strong>Exportar</strong> &gt; <strong>Dados(&amp;D)</strong>.</li>
+    <li>Especifique o caminho do arquivo de destino.</li>
+    <li>A exportação é executada e uma caixa de diálogo de progresso é exibida.</li>
+</ol>
+
+<h2>Formato de Saída</h2>
+<ul>
+    <li>Codificação: UTF-8 (com BOM)</li>
+    <li>Delimitador: Vírgula (<code>,</code>)</li>
+    <li>Aspas: Aspas duplas (<code>"</code>) &mdash; aplicadas quando os valores contêm vírgulas, quebras de linha ou aspas duplas</li>
+    <li>Fim de linha: CRLF (<code>\r\n</code>)</li>
+    <li>Compatível com RFC 4180</li>
+</ul>
+
+<h2>Opções</h2>
+<p>As seguintes opções podem ser configuradas em <a href="export_options.html">Opções de Exportação</a>:</p>
+<ul>
+    <li><strong>Linha de Cabeçalho</strong> &mdash; Se os nomes das colunas devem ser exibidos na primeira linha</li>
+    <li><strong>Linha de Informação de Tipo</strong> &mdash; Exibir informações de tipo das colunas na linha após o cabeçalho</li>
+    <li><strong>Formato de Data</strong> &mdash; Formato de saída para colunas DATE/TIMESTAMP</li>
+</ul>
+
+<hr>
+
+<h1>Outros Formatos de Exportação</h1>
+
+<h2>Exportação Excel</h2>
+<p>Exporta dados da tabela para um arquivo Excel (.xlsx / .xls).</p>
+<ol>
+    <li>Selecione uma tabela e clique no botão <strong>Excel</strong> na barra de ferramentas.</li>
+    <li>Especifique o caminho do arquivo de destino.</li>
+    <li>Um arquivo Excel é gerado.</li>
+</ol>
+
+<h2>Exportação Access</h2>
+<p>Exporta dados da tabela para um banco de dados Microsoft Access (.accdb / .mdb).</p>
+<ol>
+    <li>Selecione uma tabela e clique no botão <strong>Access</strong> na barra de ferramentas.</li>
+    <li>Especifique o caminho do arquivo de destino.</li>
+    <li>Uma tabela é criada no banco de dados Access e os dados são importados.</li>
+</ol>
+
+<h2>Exportação SQL Server</h2>
+<p>Exporta dados da tabela diretamente para um banco de dados SQL Server.</p>
+<ol>
+    <li>Selecione uma tabela e clique no botão <strong>SQL Server</strong> na barra de ferramentas.</li>
+    <li>Insira as informações de conexão do SQL Server na caixa de diálogo de conexão.</li>
+    <li>Uma tabela é criada no banco de dados de destino e os dados são inseridos.</li>
+</ol>
+<p>Se uma tabela com o mesmo nome já existir, ela será automaticamente excluída e recriada.</p>
+
+<h2>Exportação ODBC</h2>
+<p>Exporta dados da tabela para qualquer banco de dados compatível com ODBC.</p>
+<ol>
+    <li>Selecione uma tabela e clique no botão <strong>ODBC</strong> na barra de ferramentas.</li>
+    <li>Insira a string de conexão ODBC ou DSN na caixa de diálogo de conexão.</li>
+    <li>Uma tabela é criada no banco de dados de destino e os dados são inseridos.</li>
+</ol>
+<p>Se uma tabela com o mesmo nome já existir, ela será automaticamente excluída e recriada.</p>
+
+<h2>Tratamento de Tabelas Existentes</h2>
+<table>
+<tr><th>Destino da Exportação</th><th>Comportamento com Tabela Existente</th></tr>
+<tr><td>Script SQL</td><td>DROP TABLE IF EXISTS (alternável via caixa de seleção)</td></tr>
+<tr><td>SQL Server</td><td>Exclusão automática + recriação</td></tr>
+<tr><td>ODBC</td><td>Exclusão automática + recriação</td></tr>
+<tr><td>Access</td><td>Recriar o arquivo inteiro</td></tr>
+<tr><td>Excel</td><td>Sobrescrever o arquivo</td></tr>
+</table>
+
+<div class="note">
+<strong>Nota:</strong> Para exportações SQL Server e ODBC,
+o banco de dados de destino deve ser criado antecipadamente.
+</div>
+
+<p><a href="toc.html">Voltar ao Sumário</a></p>
+
+</body>
+</html>

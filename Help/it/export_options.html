@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Opzioni di esportazione - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Opzioni di esportazione</h1>
+
+<h2>Come accedere</h2>
+<p>Fare clic sul pulsante <strong>Opzioni</strong> nella barra degli strumenti
+per aprire la finestra di dialogo Opzioni di esportazione.</p>
+
+<h2>Formato data</h2>
+<table>
+<tr><th>Formato</th><th>Esempio</th><th>Descrizione</th></tr>
+<tr><td>YYYY/MM/DD HH:MI:SS</td><td>2026/01/15 09:30:00</td><td>Formato standard (predefinito)</td></tr>
+<tr><td>YYYYMMDD</td><td>20260115</td><td>Compatto (solo data)</td></tr>
+<tr><td>YYYYMMDDHH24MISS</td><td>20260115093000</td><td>Compatto (data e ora)</td></tr>
+<tr><td>Personalizzato</td><td>Qualsiasi</td><td>Token: YYYY, MM, DD, HH24, MI, SS</td></tr>
+</table>
+
+<h2>Opzioni CSV</h2>
+<table>
+<tr><th>Impostazione</th><th>Predefinito</th><th>Descrizione</th></tr>
+<tr><td>Riga di intestazione</td><td>ON</td><td>Include i nomi delle colonne nella prima riga</td></tr>
+<tr><td>Riga informazioni tipo</td><td>OFF</td><td>Include i tipi di colonna nella riga successiva all'intestazione</td></tr>
+</table>
+
+<h2>Opzioni SQL</h2>
+<p>Una finestra di dialogo viene visualizzata prima dell'esportazione SQL.
+Le seguenti opzioni possono essere attivate/disattivate tramite caselle di controllo:</p>
+<table>
+<tr><th>Impostazione</th><th>Predefinito</th><th>Descrizione</th></tr>
+<tr><td>Output DROP TABLE + CREATE TABLE</td><td>ON</td><td>Genera DROP TABLE IF EXISTS e CREATE TABLE DDL prima delle istruzioni INSERT. Attivabile/disattivabile tramite casella di controllo. Elimina e ricrea le tabelle esistenti</td></tr>
+<tr><td>Tipo DBMS</td><td>Oracle</td><td>Oracle / PostgreSQL / MySQL / SQL Server</td></tr>
+</table>
+
+<div class="note">
+<strong>Nota:</strong> Le impostazioni delle opzioni vengono salvate nelle impostazioni dell'applicazione e persistono tra i riavvii.
+</div>
+
+<p><a href="toc.html">Torna al sommario</a></p>
+
+</body>
+</html>

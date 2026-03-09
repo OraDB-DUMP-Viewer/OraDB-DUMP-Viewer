@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Exportoptionen - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Exportoptionen</h1>
+
+<h2>Zugriff</h2>
+<p>Klicken Sie auf die Schaltfl&auml;che <strong>Optionen</strong> in der Symbolleiste,
+um den Dialog f&uuml;r Exportoptionen zu &ouml;ffnen.</p>
+
+<h2>Datumsformat</h2>
+<table>
+<tr><th>Format</th><th>Beispiel</th><th>Beschreibung</th></tr>
+<tr><td>YYYY/MM/DD HH:MI:SS</td><td>2026/01/15 09:30:00</td><td>Standardformat (Standard)</td></tr>
+<tr><td>YYYYMMDD</td><td>20260115</td><td>Kompakt (nur Datum)</td></tr>
+<tr><td>YYYYMMDDHH24MISS</td><td>20260115093000</td><td>Kompakt (Datum und Uhrzeit)</td></tr>
+<tr><td>Benutzerdefiniert</td><td>Beliebig</td><td>Token: YYYY, MM, DD, HH24, MI, SS</td></tr>
+</table>
+
+<h2>CSV-Optionen</h2>
+<table>
+<tr><th>Einstellung</th><th>Standard</th><th>Beschreibung</th></tr>
+<tr><td>Kopfzeile ausgeben</td><td>EIN</td><td>Spaltennamen in der ersten Zeile ausgeben</td></tr>
+<tr><td>Typinformationszeile ausgeben</td><td>AUS</td><td>Spaltentypen in der Zeile nach der Kopfzeile ausgeben</td></tr>
+</table>
+
+<h2>SQL-Optionen</h2>
+<p>Vor dem SQL-Export wird ein Dialog angezeigt.
+Folgende Optionen k&ouml;nnen per Kontrollk&auml;stchen umgeschaltet werden:</p>
+<table>
+<tr><th>Einstellung</th><th>Standard</th><th>Beschreibung</th></tr>
+<tr><td>DROP TABLE + CREATE TABLE ausgeben</td><td>EIN</td><td>DROP TABLE IF EXISTS und CREATE TABLE DDL vor INSERT-Anweisungen ausgeben. Per Kontrollk&auml;stchen umschaltbar. L&ouml;scht und erstellt vorhandene Tabellen neu</td></tr>
+<tr><td>DBMS-Typ</td><td>Oracle</td><td>Oracle / PostgreSQL / MySQL / SQL Server</td></tr>
+</table>
+
+<div class="note">
+<strong>Hinweis:</strong> Optionseinstellungen werden in den Anwendungseinstellungen gespeichert und bleiben nach einem Neustart erhalten.
+</div>
+
+<p><a href="toc.html">Zur&uuml;ck zum Inhaltsverzeichnis</a></p>
+
+</body>
+</html>

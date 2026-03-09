@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Esportazione CSV - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Esportazione CSV</h1>
+
+<h2>Procedura</h2>
+<ol>
+    <li>Selezionare la tabella da esportare nell'elenco delle tabelle.</li>
+    <li>Fare clic sul pulsante <strong>CSV</strong> nella barra degli strumenti,
+        oppure selezionare <strong>Oggetto(&amp;O)</strong> &gt; <strong>Esporta</strong> &gt; <strong>Dati(&amp;D)</strong>.</li>
+    <li>Specificare il percorso del file di destinazione.</li>
+    <li>L'esportazione viene eseguita e viene visualizzata una finestra di avanzamento.</li>
+</ol>
+
+<h2>Formato di output</h2>
+<ul>
+    <li>Codifica: UTF-8 (con BOM)</li>
+    <li>Delimitatore: Virgola (<code>,</code>)</li>
+    <li>Virgolette: Doppie virgolette (<code>"</code>) &mdash; applicate quando i valori contengono virgole, ritorni a capo o virgolette doppie</li>
+    <li>Fine riga: CRLF (<code>\r\n</code>)</li>
+    <li>Conforme a RFC 4180</li>
+</ul>
+
+<h2>Opzioni</h2>
+<p>Le seguenti opzioni possono essere configurate nelle <a href="export_options.html">Opzioni di esportazione</a>:</p>
+<ul>
+    <li><strong>Riga di intestazione</strong> &mdash; Se includere i nomi delle colonne nella prima riga</li>
+    <li><strong>Riga informazioni tipo</strong> &mdash; Includere le informazioni sul tipo di colonna nella riga successiva all'intestazione</li>
+    <li><strong>Formato data</strong> &mdash; Formato di output per le colonne DATE/TIMESTAMP</li>
+</ul>
+
+<hr>
+
+<h1>Altri formati di esportazione</h1>
+
+<h2>Esportazione Excel</h2>
+<p>Esporta i dati della tabella in un file Excel (.xlsx / .xls).</p>
+<ol>
+    <li>Selezionare una tabella e fare clic sul pulsante <strong>Excel</strong> nella barra degli strumenti.</li>
+    <li>Specificare il percorso del file di destinazione.</li>
+    <li>Viene generato un file Excel.</li>
+</ol>
+
+<h2>Esportazione Access</h2>
+<p>Esporta i dati della tabella in un database Microsoft Access (.accdb / .mdb).</p>
+<ol>
+    <li>Selezionare una tabella e fare clic sul pulsante <strong>Access</strong> nella barra degli strumenti.</li>
+    <li>Specificare il percorso del file di destinazione.</li>
+    <li>Viene creata una tabella nel database Access e i dati vengono importati.</li>
+</ol>
+
+<h2>Esportazione SQL Server</h2>
+<p>Esporta i dati della tabella direttamente in un database SQL Server.</p>
+<ol>
+    <li>Selezionare una tabella e fare clic sul pulsante <strong>SQL Server</strong> nella barra degli strumenti.</li>
+    <li>Inserire le informazioni di connessione a SQL Server nella finestra di dialogo di connessione.</li>
+    <li>Viene creata una tabella nel database di destinazione e i dati vengono inseriti.</li>
+</ol>
+<p>Se esiste già una tabella con lo stesso nome, viene automaticamente eliminata e ricreata.</p>
+
+<h2>Esportazione ODBC</h2>
+<p>Esporta i dati della tabella in qualsiasi database compatibile ODBC.</p>
+<ol>
+    <li>Selezionare una tabella e fare clic sul pulsante <strong>ODBC</strong> nella barra degli strumenti.</li>
+    <li>Inserire la stringa di connessione ODBC o il DSN nella finestra di dialogo di connessione.</li>
+    <li>Viene creata una tabella nel database di destinazione e i dati vengono inseriti.</li>
+</ol>
+<p>Se esiste già una tabella con lo stesso nome, viene automaticamente eliminata e ricreata.</p>
+
+<h2>Gestione delle tabelle esistenti</h2>
+<table>
+<tr><th>Destinazione esportazione</th><th>Comportamento tabella esistente</th></tr>
+<tr><td>Script SQL</td><td>DROP TABLE IF EXISTS (attivabile/disattivabile tramite casella di controllo)</td></tr>
+<tr><td>SQL Server</td><td>Eliminazione e ricreazione automatica</td></tr>
+<tr><td>ODBC</td><td>Eliminazione e ricreazione automatica</td></tr>
+<tr><td>Access</td><td>Ricreazione dell'intero file</td></tr>
+<tr><td>Excel</td><td>Sovrascrittura del file</td></tr>
+</table>
+
+<div class="note">
+<strong>Nota:</strong> Per le esportazioni SQL Server e ODBC,
+il database di destinazione deve essere creato in anticipo.
+</div>
+
+<p><a href="toc.html">Torna al sommario</a></p>
+
+</body>
+</html>

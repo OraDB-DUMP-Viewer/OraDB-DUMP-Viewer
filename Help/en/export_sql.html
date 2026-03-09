@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SQL Export - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>SQL Export</h1>
+
+<h2>Steps</h2>
+<ol>
+    <li>Select the table you want to export in the table list.</li>
+    <li>Click the <strong>SQL</strong> button on the toolbar,
+        or select <strong>Object(&amp;O)</strong> &gt; <strong>Export</strong> &gt; <strong>Script(&amp;S)</strong>.</li>
+    <li>Specify the destination file path.</li>
+    <li>The export runs.</li>
+</ol>
+
+<h2>Supported DBMS</h2>
+<p>INSERT statements can be generated for the following DBMS:</p>
+<table>
+<tr><th>DBMS</th><th>Syntax Differences</th></tr>
+<tr><td>Oracle</td><td>TO_DATE function, NUMBER type as-is</td></tr>
+<tr><td>PostgreSQL</td><td>CAST syntax, TIMESTAMP type</td></tr>
+<tr><td>MySQL</td><td>Backtick identifiers, DATETIME type</td></tr>
+<tr><td>SQL Server</td><td>Bracket identifiers, DATETIME2 type</td></tr>
+</table>
+
+<h2>Options</h2>
+<p>A dialog is displayed before export when you click the SQL button.
+The following options can be configured:</p>
+<ul>
+    <li><strong>DBMS Type</strong> &mdash; Choose from Oracle / PostgreSQL / MySQL / SQL Server</li>
+    <li><strong>DROP TABLE + CREATE TABLE Output</strong> (default: ON) &mdash;
+        Toggle via checkbox.
+        When ON, outputs <code>DROP TABLE IF EXISTS</code> and <code>CREATE TABLE</code> DDL before INSERT statements.
+        Drops and recreates the table if it already exists in the target database.</li>
+    <li><strong>Date Format</strong> &mdash; Literal format or function call</li>
+</ul>
+
+<h3>DROP TABLE Syntax by DBMS</h3>
+<table>
+<tr><th>DBMS</th><th>Syntax</th></tr>
+<tr><td>Oracle / PostgreSQL</td><td><code>DROP TABLE IF EXISTS "table_name" CASCADE;</code></td></tr>
+<tr><td>MySQL</td><td><code>DROP TABLE IF EXISTS `table_name`;</code></td></tr>
+<tr><td>SQL Server</td><td><code>IF OBJECT_ID('table_name', 'U') IS NOT NULL DROP TABLE [table_name];</code></td></tr>
+</table>
+
+<div class="note">
+<strong>Note:</strong> LOB data (BLOB/CLOB) is not included in SQL exports.
+Use <a href="lob_extract.html">LOB File Extraction</a> to export LOB data.
+</div>
+
+<p><a href="toc.html">Back to Table of Contents</a></p>
+
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>About - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>About</h1>
+
+<h2>OraDB DUMP Viewer</h2>
+<p><strong>Copyright:</strong> &copy; 2026 YANAI Taketo. All rights reserved.</p>
+
+<h2>Checking the Version</h2>
+<p>Select <strong>Help(&amp;H)</strong> &gt; <strong>About(&amp;A)</strong> from the menu
+to check the current version.</p>
+<p>The About dialog automatically compares with the latest GitHub release
+and shows whether an update is available.</p>
+<ul>
+    <li>If using the latest version: the version number is displayed in green</li>
+    <li>If a newer version is available: the version number is displayed in orange</li>
+</ul>
+
+<h2>Auto Update</h2>
+<p>When a new version is available, an update button appears in the dialog.</p>
+<ol>
+    <li>Click the <strong>Update to Latest Version</strong> button in the About dialog.</li>
+    <li>Select <strong>Yes</strong> in the confirmation dialog.</li>
+    <li>The latest MSI installer is downloaded automatically (a progress bar is displayed).</li>
+    <li>After download, the application closes and the installer launches automatically.</li>
+</ol>
+<p>You can also click the <strong>Open Release Page</strong> link to view the
+GitHub release page in your browser.</p>
+
+<h2>License Activation</h2>
+<p>License activation is required on first launch. Obtain a license at
+<a href="https://www.odv.dev/">https://www.odv.dev/</a>.</p>
+<table>
+<tr><th>Plan</th><th>Price</th><th>Target</th></tr>
+<tr><td>Personal Use</td><td>Free</td><td>Individuals</td></tr>
+<tr><td>Educational</td><td>Free</td><td>Schools &amp; educational institutions</td></tr>
+<tr><td>Corporate Use</td><td>&yen;9,800/year (excl. tax)</td><td>Companies &amp; commercial use</td></tr>
+</table>
+<p>License verification includes RSA signature verification locally and online validation at startup.
+Offline environments can still use local verification only.</p>
+<p>Re-authentication or license key changes can be done from
+<strong>Help(&amp;H)</strong> &gt; <strong>License Activation</strong>.</p>
+
+<h2>Bug Reports</h2>
+<p>If you find a bug or issue, report it from
+<strong>Help(&amp;H)</strong> &gt; <strong>Bug Report(&amp;R)</strong>.</p>
+<p>The following information is automatically collected and transparently displayed in the report dialog:</p>
+<ul>
+    <li>Application version / DLL version</li>
+    <li>OS version / .NET version</li>
+    <li>Architecture / Screen resolution / DPI</li>
+    <li>Dump file info (size and format only; paths are not sent)</li>
+</ul>
+<p>Reports are automatically submitted as GitHub Issues via a Cloudflare Worker.
+No personal information (username, PC name, file paths, etc.) is collected or sent.</p>
+<p>If the dump file is 50 MB or less, you can optionally attach it to the report.</p>
+
+<h2>Multilingual Support</h2>
+<p>10 languages are supported: Japanese, English, Chinese (Simplified), Korean, German, French, Spanish, Italian, Russian, and Portuguese (BR).
+The language is automatically selected based on the system display language at startup.</p>
+
+<p><a href="toc.html">Back to Table of Contents</a></p>
+
+</body>
+</html>

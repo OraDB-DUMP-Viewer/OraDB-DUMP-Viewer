@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>批量导出 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>批量导出</h1>
+
+<h2>概述</h2>
+<p>一次性将多个表导出为 CSV 或 SQL 文件。
+每个表输出为一个单独的文件。</p>
+
+<h2>操作步骤</h2>
+<ol>
+    <li>单击工具栏上的 <strong>批量导出</strong> 按钮。</li>
+    <li>显示导出对话框。</li>
+    <li>选择输出格式（CSV / SQL）。</li>
+    <li>指定输出文件夹。</li>
+    <li>确认要导出的表。
+        <br>取消勾选不需要的表。</li>
+    <li>单击 <strong>导出</strong> 按钮。</li>
+</ol>
+
+<h2>输出文件名</h2>
+<p>文件名按照 <code>SchemaName.TableName.csv</code> 或 <code>SchemaName.TableName.sql</code> 的格式自动生成。</p>
+
+<h2>表的选择/排除</h2>
+<ul>
+    <li><strong>全选</strong> / <strong>取消全选</strong> 按钮用于批量操作</li>
+    <li><strong>反选</strong> 用于切换选择状态</li>
+    <li>单击各个复选框以选择特定的表</li>
+</ul>
+
+<div class="tip">
+<strong>提示：</strong> 在工作区中被排除的表也会自动从批量导出中排除。
+</div>
+
+<h2>报告输出</h2>
+<p>通过 <strong>对象(&amp;O)</strong> &gt; <strong>报告输出(&amp;R)</strong>，
+您还可以将表信息输出为文本文件。</p>
+<ul>
+    <li><strong>对象列表</strong> &mdash; 输出表名和行数的文本列表</li>
+    <li><strong>表定义</strong> &mdash; 输出所有表的列定义（名称、类型、大小）</li>
+</ul>
+
+<p><a href="toc.html">返回目录</a></p>
+
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Área de Trabalho - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Área de Trabalho</h1>
+
+<h2>Visão Geral</h2>
+<p>A área de trabalho é um recurso que gerencia os resultados da análise do arquivo de dump e o estado de trabalho em conjunto.
+Você pode salvar e restaurar os estados de exclusão de tabelas e as configurações de filtro.</p>
+
+<h2>Salvando uma Área de Trabalho</h2>
+<ol>
+    <li>Selecione <strong>Arquivo(&amp;F)</strong> &gt; <strong>Salvar Área de Trabalho(&amp;S)</strong> no menu.</li>
+    <li>No primeiro salvamento, especifique o caminho do arquivo (extensão: <code>.odvw</code>).</li>
+    <li>Os salvamentos subsequentes sobrescrevem o arquivo existente.</li>
+</ol>
+
+<h2>Salvar Como</h2>
+<p><strong>Arquivo(&amp;F)</strong> &gt; <strong>Salvar Como(&amp;A)</strong> permite salvar a área de trabalho
+com um nome de arquivo diferente.</p>
+
+<h2>Abrindo uma Área de Trabalho</h2>
+<ol>
+    <li>Selecione <strong>Arquivo(&amp;F)</strong> &gt; <strong>Área de Trabalho(&amp;W)...</strong> no menu.</li>
+    <li>Selecione um arquivo <code>.odvw</code>.</li>
+    <li>O arquivo de dump é carregado automaticamente, e os estados de exclusão e filtros são restaurados.</li>
+</ol>
+
+<h2>Informações Salvas</h2>
+<table>
+<tr><th>Item</th><th>Descrição</th></tr>
+<tr><td>Caminho do Arquivo de Dump</td><td>Caminho absoluto do arquivo de dump original</td></tr>
+<tr><td>Tabelas Excluídas</td><td>Lista de tabelas ocultas</td></tr>
+<tr><td>Filtro de Pesquisa</td><td>Texto de pesquisa de nome de tabela</td></tr>
+<tr><td>Schema</td><td>Schema selecionado atualmente</td></tr>
+<tr><td>Nós Expandidos</td><td>Estado de expansão da visualização em árvore</td></tr>
+</table>
+
+<h2>Arquivos Recentes</h2>
+<p>Até 5 áreas de trabalho e arquivos de dump recentes são exibidos na parte inferior do menu <strong>Arquivo</strong>.
+Clique para reabri-los rapidamente.</p>
+
+<div class="tip">
+<strong>Dica:</strong> Uma caixa de diálogo de confirmação de salvamento aparece antes de fechar uma área de trabalho.
+Se houver alterações não salvas, selecione "Sim" para salvá-las.
+</div>
+
+<p><a href="toc.html">Voltar ao Sumário</a></p>
+
+</body>
+</html>

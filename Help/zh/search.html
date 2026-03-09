@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>搜索与筛选 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>搜索与筛选</h1>
+
+<h2>表名筛选</h2>
+<p>在工作区顶部的搜索文本框中输入部分表名，可实时筛选表列表。</p>
+
+<ul>
+    <li>不区分大小写。</li>
+    <li>对表名进行部分匹配。</li>
+    <li>清除文本可移除筛选。</li>
+</ul>
+
+<h2>高级搜索（表数据搜索）</h2>
+<p>在表预览画面上，您可以对数据进行基于条件的高级搜索。
+单击 <strong>高级搜索</strong> 按钮可打开搜索条件对话框。</p>
+
+<h3>设置搜索条件</h3>
+<p>为每个条件行指定以下内容：</p>
+<ol>
+    <li><strong>列名</strong> &mdash; 选择目标列</li>
+    <li><strong>运算符</strong> &mdash; 从 12 种运算符中选择</li>
+    <li><strong>搜索值</strong> &mdash; 输入比较值（Null / Not Null 运算符不需要）</li>
+    <li><strong>区分大小写</strong> &mdash; 勾选后执行区分大小写的比较</li>
+</ol>
+
+<h3>运算符列表</h3>
+<table>
+<tr><th>运算符</th><th>说明</th><th>示例</th></tr>
+<tr><td>包含</td><td>值包含搜索字符串</td><td>NAME 包含 "Smith"</td></tr>
+<tr><td>不包含</td><td>值不包含搜索字符串</td><td>NAME 不包含 "test"</td></tr>
+<tr><td>等于</td><td>值与搜索字符串完全匹配</td><td>STATUS 等于 "ACTIVE"</td></tr>
+<tr><td>不等于</td><td>值与搜索字符串不匹配</td><td>TYPE 不等于 "TEMP"</td></tr>
+<tr><td>开头为</td><td>值以搜索字符串开头</td><td>CODE 开头为 "A"</td></tr>
+<tr><td>结尾为</td><td>值以搜索字符串结尾</td><td>EMAIL 结尾为 ".com"</td></tr>
+<tr><td>&gt;</td><td>值大于搜索值</td><td>AMOUNT &gt; "1000"</td></tr>
+<tr><td>&lt;</td><td>值小于搜索值</td><td>AGE &lt; "30"</td></tr>
+<tr><td>&gt;=</td><td>值大于或等于搜索值</td><td>SCORE &gt;= "80"</td></tr>
+<tr><td>&lt;=</td><td>值小于或等于搜索值</td><td>PRICE &lt;= "500"</td></tr>
+<tr><td>Null</td><td>值为 NULL</td><td>MEMO Null</td></tr>
+<tr><td>Not Null</td><td>值不为 NULL</td><td>EMAIL Not Null</td></tr>
+</table>
+
+<h3>复合条件（AND / OR）</h3>
+<p>添加条件时，可以指定条件之间的逻辑运算符为 <strong>AND</strong> 或 <strong>OR</strong>。</p>
+<ul>
+    <li><strong>AND</strong> &mdash; 仅显示满足所有条件的行</li>
+    <li><strong>OR</strong> &mdash; 显示满足任一条件的行</li>
+</ul>
+<p>条件行可自由添加或删除，从而实现复杂的筛选。</p>
+
+<h3>保留搜索条件</h3>
+<p>重新打开同一张表时，搜索条件会自动恢复。
+要清除条件，请使用预览画面上的 <strong>清除搜索</strong> 按钮。</p>
+
+<h2>反选</h2>
+<p>您可以反转表列表的选择状态。
+从右键菜单使用 <strong>反选</strong>。</p>
+
+<p><a href="toc.html">返回目录</a></p>
+
+</body>
+</html>

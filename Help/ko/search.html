@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>검색 &amp; 필터 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>검색 &amp; 필터</h1>
+
+<h2>테이블 이름 필터</h2>
+<p>워크스페이스 상단의 검색 텍스트 상자에 테이블 이름의 일부를 입력하면
+테이블 목록이 실시간으로 필터링됩니다.</p>
+
+<ul>
+    <li>대소문자를 구분하지 않습니다.</li>
+    <li>테이블 이름에 대한 부분 일치입니다.</li>
+    <li>텍스트를 지우면 필터가 해제됩니다.</li>
+</ul>
+
+<h2>고급 검색 (테이블 데이터 검색)</h2>
+<p>테이블 미리보기 화면에서 데이터에 대해 조건 기반 고급 검색을 수행할 수 있습니다.
+<strong>고급 검색</strong> 버튼을 클릭하면 검색 조건 대화 상자가 열립니다.</p>
+
+<h3>검색 조건 설정</h3>
+<p>각 조건 행에 다음을 지정합니다:</p>
+<ol>
+    <li><strong>컬럼 이름</strong> &mdash; 대상 컬럼 선택</li>
+    <li><strong>연산자</strong> &mdash; 12개 연산자 중 선택</li>
+    <li><strong>검색 값</strong> &mdash; 비교 값 입력 (Null / Not Null 연산자에는 필요 없음)</li>
+    <li><strong>대소문자 구분</strong> &mdash; 체크하면 대소문자를 구분하여 비교</li>
+</ol>
+
+<h3>연산자 목록</h3>
+<table>
+<tr><th>연산자</th><th>설명</th><th>예시</th></tr>
+<tr><td>포함</td><td>값에 검색 문자열이 포함됨</td><td>NAME 포함 "Smith"</td></tr>
+<tr><td>포함하지 않음</td><td>값에 검색 문자열이 포함되지 않음</td><td>NAME 포함하지 않음 "test"</td></tr>
+<tr><td>같음</td><td>값이 검색 문자열과 정확히 일치</td><td>STATUS 같음 "ACTIVE"</td></tr>
+<tr><td>같지 않음</td><td>값이 검색 문자열과 일치하지 않음</td><td>TYPE 같지 않음 "TEMP"</td></tr>
+<tr><td>시작 문자</td><td>값이 검색 문자열로 시작</td><td>CODE 시작 문자 "A"</td></tr>
+<tr><td>끝 문자</td><td>값이 검색 문자열로 끝남</td><td>EMAIL 끝 문자 ".com"</td></tr>
+<tr><td>&gt;</td><td>값이 검색 값보다 큼</td><td>AMOUNT &gt; "1000"</td></tr>
+<tr><td>&lt;</td><td>값이 검색 값보다 작음</td><td>AGE &lt; "30"</td></tr>
+<tr><td>&gt;=</td><td>값이 검색 값 이상</td><td>SCORE &gt;= "80"</td></tr>
+<tr><td>&lt;=</td><td>값이 검색 값 이하</td><td>PRICE &lt;= "500"</td></tr>
+<tr><td>Null</td><td>값이 NULL임</td><td>MEMO Null</td></tr>
+<tr><td>Not Null</td><td>값이 NULL이 아님</td><td>EMAIL Not Null</td></tr>
+</table>
+
+<h3>복합 조건 (AND / OR)</h3>
+<p>조건을 추가할 때 조건 간의 논리 연산자를 <strong>AND</strong> 또는 <strong>OR</strong>로 지정할 수 있습니다.</p>
+<ul>
+    <li><strong>AND</strong> &mdash; 모든 조건을 만족하는 행만 표시</li>
+    <li><strong>OR</strong> &mdash; 조건 중 하나라도 만족하는 행을 표시</li>
+</ul>
+<p>조건 행은 자유롭게 추가하거나 제거할 수 있어 복잡한 필터링이 가능합니다.</p>
+
+<h3>검색 조건 유지</h3>
+<p>동일한 테이블을 다시 열 때 검색 조건이 자동으로 복원됩니다.
+조건을 지우려면 미리보기 화면의 <strong>검색 지우기</strong> 버튼을 사용하세요.</p>
+
+<h2>선택 반전</h2>
+<p>테이블 목록의 선택 상태를 반전할 수 있습니다.
+컨텍스트 메뉴에서 <strong>선택 반전</strong>을 사용하세요.</p>
+
+<p><a href="toc.html">목차로 돌아가기</a></p>
+
+</body>
+</html>

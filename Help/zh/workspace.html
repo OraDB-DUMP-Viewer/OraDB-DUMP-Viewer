@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>工作区 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>工作区</h1>
+
+<h2>概述</h2>
+<p>工作区是一项将转储文件分析结果和工作状态一起管理的功能。
+您可以保存和恢复表排除状态及筛选设置。</p>
+
+<h2>保存工作区</h2>
+<ol>
+    <li>从菜单选择 <strong>文件(&amp;F)</strong> &gt; <strong>保存工作区(&amp;S)</strong>。</li>
+    <li>首次保存时，指定文件路径（扩展名：<code>.odvw</code>）。</li>
+    <li>后续保存将覆盖现有文件。</li>
+</ol>
+
+<h2>另存为</h2>
+<p><strong>文件(&amp;F)</strong> &gt; <strong>另存为(&amp;A)</strong> 可让您将工作区保存为不同的文件名。</p>
+
+<h2>打开工作区</h2>
+<ol>
+    <li>从菜单选择 <strong>文件(&amp;F)</strong> &gt; <strong>工作区(&amp;W)...</strong>。</li>
+    <li>选择一个 <code>.odvw</code> 文件。</li>
+    <li>转储文件将自动加载，排除状态和筛选条件将被恢复。</li>
+</ol>
+
+<h2>保存的信息</h2>
+<table>
+<tr><th>项目</th><th>说明</th></tr>
+<tr><td>转储文件路径</td><td>原始转储文件的绝对路径</td></tr>
+<tr><td>排除的表</td><td>已隐藏的表列表</td></tr>
+<tr><td>搜索筛选</td><td>表名搜索文本</td></tr>
+<tr><td>模式</td><td>当前选中的模式</td></tr>
+<tr><td>展开的节点</td><td>树形视图的展开状态</td></tr>
+</table>
+
+<h2>最近的文件</h2>
+<p>在 <strong>文件</strong> 菜单底部最多显示 5 个最近的工作区和转储文件。
+单击可快速重新打开。</p>
+
+<div class="tip">
+<strong>提示：</strong> 关闭工作区前会显示保存确认对话框。
+如有未保存的更改，请选择"是"以保存。
+</div>
+
+<p><a href="toc.html">返回目录</a></p>
+
+</body>
+</html>

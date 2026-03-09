@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Batch Export - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Batch Export</h1>
+
+<h2>Overview</h2>
+<p>Export multiple tables to CSV or SQL files at once.
+Each table is output as an individual file.</p>
+
+<h2>Steps</h2>
+<ol>
+    <li>Click the <strong>Batch Export</strong> button on the toolbar.</li>
+    <li>The export dialog is displayed.</li>
+    <li>Select the output format (CSV / SQL).</li>
+    <li>Specify the output folder.</li>
+    <li>Confirm the tables to export.
+        <br>Uncheck any tables you don't need.</li>
+    <li>Click the <strong>Export</strong> button.</li>
+</ol>
+
+<h2>Output File Names</h2>
+<p>File names are automatically generated in the format
+<code>SchemaName.TableName.csv</code> or <code>SchemaName.TableName.sql</code>.</p>
+
+<h2>Table Selection / Exclusion</h2>
+<ul>
+    <li><strong>Select All</strong> / <strong>Deselect All</strong> buttons for bulk operations</li>
+    <li><strong>Invert Selection</strong> to toggle selection states</li>
+    <li>Click individual checkboxes to select specific tables</li>
+</ul>
+
+<div class="tip">
+<strong>Tip:</strong> Tables excluded in the workspace are automatically
+excluded from batch export as well.
+</div>
+
+<h2>Report Output</h2>
+<p>From <strong>Object(&amp;O)</strong> &gt; <strong>Report Output(&amp;R)</strong>,
+you can also output table information to text files.</p>
+<ul>
+    <li><strong>Object List</strong> &mdash; Output a text list of table names and row counts</li>
+    <li><strong>Table Definitions</strong> &mdash; Output column definitions (name, type, size) for all tables</li>
+</ul>
+
+<p><a href="toc.html">Back to Table of Contents</a></p>
+
+</body>
+</html>

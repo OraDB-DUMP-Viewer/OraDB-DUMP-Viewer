@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Búsqueda y filtrado - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Búsqueda y filtrado</h1>
+
+<h2>Filtro por nombre de tabla</h2>
+<p>Escriba parte de un nombre de tabla en el cuadro de búsqueda en la parte superior del espacio de trabajo
+para filtrar la lista de tablas en tiempo real.</p>
+
+<ul>
+    <li>No distingue entre mayúsculas y minúsculas.</li>
+    <li>Coincidencia parcial en nombres de tablas.</li>
+    <li>Borre el texto para eliminar el filtro.</li>
+</ul>
+
+<h2>Búsqueda avanzada (búsqueda de datos de tabla)</h2>
+<p>En la pantalla de vista previa de la tabla, puede realizar búsquedas avanzadas basadas en condiciones sobre los datos.
+Haga clic en el botón <strong>Búsqueda avanzada</strong> para abrir el cuadro de diálogo de condiciones de búsqueda.</p>
+
+<h3>Configuración de condiciones de búsqueda</h3>
+<p>Especifique lo siguiente para cada fila de condición:</p>
+<ol>
+    <li><strong>Nombre de columna</strong> &mdash; Seleccione la columna objetivo</li>
+    <li><strong>Operador</strong> &mdash; Elija entre 12 operadores</li>
+    <li><strong>Valor de búsqueda</strong> &mdash; Introduzca el valor de comparación (no necesario para los operadores Null / Not Null)</li>
+    <li><strong>Distinguir mayúsculas</strong> &mdash; Marque para realizar una comparación que distinga mayúsculas de minúsculas</li>
+</ol>
+
+<h3>Lista de operadores</h3>
+<table>
+<tr><th>Operador</th><th>Descripción</th><th>Ejemplo</th></tr>
+<tr><td>Contiene</td><td>El valor contiene la cadena de búsqueda</td><td>NAME Contiene "Smith"</td></tr>
+<tr><td>No contiene</td><td>El valor no contiene la cadena de búsqueda</td><td>NAME No contiene "test"</td></tr>
+<tr><td>Igual a</td><td>El valor coincide exactamente con la cadena de búsqueda</td><td>STATUS Igual a "ACTIVE"</td></tr>
+<tr><td>Distinto de</td><td>El valor no coincide con la cadena de búsqueda</td><td>TYPE Distinto de "TEMP"</td></tr>
+<tr><td>Empieza por</td><td>El valor comienza con la cadena de búsqueda</td><td>CODE Empieza por "A"</td></tr>
+<tr><td>Termina en</td><td>El valor termina con la cadena de búsqueda</td><td>EMAIL Termina en ".com"</td></tr>
+<tr><td>&gt;</td><td>El valor es mayor que el valor de búsqueda</td><td>AMOUNT &gt; "1000"</td></tr>
+<tr><td>&lt;</td><td>El valor es menor que el valor de búsqueda</td><td>AGE &lt; "30"</td></tr>
+<tr><td>&gt;=</td><td>El valor es mayor o igual que el valor de búsqueda</td><td>SCORE &gt;= "80"</td></tr>
+<tr><td>&lt;=</td><td>El valor es menor o igual que el valor de búsqueda</td><td>PRICE &lt;= "500"</td></tr>
+<tr><td>Null</td><td>El valor es NULL</td><td>MEMO Null</td></tr>
+<tr><td>Not Null</td><td>El valor no es NULL</td><td>EMAIL Not Null</td></tr>
+</table>
+
+<h3>Condiciones compuestas (AND / OR)</h3>
+<p>Al agregar condiciones, puede especificar el operador lógico entre ellas como <strong>AND</strong> u <strong>OR</strong>.</p>
+<ul>
+    <li><strong>AND</strong> &mdash; Muestra solo las filas que cumplen todas las condiciones</li>
+    <li><strong>OR</strong> &mdash; Muestra las filas que cumplen cualquiera de las condiciones</li>
+</ul>
+<p>Las filas de condiciones se pueden agregar o eliminar libremente, lo que permite un filtrado complejo.</p>
+
+<h3>Conservación de las condiciones de búsqueda</h3>
+<p>Las condiciones de búsqueda se restauran automáticamente al reabrir la misma tabla.
+Para borrar las condiciones, use el botón <strong>Borrar búsqueda</strong> en la pantalla de vista previa.</p>
+
+<h2>Invertir selección</h2>
+<p>Puede invertir el estado de selección de la lista de tablas.
+Use <strong>Invertir selección</strong> en el menú contextual.</p>
+
+<p><a href="toc.html">Volver a la tabla de contenido</a></p>
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>테이블 미리보기 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>테이블 미리보기</h1>
+
+<h2>테이블 열기</h2>
+<p>테이블 목록에서 테이블 이름을 더블 클릭하면 데이터 미리보기가 열립니다.
+또는 테이블을 마우스 오른쪽 버튼으로 클릭하고 <strong>열기(&amp;O)</strong>를 선택합니다.</p>
+
+<h2>데이터 표시</h2>
+<p>데이터는 DataGridView에 표시됩니다.</p>
+<ul>
+    <li>컬럼 이름이 컬럼 헤더에 표시됩니다.</li>
+    <li>각 행은 하나의 레코드를 표시합니다.</li>
+    <li>NULL 값은 빈칸으로 표시됩니다.</li>
+    <li>LOB 데이터(BLOB/CLOB/NCLOB)는 <code>%BLOB%</code>, <code>%CLOB%</code>, <code>%NCLOB%</code>로 표시됩니다.</li>
+</ul>
+
+<h2>페이징</h2>
+<p>데이터가 많은 경우 페이지별로 표시됩니다.</p>
+<ul>
+    <li><strong>페이지당 행 수</strong> &mdash; 오른쪽 상단의 숫자 입력으로 조정 가능 (기본값: 100행)</li>
+    <li><strong>페이지 정보</strong> &mdash; 현재 페이지 번호와 전체 페이지 수가 표시됩니다</li>
+    <li>탐색 버튼을 사용하여 페이지 간 이동</li>
+</ul>
+
+<h2>정렬</h2>
+<p>컬럼 헤더를 클릭하면 해당 컬럼으로 데이터를 정렬합니다.
+다시 클릭하면 오름차순과 내림차순 사이를 전환합니다.</p>
+
+<h2>셀 복사</h2>
+<p>미리보기에서 셀을 선택하고 <span class="shortcut">Ctrl+C</span>를 누르면 클립보드에 복사됩니다.
+다중 셀 선택 및 복사도 지원됩니다.</p>
+
+<h2>고급 검색</h2>
+<p>미리보기 화면에서 <strong>고급 검색</strong> 버튼을 클릭하면
+12개 연산자와 AND/OR 복합 조건으로 데이터를 필터링할 수 있습니다.
+자세한 내용은 <a href="search.html">검색 &amp; 필터</a>를 참조하세요.</p>
+
+<h2>미리보기에서 내보내기</h2>
+<p>미리보기 도구 모음에서 다음 내보내기를 사용할 수 있습니다:</p>
+<ul>
+    <li><strong>SQL</strong> &mdash; SQL 스크립트 출력</li>
+    <li><strong>CSV</strong> &mdash; CSV 파일 출력</li>
+    <li><strong>Excel</strong> &mdash; Excel 파일 출력</li>
+    <li><strong>Access</strong> &mdash; Access 데이터베이스 출력</li>
+    <li><strong>SQL Server</strong> &mdash; SQL Server로 직접 출력</li>
+    <li><strong>ODBC</strong> &mdash; ODBC 호환 데이터베이스로 출력</li>
+</ul>
+
+<h2>테이블 속성</h2>
+<p>테이블을 마우스 오른쪽 버튼으로 클릭하고 <strong>속성(&amp;P)</strong>을 선택하면
+컬럼 정의(컬럼 이름, 데이터 유형, 길이 등)를 확인할 수 있습니다.</p>
+
+<h2>테이블 제외</h2>
+<p>불필요한 테이블을 일시적으로 숨길 수 있습니다.</p>
+<ol>
+    <li>테이블 목록에서 테이블을 선택합니다 (다중 선택 지원).</li>
+    <li>컨텍스트 메뉴에서 <strong>삭제(&amp;D)</strong>를 선택하거나
+        <span class="shortcut">Delete</span> 키를 누릅니다.</li>
+    <li>제외된 테이블은 상태 표시줄에 표시됩니다.</li>
+</ol>
+
+<p>제외를 취소하려면:</p>
+<ul>
+    <li><strong>편집(&amp;E)</strong> &gt; <strong>실행 취소</strong>
+        (<span class="shortcut">Ctrl+Z</span>)</li>
+    <li><strong>개체(&amp;O)</strong> &gt; <strong>모든 필터 지우기(&amp;F)</strong>로
+        모든 제외 해제</li>
+</ul>
+
+<p><a href="toc.html">목차로 돌아가기</a></p>
+
+</body>
+</html>

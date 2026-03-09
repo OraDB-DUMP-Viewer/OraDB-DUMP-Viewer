@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>快速入门 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>快速入门</h1>
+
+<h2>什么是 OraDB DUMP Viewer？</h2>
+<p>OraDB DUMP Viewer 是一款独立工具，可在无需 Oracle 客户端的情况下浏览和导出 Oracle 数据库转储文件（EXP / EXPDP）。</p>
+
+<h2>主要功能</h2>
+<ul>
+    <li><strong>转储文件分析</strong> &mdash; 支持 EXP（旧版）和 EXPDP（Data Pump）格式</li>
+    <li><strong>表列表</strong> &mdash; 以树形视图显示模式、表名和列信息</li>
+    <li><strong>数据预览</strong> &mdash; 分页显示表数据，支持排序和复制</li>
+    <li><strong>高级搜索</strong> &mdash; 使用 12 种运算符和 AND/OR 复合条件筛选数据</li>
+    <li><strong>CSV 导出</strong> &mdash; 将表数据导出为 CSV 文件</li>
+    <li><strong>SQL 导出</strong> &mdash; 生成 INSERT 语句（Oracle / PostgreSQL / MySQL / SQL Server）</li>
+    <li><strong>Excel 导出</strong> &mdash; 导出为 .xlsx / .xls 格式</li>
+    <li><strong>Access 导出</strong> &mdash; 导出到 .mdb / .accdb 数据库</li>
+    <li><strong>SQL Server 导出</strong> &mdash; 直接导出到 SQL Server 数据库</li>
+    <li><strong>ODBC 导出</strong> &mdash; 导出到任何兼容 ODBC 的数据库</li>
+    <li><strong>批量导出</strong> &mdash; 一次性将多个表导出为 CSV/SQL</li>
+    <li><strong>LOB 文件提取</strong> &mdash; 将 BLOB/CLOB/NCLOB 数据提取为单独的文件</li>
+    <li><strong>工作区</strong> &mdash; 保存和恢复工作状态</li>
+    <li><strong>表排除</strong> &mdash; 隐藏不需要的表（支持撤销/重做）</li>
+    <li><strong>多语言支持</strong> &mdash; 支持 10 种语言，包括日语、英语、中文、韩语、德语、法语、西班牙语、意大利语、俄语和葡萄牙语（巴西）</li>
+    <li><strong>错误报告</strong> &mdash; 可直接从应用程序内向 GitHub Issues 报告错误</li>
+    <li><strong>自动更新</strong> &mdash; 检测新版本并提供一键更新</li>
+</ul>
+
+<h2>支持的转储格式</h2>
+<table>
+<tr><th>格式</th><th>工具</th><th>支持状态</th></tr>
+<tr><td>EXP（旧版）</td><td>exp / imp</td><td>支持（Oracle 7&ndash;11g）</td></tr>
+<tr><td>EXPDP（Data Pump）</td><td>expdp / impdp</td><td>支持（Oracle 10g&ndash;23ai）</td></tr>
+<tr><td>EXPDP 压缩</td><td>expdp COMPRESSION=ALL</td><td>部分支持（仅表定义）</td></tr>
+</table>
+
+<h2>安装</h2>
+<ol>
+    <li>运行分发的 MSI 安装程序。</li>
+    <li>按照安装向导的指示操作。</li>
+    <li>从桌面或开始菜单启动"OraDB DUMP Viewer"。</li>
+</ol>
+
+<h2>许可证激活</h2>
+<p>首次启动时需要激活许可证。</p>
+<table>
+<tr><th>方案</th><th>价格</th><th>对象</th></tr>
+<tr><td>个人使用</td><td>免费</td><td>个人用户</td></tr>
+<tr><td>教育用途</td><td>免费</td><td>学校及教育机构</td></tr>
+<tr><td>企业使用</td><td>&yen;9,800/year (excl. tax)</td><td>企业及商业用途</td></tr>
+</table>
+<p>请在 <a href="https://www.odv.dev/">https://www.odv.dev/</a> 获取许可证。
+许可证有效性在启动时通过在线方式验证（离线环境仍可使用本地验证）。</p>
+
+<p><a href="toc.html">返回目录</a></p>
+
+</body>
+</html>

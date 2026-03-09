@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>SQL 내보내기 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>SQL 내보내기</h1>
+
+<h2>절차</h2>
+<ol>
+    <li>테이블 목록에서 내보낼 테이블을 선택합니다.</li>
+    <li>도구 모음의 <strong>SQL</strong> 버튼을 클릭하거나
+        <strong>개체(&amp;O)</strong> &gt; <strong>내보내기</strong> &gt; <strong>스크립트(&amp;S)</strong>를 선택합니다.</li>
+    <li>대상 파일 경로를 지정합니다.</li>
+    <li>내보내기가 실행됩니다.</li>
+</ol>
+
+<h2>지원 DBMS</h2>
+<p>다음 DBMS에 대한 INSERT 문을 생성할 수 있습니다:</p>
+<table>
+<tr><th>DBMS</th><th>구문 차이</th></tr>
+<tr><td>Oracle</td><td>TO_DATE 함수, NUMBER 유형 그대로</td></tr>
+<tr><td>PostgreSQL</td><td>CAST 구문, TIMESTAMP 유형</td></tr>
+<tr><td>MySQL</td><td>백틱 식별자, DATETIME 유형</td></tr>
+<tr><td>SQL Server</td><td>대괄호 식별자, DATETIME2 유형</td></tr>
+</table>
+
+<h2>옵션</h2>
+<p>SQL 버튼을 클릭하면 내보내기 전에 대화 상자가 표시됩니다.
+다음 옵션을 설정할 수 있습니다:</p>
+<ul>
+    <li><strong>DBMS 유형</strong> &mdash; Oracle / PostgreSQL / MySQL / SQL Server 중 선택</li>
+    <li><strong>DROP TABLE + CREATE TABLE 출력</strong> (기본값: ON) &mdash;
+        체크박스로 전환 가능.
+        ON일 때 INSERT 문 앞에 <code>DROP TABLE IF EXISTS</code> 및 <code>CREATE TABLE</code> DDL을 출력합니다.
+        대상 데이터베이스에 테이블이 이미 존재하는 경우 삭제 후 다시 생성합니다.</li>
+    <li><strong>날짜 형식</strong> &mdash; 리터럴 형식 또는 함수 호출</li>
+</ul>
+
+<h3>DBMS별 DROP TABLE 구문</h3>
+<table>
+<tr><th>DBMS</th><th>구문</th></tr>
+<tr><td>Oracle / PostgreSQL</td><td><code>DROP TABLE IF EXISTS "table_name" CASCADE;</code></td></tr>
+<tr><td>MySQL</td><td><code>DROP TABLE IF EXISTS `table_name`;</code></td></tr>
+<tr><td>SQL Server</td><td><code>IF OBJECT_ID('table_name', 'U') IS NOT NULL DROP TABLE [table_name];</code></td></tr>
+</table>
+
+<div class="note">
+<strong>참고:</strong> LOB 데이터(BLOB/CLOB)는 SQL 내보내기에 포함되지 않습니다.
+LOB 데이터를 내보내려면 <a href="lob_extract.html">LOB 파일 추출</a>을 사용하세요.
+</div>
+
+<p><a href="toc.html">목차로 돌아가기</a></p>
+
+</body>
+</html>

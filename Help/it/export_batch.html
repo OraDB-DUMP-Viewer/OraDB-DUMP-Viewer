@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Esportazione batch - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Esportazione batch</h1>
+
+<h2>Panoramica</h2>
+<p>Esporta più tabelle in file CSV o SQL contemporaneamente.
+Ogni tabella viene generata come file individuale.</p>
+
+<h2>Procedura</h2>
+<ol>
+    <li>Fare clic sul pulsante <strong>Esportazione batch</strong> nella barra degli strumenti.</li>
+    <li>Viene visualizzata la finestra di dialogo di esportazione.</li>
+    <li>Selezionare il formato di output (CSV / SQL).</li>
+    <li>Specificare la cartella di output.</li>
+    <li>Confermare le tabelle da esportare.
+        <br>Deselezionare le tabelle non necessarie.</li>
+    <li>Fare clic sul pulsante <strong>Esporta</strong>.</li>
+</ol>
+
+<h2>Nomi dei file di output</h2>
+<p>I nomi dei file vengono generati automaticamente nel formato
+<code>NomeSchema.NomeTabella.csv</code> o <code>NomeSchema.NomeTabella.sql</code>.</p>
+
+<h2>Selezione / Esclusione tabelle</h2>
+<ul>
+    <li>Pulsanti <strong>Seleziona tutto</strong> / <strong>Deseleziona tutto</strong> per operazioni in blocco</li>
+    <li><strong>Inverti selezione</strong> per invertire gli stati di selezione</li>
+    <li>Fare clic sulle singole caselle di controllo per selezionare tabelle specifiche</li>
+</ul>
+
+<div class="tip">
+<strong>Suggerimento:</strong> Le tabelle escluse nell'area di lavoro vengono automaticamente
+escluse anche dall'esportazione batch.
+</div>
+
+<h2>Output report</h2>
+<p>Da <strong>Oggetto(&amp;O)</strong> &gt; <strong>Output report(&amp;R)</strong>,
+è possibile generare informazioni sulle tabelle in file di testo.</p>
+<ul>
+    <li><strong>Elenco oggetti</strong> &mdash; Genera un elenco testuale dei nomi delle tabelle e del numero di righe</li>
+    <li><strong>Definizioni tabelle</strong> &mdash; Genera le definizioni delle colonne (nome, tipo, dimensione) per tutte le tabelle</li>
+</ul>
+
+<p><a href="toc.html">Torna al sommario</a></p>
+
+</body>
+</html>

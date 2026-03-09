@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Apertura di un file dump - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Apertura di un file dump</h1>
+
+<h2>Procedura</h2>
+<ol>
+    <li>Selezionare <strong>File(&amp;F)</strong> &gt; <strong>Apri file dump(&amp;O)...</strong> dal menu.
+        <br>Oppure fare clic sul pulsante <strong>Apri</strong> nella barra degli strumenti.</li>
+    <li>Nella finestra di dialogo, selezionare un file dump (<code>.dmp</code>).</li>
+    <li>L'analisi inizia e viene visualizzata una barra di avanzamento.</li>
+    <li>Al termine, l'elenco delle tabelle appare nell'area di lavoro.</li>
+</ol>
+
+<h2>Rilevamento automatico</h2>
+<p>Il formato del file dump (EXP / EXPDP / EXPDP compresso) viene rilevato automaticamente
+analizzando i byte iniziali e i byte marcatori del file.</p>
+
+<table>
+<tr><th>Formato</th><th>Metodo di rilevamento</th></tr>
+<tr><td>EXP</td><td>Byte iniziali 0x01-0x05 + stringa "EXPORT:"</td></tr>
+<tr><td>EXPDP</td><td>Stringa "xml version"</td></tr>
+<tr><td>EXPDP (compresso)</td><td>Marcatori "KGC" + "HDR"</td></tr>
+</table>
+
+<h2>Set di caratteri</h2>
+<p>Anche il set di caratteri del file dump viene rilevato automaticamente.
+Set di caratteri supportati:</p>
+<ul>
+    <li>AL32UTF8 / UTF8</li>
+    <li>JA16SJIS (Shift_JIS)</li>
+    <li>JA16EUC (EUC-JP)</li>
+    <li>AL16UTF16</li>
+    <li>US7ASCII</li>
+    <li>WE8ISO8859P1 / WE8MSWIN1252</li>
+</ul>
+
+<div class="note">
+<strong>Nota:</strong> Per i dump EXPDP compressi, è possibile leggere solo le definizioni delle tabelle (DDL).
+La decompressione dei record di dati non è supportata.
+</div>
+
+<p><a href="toc.html">Torna al sommario</a></p>
+
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Extração de Arquivos LOB - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Extração de Arquivos LOB</h1>
+
+<h2>Visão Geral</h2>
+<p>Extrai dados armazenados em colunas BLOB / CLOB / NCLOB de uma tabela
+como um arquivo por registro.</p>
+
+<h2>Tipos de Dados Suportados</h2>
+<table>
+<tr><th>Tipo de Coluna</th><th>Conteúdo de Saída</th></tr>
+<tr><td>BLOB</td><td>Arquivos binários (imagens, PDF, ZIP, etc.)</td></tr>
+<tr><td>CLOB</td><td>Arquivos de texto (decodificados usando o conjunto de caracteres do arquivo de dump)</td></tr>
+<tr><td>NCLOB</td><td>Arquivos de texto Unicode</td></tr>
+</table>
+
+<h2>Passos</h2>
+<ol>
+    <li>Selecione uma tabela que contenha colunas LOB na lista de tabelas.</li>
+    <li>Selecione <strong>Arquivo(&amp;F)</strong> &gt; <strong>Extrair Arquivos(&amp;F)</strong> no menu.</li>
+    <li>A caixa de diálogo de extração LOB é exibida.</li>
+    <li>Configure o seguinte:
+        <ul>
+            <li><strong>Coluna LOB</strong> &mdash; Selecione a coluna LOB a ser extraída</li>
+            <li><strong>Pasta de Saída</strong> &mdash; Diretório para os arquivos de saída</li>
+            <li><strong>Nomenclatura de Arquivo</strong> &mdash; Numeração sequencial ou valor de coluna</li>
+            <li><strong>Extensão</strong> &mdash; Extensão do arquivo de saída (padrão: <code>lob</code>)</li>
+        </ul>
+    </li>
+    <li>Clique no botão <strong>Extrair</strong>.</li>
+</ol>
+
+<h2>Métodos de Nomenclatura de Arquivo</h2>
+<table>
+<tr><th>Método</th><th>Exemplo</th><th>Descrição</th></tr>
+<tr><td>Sequencial</td><td><code>000001.jpg</code>, <code>000002.jpg</code></td><td>Números sequenciais de 6 dígitos começando em 1</td></tr>
+<tr><td>Valor de Coluna</td><td><code>valor_coluna_nome.jpg</code></td><td>Usa o valor de uma coluna especificada como nome do arquivo</td></tr>
+</table>
+
+<h2>Exemplos de Uso</h2>
+<h3>Extraindo Arquivos de Imagem</h3>
+<p>Quando imagens JPEG estão armazenadas em uma coluna BLOB:</p>
+<ol>
+    <li>Coluna LOB: Selecione <code>IMAGE_DATA (BLOB)</code></li>
+    <li>Extensão: <code>jpg</code></li>
+    <li>Nomenclatura de Arquivo: Sequencial ou valor da coluna ID</li>
+</ol>
+
+<h3>Extraindo Dados de Texto</h3>
+<p>Quando XML ou JSON está armazenado em uma coluna CLOB:</p>
+<ol>
+    <li>Coluna LOB: Selecione <code>XML_CONTENT (CLOB)</code></li>
+    <li>Extensão: <code>xml</code></li>
+</ol>
+
+<div class="caution">
+<strong>Atenção:</strong> A extração pode demorar quando há muitos registros LOB.
+Você pode cancelar pela caixa de diálogo de progresso.
+</div>
+
+<div class="note">
+<strong>Nota:</strong> Na visualização da tabela, os dados LOB são exibidos como marcadores:
+<code>%BLOB%</code>, <code>%CLOB%</code>, <code>%NCLOB%</code>.
+Use este recurso de Extração de Arquivos LOB para obter os dados reais.
+</div>
+
+<p><a href="toc.html">Voltar ao Sumário</a></p>
+
+</body>
+</html>

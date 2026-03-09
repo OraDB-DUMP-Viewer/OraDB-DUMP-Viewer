@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Formats pris en charge et limitations - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Formats pris en charge et limitations</h1>
+
+<h2>Formats de dump pris en charge</h2>
+<table>
+<tr><th>Format</th><th>Prise en charge</th><th>Remarques</th></tr>
+<tr><td>EXP (commande exp)</td><td>Pris en charge</td><td>Oracle 7&ndash;11g</td></tr>
+<tr><td>EXPDP (commande expdp)</td><td>Pris en charge</td><td>Oracle 10g&ndash;23ai</td></tr>
+<tr><td>EXPDP compress&eacute;</td><td>Partiel</td><td>D&eacute;finitions de tables uniquement (donn&eacute;es non prises en charge)</td></tr>
+</table>
+
+<h2>Types de donn&eacute;es pris en charge</h2>
+<table>
+<tr><th>Type de donn&eacute;es</th><th>Aper&ccedil;u</th><th>Export CSV/SQL</th><th>Extraction LOB</th></tr>
+<tr><td>CHAR / VARCHAR2</td><td>Pris en charge</td><td>Pris en charge</td><td>-</td></tr>
+<tr><td>NCHAR / NVARCHAR2</td><td>Pris en charge</td><td>Pris en charge</td><td>-</td></tr>
+<tr><td>NUMBER</td><td>Pris en charge</td><td>Pris en charge</td><td>-</td></tr>
+<tr><td>BINARY_FLOAT</td><td>Pris en charge</td><td>Pris en charge</td><td>-</td></tr>
+<tr><td>BINARY_DOUBLE</td><td>Pris en charge</td><td>Pris en charge</td><td>-</td></tr>
+<tr><td>DATE</td><td>Pris en charge</td><td>Pris en charge</td><td>-</td></tr>
+<tr><td>TIMESTAMP</td><td>Pris en charge</td><td>Pris en charge</td><td>-</td></tr>
+<tr><td>TIMESTAMP WITH TIME ZONE</td><td>Pris en charge</td><td>Pris en charge</td><td>-</td></tr>
+<tr><td>TIMESTAMP WITH LOCAL TIME ZONE</td><td>Pris en charge</td><td>Pris en charge</td><td>-</td></tr>
+<tr><td>INTERVAL YEAR TO MONTH</td><td>Pris en charge</td><td>Pris en charge</td><td>-</td></tr>
+<tr><td>INTERVAL DAY TO SECOND</td><td>Pris en charge</td><td>Pris en charge</td><td>-</td></tr>
+<tr><td>RAW / LONG RAW</td><td>Pris en charge</td><td>Pris en charge</td><td>-</td></tr>
+<tr><td>BLOB</td><td>%BLOB%</td><td>Ignor&eacute;</td><td>Pris en charge</td></tr>
+<tr><td>CLOB</td><td>%CLOB%</td><td>Ignor&eacute;</td><td>Pris en charge</td></tr>
+<tr><td>NCLOB</td><td>%NCLOB%</td><td>Ignor&eacute;</td><td>Pris en charge</td></tr>
+<tr><td>XMLTYPE</td><td>Pris en charge</td><td>Pris en charge</td><td>-</td></tr>
+<tr><td>ROWID</td><td>Pris en charge</td><td>Pris en charge</td><td>-</td></tr>
+</table>
+
+<h2>Limitations</h2>
+<ul>
+    <li>Les enregistrements de donn&eacute;es des dumps EXPDP compress&eacute;s ne peuvent pas &ecirc;tre lus (m&eacute;tadonn&eacute;es uniquement)</li>
+    <li>Les donn&eacute;es r&eacute;elles du type BFILE ne peuvent pas &ecirc;tre extraites (informations de chemin uniquement)</li>
+    <li>Les fichiers dump chiffr&eacute;s ne sont pas pris en charge</li>
+    <li>Les dumps via lien r&eacute;seau ne sont pas pris en charge</li>
+    <li>Nombre maximum de tables : 1 000</li>
+    <li>Nombre maximum de colonnes : 1 000 (par table)</li>
+</ul>
+
+<h2>Jeux de caract&egrave;res</h2>
+<p>Les jeux de caract&egrave;res NLS suivants sont pris en charge :</p>
+<ul>
+    <li>AL32UTF8 / UTF8</li>
+    <li>JA16SJIS</li>
+    <li>JA16EUC</li>
+    <li>AL16UTF16</li>
+    <li>US7ASCII</li>
+    <li>WE8ISO8859P1 / WE8MSWIN1252</li>
+</ul>
+
+<p><a href="toc.html">Retour &agrave; la table des mati&egrave;res</a></p>
+
+</body>
+</html>

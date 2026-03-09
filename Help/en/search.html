@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Search &amp; Filter - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Search &amp; Filter</h1>
+
+<h2>Table Name Filter</h2>
+<p>Type part of a table name in the search text box at the top of the workspace
+to filter the table list in real time.</p>
+
+<ul>
+    <li>Case-insensitive.</li>
+    <li>Partial matching on table names.</li>
+    <li>Clear the text to remove the filter.</li>
+</ul>
+
+<h2>Advanced Search (Table Data Search)</h2>
+<p>On the table preview screen, you can perform advanced condition-based searches on data.
+Click the <strong>Advanced Search</strong> button to open the search condition dialog.</p>
+
+<h3>Setting Search Conditions</h3>
+<p>Specify the following for each condition row:</p>
+<ol>
+    <li><strong>Column Name</strong> &mdash; Select the target column</li>
+    <li><strong>Operator</strong> &mdash; Choose from 12 operators</li>
+    <li><strong>Search Value</strong> &mdash; Enter the comparison value (not required for Null / Not Null operators)</li>
+    <li><strong>Case Sensitive</strong> &mdash; Check to perform case-sensitive comparison</li>
+</ol>
+
+<h3>Operator List</h3>
+<table>
+<tr><th>Operator</th><th>Description</th><th>Example</th></tr>
+<tr><td>Contains</td><td>Value contains the search string</td><td>NAME Contains "Smith"</td></tr>
+<tr><td>Does Not Contain</td><td>Value does not contain the search string</td><td>NAME Does Not Contain "test"</td></tr>
+<tr><td>Equals</td><td>Value exactly matches the search string</td><td>STATUS Equals "ACTIVE"</td></tr>
+<tr><td>Not Equal</td><td>Value does not match the search string</td><td>TYPE Not Equal "TEMP"</td></tr>
+<tr><td>Starts With</td><td>Value starts with the search string</td><td>CODE Starts With "A"</td></tr>
+<tr><td>Ends With</td><td>Value ends with the search string</td><td>EMAIL Ends With ".com"</td></tr>
+<tr><td>&gt;</td><td>Value is greater than the search value</td><td>AMOUNT &gt; "1000"</td></tr>
+<tr><td>&lt;</td><td>Value is less than the search value</td><td>AGE &lt; "30"</td></tr>
+<tr><td>&gt;=</td><td>Value is greater than or equal to the search value</td><td>SCORE &gt;= "80"</td></tr>
+<tr><td>&lt;=</td><td>Value is less than or equal to the search value</td><td>PRICE &lt;= "500"</td></tr>
+<tr><td>Null</td><td>Value is NULL</td><td>MEMO Null</td></tr>
+<tr><td>Not Null</td><td>Value is not NULL</td><td>EMAIL Not Null</td></tr>
+</table>
+
+<h3>Compound Conditions (AND / OR)</h3>
+<p>When adding conditions, you can specify the logical operator between them as <strong>AND</strong> or <strong>OR</strong>.</p>
+<ul>
+    <li><strong>AND</strong> &mdash; Show only rows that satisfy all conditions</li>
+    <li><strong>OR</strong> &mdash; Show rows that satisfy any of the conditions</li>
+</ul>
+<p>Condition rows can be freely added or removed, enabling complex filtering.</p>
+
+<h3>Preserving Search Conditions</h3>
+<p>Search conditions are automatically restored when reopening the same table.
+To clear conditions, use the <strong>Clear Search</strong> button on the preview screen.</p>
+
+<h2>Invert Selection</h2>
+<p>You can invert the selection state of the table list.
+Use <strong>Invert Selection</strong> from the context menu.</p>
+
+<p><a href="toc.html">Back to Table of Contents</a></p>
+
+</body>
+</html>

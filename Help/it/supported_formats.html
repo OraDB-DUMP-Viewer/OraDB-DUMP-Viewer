@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Formati supportati e limitazioni - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Formati supportati e limitazioni</h1>
+
+<h2>Formati dump supportati</h2>
+<table>
+<tr><th>Formato</th><th>Supporto</th><th>Note</th></tr>
+<tr><td>EXP (comando exp)</td><td>Supportato</td><td>Oracle 7&ndash;11g</td></tr>
+<tr><td>EXPDP (comando expdp)</td><td>Supportato</td><td>Oracle 10g&ndash;23ai</td></tr>
+<tr><td>EXPDP compresso</td><td>Parziale</td><td>Solo definizioni tabelle (dati non supportati)</td></tr>
+</table>
+
+<h2>Tipi di dati supportati</h2>
+<table>
+<tr><th>Tipo di dato</th><th>Anteprima</th><th>Esportazione CSV/SQL</th><th>Estrazione LOB</th></tr>
+<tr><td>CHAR / VARCHAR2</td><td>Supportato</td><td>Supportato</td><td>-</td></tr>
+<tr><td>NCHAR / NVARCHAR2</td><td>Supportato</td><td>Supportato</td><td>-</td></tr>
+<tr><td>NUMBER</td><td>Supportato</td><td>Supportato</td><td>-</td></tr>
+<tr><td>BINARY_FLOAT</td><td>Supportato</td><td>Supportato</td><td>-</td></tr>
+<tr><td>BINARY_DOUBLE</td><td>Supportato</td><td>Supportato</td><td>-</td></tr>
+<tr><td>DATE</td><td>Supportato</td><td>Supportato</td><td>-</td></tr>
+<tr><td>TIMESTAMP</td><td>Supportato</td><td>Supportato</td><td>-</td></tr>
+<tr><td>TIMESTAMP WITH TIME ZONE</td><td>Supportato</td><td>Supportato</td><td>-</td></tr>
+<tr><td>TIMESTAMP WITH LOCAL TIME ZONE</td><td>Supportato</td><td>Supportato</td><td>-</td></tr>
+<tr><td>INTERVAL YEAR TO MONTH</td><td>Supportato</td><td>Supportato</td><td>-</td></tr>
+<tr><td>INTERVAL DAY TO SECOND</td><td>Supportato</td><td>Supportato</td><td>-</td></tr>
+<tr><td>RAW / LONG RAW</td><td>Supportato</td><td>Supportato</td><td>-</td></tr>
+<tr><td>BLOB</td><td>%BLOB%</td><td>Ignorato</td><td>Supportato</td></tr>
+<tr><td>CLOB</td><td>%CLOB%</td><td>Ignorato</td><td>Supportato</td></tr>
+<tr><td>NCLOB</td><td>%NCLOB%</td><td>Ignorato</td><td>Supportato</td></tr>
+<tr><td>XMLTYPE</td><td>Supportato</td><td>Supportato</td><td>-</td></tr>
+<tr><td>ROWID</td><td>Supportato</td><td>Supportato</td><td>-</td></tr>
+</table>
+
+<h2>Limitazioni</h2>
+<ul>
+    <li>I record di dati nei dump EXPDP compressi non possono essere letti (solo metadati)</li>
+    <li>I dati effettivi del tipo BFILE non possono essere estratti (solo informazioni sul percorso)</li>
+    <li>I file dump crittografati non sono supportati</li>
+    <li>I dump tramite network link non sono supportati</li>
+    <li>Numero massimo di tabelle: 1.000</li>
+    <li>Numero massimo di colonne: 1.000 (per tabella)</li>
+</ul>
+
+<h2>Set di caratteri</h2>
+<p>Sono supportati i seguenti set di caratteri NLS:</p>
+<ul>
+    <li>AL32UTF8 / UTF8</li>
+    <li>JA16SJIS</li>
+    <li>JA16EUC</li>
+    <li>AL16UTF16</li>
+    <li>US7ASCII</li>
+    <li>WE8ISO8859P1 / WE8MSWIN1252</li>
+</ul>
+
+<p><a href="toc.html">Torna al sommario</a></p>
+
+</body>
+</html>

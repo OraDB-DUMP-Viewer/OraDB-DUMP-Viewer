@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Area di lavoro - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Area di lavoro</h1>
+
+<h2>Panoramica</h2>
+<p>L'area di lavoro è una funzionalità che gestisce insieme i risultati dell'analisi dei file dump e lo stato di lavoro.
+È possibile salvare e ripristinare gli stati di esclusione delle tabelle e le impostazioni dei filtri.</p>
+
+<h2>Salvataggio di un'area di lavoro</h2>
+<ol>
+    <li>Selezionare <strong>File(&amp;F)</strong> &gt; <strong>Salva area di lavoro(&amp;S)</strong> dal menu.</li>
+    <li>Al primo salvataggio, specificare il percorso del file (estensione: <code>.odvw</code>).</li>
+    <li>I salvataggi successivi sovrascriveranno il file esistente.</li>
+</ol>
+
+<h2>Salva con nome</h2>
+<p><strong>File(&amp;F)</strong> &gt; <strong>Salva con nome(&amp;A)</strong> consente di salvare l'area di lavoro
+con un nome file diverso.</p>
+
+<h2>Apertura di un'area di lavoro</h2>
+<ol>
+    <li>Selezionare <strong>File(&amp;F)</strong> &gt; <strong>Area di lavoro(&amp;W)...</strong> dal menu.</li>
+    <li>Selezionare un file <code>.odvw</code>.</li>
+    <li>Il file dump viene caricato automaticamente e gli stati di esclusione e i filtri vengono ripristinati.</li>
+</ol>
+
+<h2>Informazioni salvate</h2>
+<table>
+<tr><th>Elemento</th><th>Descrizione</th></tr>
+<tr><td>Percorso file dump</td><td>Percorso assoluto del file dump originale</td></tr>
+<tr><td>Tabelle escluse</td><td>Elenco delle tabelle nascoste</td></tr>
+<tr><td>Filtro di ricerca</td><td>Testo di ricerca del nome tabella</td></tr>
+<tr><td>Schema</td><td>Schema attualmente selezionato</td></tr>
+<tr><td>Nodi espansi</td><td>Stato di espansione della vista ad albero</td></tr>
+</table>
+
+<h2>File recenti</h2>
+<p>Fino a 5 aree di lavoro e file dump recenti vengono visualizzati in fondo al menu <strong>File</strong>.
+Fare clic per riaprirli rapidamente.</p>
+
+<div class="tip">
+<strong>Suggerimento:</strong> Una finestra di dialogo di conferma salvataggio appare prima della chiusura di un'area di lavoro.
+Se ci sono modifiche non salvate, selezionare "Sì" per salvarle.
+</div>
+
+<p><a href="toc.html">Torna al sommario</a></p>
+
+</body>
+</html>

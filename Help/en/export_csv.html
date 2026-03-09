@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CSV Export - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>CSV Export</h1>
+
+<h2>Steps</h2>
+<ol>
+    <li>Select the table you want to export in the table list.</li>
+    <li>Click the <strong>CSV</strong> button on the toolbar,
+        or select <strong>Object(&amp;O)</strong> &gt; <strong>Export</strong> &gt; <strong>Data(&amp;D)</strong>.</li>
+    <li>Specify the destination file path.</li>
+    <li>The export runs and a progress dialog is displayed.</li>
+</ol>
+
+<h2>Output Format</h2>
+<ul>
+    <li>Encoding: UTF-8 (with BOM)</li>
+    <li>Delimiter: Comma (<code>,</code>)</li>
+    <li>Quoting: Double quotes (<code>"</code>) &mdash; applied when values contain commas, newlines, or double quotes</li>
+    <li>Line ending: CRLF (<code>\r\n</code>)</li>
+    <li>RFC 4180 compliant</li>
+</ul>
+
+<h2>Options</h2>
+<p>The following can be configured in <a href="export_options.html">Export Options</a>:</p>
+<ul>
+    <li><strong>Header Row</strong> &mdash; Whether to output column names in the first row</li>
+    <li><strong>Type Info Row</strong> &mdash; Output column type information in the row after the header</li>
+    <li><strong>Date Format</strong> &mdash; Output format for DATE/TIMESTAMP columns</li>
+</ul>
+
+<hr>
+
+<h1>Other Export Formats</h1>
+
+<h2>Excel Export</h2>
+<p>Exports table data to an Excel file (.xlsx / .xls).</p>
+<ol>
+    <li>Select a table and click the <strong>Excel</strong> button on the toolbar.</li>
+    <li>Specify the destination file path.</li>
+    <li>An Excel file is generated.</li>
+</ol>
+
+<h2>Access Export</h2>
+<p>Exports table data to a Microsoft Access database (.accdb / .mdb).</p>
+<ol>
+    <li>Select a table and click the <strong>Access</strong> button on the toolbar.</li>
+    <li>Specify the destination file path.</li>
+    <li>A table is created in the Access database and data is imported.</li>
+</ol>
+
+<h2>SQL Server Export</h2>
+<p>Exports table data directly to a SQL Server database.</p>
+<ol>
+    <li>Select a table and click the <strong>SQL Server</strong> button on the toolbar.</li>
+    <li>Enter SQL Server connection information in the connection dialog.</li>
+    <li>A table is created in the target database and data is inserted.</li>
+</ol>
+<p>If a table with the same name already exists, it is automatically dropped and recreated.</p>
+
+<h2>ODBC Export</h2>
+<p>Exports table data to any ODBC-compatible database.</p>
+<ol>
+    <li>Select a table and click the <strong>ODBC</strong> button on the toolbar.</li>
+    <li>Enter the ODBC connection string or DSN in the connection dialog.</li>
+    <li>A table is created in the target database and data is inserted.</li>
+</ol>
+<p>If a table with the same name already exists, it is automatically dropped and recreated.</p>
+
+<h2>Handling Existing Tables</h2>
+<table>
+<tr><th>Export Target</th><th>Existing Table Behavior</th></tr>
+<tr><td>SQL Script</td><td>DROP TABLE IF EXISTS (toggleable via checkbox)</td></tr>
+<tr><td>SQL Server</td><td>Auto drop + recreate</td></tr>
+<tr><td>ODBC</td><td>Auto drop + recreate</td></tr>
+<tr><td>Access</td><td>Recreate entire file</td></tr>
+<tr><td>Excel</td><td>Overwrite file</td></tr>
+</table>
+
+<div class="note">
+<strong>Note:</strong> For SQL Server and ODBC exports,
+the target database must be created in advance.
+</div>
+
+<p><a href="toc.html">Back to Table of Contents</a></p>
+
+</body>
+</html>

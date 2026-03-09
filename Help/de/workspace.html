@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Arbeitsbereich - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Arbeitsbereich</h1>
+
+<h2>&Uuml;bersicht</h2>
+<p>Der Arbeitsbereich ist eine Funktion, die Dump-Datei-Analyseergebnisse und den Arbeitszustand gemeinsam verwaltet.
+Sie k&ouml;nnen Tabellenausschluss-Zust&auml;nde und Filtereinstellungen speichern und wiederherstellen.</p>
+
+<h2>Arbeitsbereich speichern</h2>
+<ol>
+    <li>W&auml;hlen Sie <strong>Datei(&amp;F)</strong> &gt; <strong>Arbeitsbereich speichern(&amp;S)</strong> aus dem Men&uuml;.</li>
+    <li>Beim ersten Speichern geben Sie den Dateipfad an (Erweiterung: <code>.odvw</code>).</li>
+    <li>Nachfolgende Speichervorg&auml;nge &uuml;berschreiben die vorhandene Datei.</li>
+</ol>
+
+<h2>Speichern unter</h2>
+<p><strong>Datei(&amp;F)</strong> &gt; <strong>Speichern unter(&amp;A)</strong> erm&ouml;glicht es, den Arbeitsbereich
+unter einem anderen Dateinamen zu speichern.</p>
+
+<h2>Arbeitsbereich &ouml;ffnen</h2>
+<ol>
+    <li>W&auml;hlen Sie <strong>Datei(&amp;F)</strong> &gt; <strong>Arbeitsbereich(&amp;W)...</strong> aus dem Men&uuml;.</li>
+    <li>W&auml;hlen Sie eine <code>.odvw</code>-Datei aus.</li>
+    <li>Die Dump-Datei wird automatisch geladen und Ausschluss-Zust&auml;nde sowie Filter werden wiederhergestellt.</li>
+</ol>
+
+<h2>Gespeicherte Informationen</h2>
+<table>
+<tr><th>Element</th><th>Beschreibung</th></tr>
+<tr><td>Dump-Dateipfad</td><td>Absoluter Pfad zur urspr&uuml;nglichen Dump-Datei</td></tr>
+<tr><td>Ausgeschlossene Tabellen</td><td>Liste der ausgeblendeten Tabellen</td></tr>
+<tr><td>Suchfilter</td><td>Tabellennamen-Suchtext</td></tr>
+<tr><td>Schema</td><td>Aktuell ausgew&auml;hltes Schema</td></tr>
+<tr><td>Aufgeklappte Knoten</td><td>Aufklapppungszustand der Baumansicht</td></tr>
+</table>
+
+<h2>Zuletzt verwendete Dateien</h2>
+<p>Bis zu 5 zuletzt verwendete Arbeitsbereiche und Dump-Dateien werden am unteren Rand des Men&uuml;s <strong>Datei</strong> angezeigt.
+Klicken Sie darauf, um sie schnell wieder zu &ouml;ffnen.</p>
+
+<div class="tip">
+<strong>Tipp:</strong> Vor dem Schlie&szlig;en eines Arbeitsbereichs erscheint ein Speicher-Best&auml;tigungsdialog.
+Wenn es ungespeicherte &Auml;nderungen gibt, w&auml;hlen Sie &bdquo;Ja&ldquo;, um diese zu speichern.
+</div>
+
+<p><a href="toc.html">Zur&uuml;ck zum Inhaltsverzeichnis</a></p>
+
+</body>
+</html>

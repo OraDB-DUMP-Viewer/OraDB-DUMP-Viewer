@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Recherche et filtrage - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Recherche et filtrage</h1>
+
+<h2>Filtre par nom de table</h2>
+<p>Saisissez une partie du nom de table dans la zone de recherche en haut de l'espace de travail
+pour filtrer la liste des tables en temps r&eacute;el.</p>
+
+<ul>
+    <li>Insensible &agrave; la casse.</li>
+    <li>Correspondance partielle sur les noms de tables.</li>
+    <li>Effacez le texte pour supprimer le filtre.</li>
+</ul>
+
+<h2>Recherche avanc&eacute;e (Recherche dans les donn&eacute;es de table)</h2>
+<p>Sur l'&eacute;cran d'aper&ccedil;u de table, vous pouvez effectuer des recherches avanc&eacute;es bas&eacute;es sur des conditions.
+Cliquez sur le bouton <strong>Recherche avanc&eacute;e</strong> pour ouvrir la bo&icirc;te de dialogue des conditions de recherche.</p>
+
+<h3>D&eacute;finition des conditions de recherche</h3>
+<p>Sp&eacute;cifiez les &eacute;l&eacute;ments suivants pour chaque ligne de condition :</p>
+<ol>
+    <li><strong>Nom de colonne</strong> &mdash; S&eacute;lectionnez la colonne cible</li>
+    <li><strong>Op&eacute;rateur</strong> &mdash; Choisissez parmi 12 op&eacute;rateurs</li>
+    <li><strong>Valeur de recherche</strong> &mdash; Saisissez la valeur de comparaison (non requise pour les op&eacute;rateurs Null / Non Null)</li>
+    <li><strong>Sensible &agrave; la casse</strong> &mdash; Cochez pour effectuer une comparaison sensible &agrave; la casse</li>
+</ol>
+
+<h3>Liste des op&eacute;rateurs</h3>
+<table>
+<tr><th>Op&eacute;rateur</th><th>Description</th><th>Exemple</th></tr>
+<tr><td>Contient</td><td>La valeur contient la cha&icirc;ne recherch&eacute;e</td><td>NAME Contient "Smith"</td></tr>
+<tr><td>Ne contient pas</td><td>La valeur ne contient pas la cha&icirc;ne recherch&eacute;e</td><td>NAME Ne contient pas "test"</td></tr>
+<tr><td>&Eacute;gal</td><td>La valeur correspond exactement &agrave; la cha&icirc;ne recherch&eacute;e</td><td>STATUS &Eacute;gal "ACTIVE"</td></tr>
+<tr><td>Diff&eacute;rent</td><td>La valeur ne correspond pas &agrave; la cha&icirc;ne recherch&eacute;e</td><td>TYPE Diff&eacute;rent "TEMP"</td></tr>
+<tr><td>Commence par</td><td>La valeur commence par la cha&icirc;ne recherch&eacute;e</td><td>CODE Commence par "A"</td></tr>
+<tr><td>Se termine par</td><td>La valeur se termine par la cha&icirc;ne recherch&eacute;e</td><td>EMAIL Se termine par ".com"</td></tr>
+<tr><td>&gt;</td><td>La valeur est sup&eacute;rieure &agrave; la valeur recherch&eacute;e</td><td>AMOUNT &gt; "1000"</td></tr>
+<tr><td>&lt;</td><td>La valeur est inf&eacute;rieure &agrave; la valeur recherch&eacute;e</td><td>AGE &lt; "30"</td></tr>
+<tr><td>&gt;=</td><td>La valeur est sup&eacute;rieure ou &eacute;gale &agrave; la valeur recherch&eacute;e</td><td>SCORE &gt;= "80"</td></tr>
+<tr><td>&lt;=</td><td>La valeur est inf&eacute;rieure ou &eacute;gale &agrave; la valeur recherch&eacute;e</td><td>PRICE &lt;= "500"</td></tr>
+<tr><td>Null</td><td>La valeur est NULL</td><td>MEMO Null</td></tr>
+<tr><td>Non Null</td><td>La valeur n'est pas NULL</td><td>EMAIL Non Null</td></tr>
+</table>
+
+<h3>Conditions compos&eacute;es (AND / OR)</h3>
+<p>Lors de l'ajout de conditions, vous pouvez sp&eacute;cifier l'op&eacute;rateur logique entre elles comme <strong>AND</strong> ou <strong>OR</strong>.</p>
+<ul>
+    <li><strong>AND</strong> &mdash; Afficher uniquement les lignes satisfaisant toutes les conditions</li>
+    <li><strong>OR</strong> &mdash; Afficher les lignes satisfaisant au moins une des conditions</li>
+</ul>
+<p>Les lignes de conditions peuvent &ecirc;tre librement ajout&eacute;es ou supprim&eacute;es, permettant un filtrage complexe.</p>
+
+<h3>Conservation des conditions de recherche</h3>
+<p>Les conditions de recherche sont automatiquement restaur&eacute;es lors de la r&eacute;ouverture de la m&ecirc;me table.
+Pour effacer les conditions, utilisez le bouton <strong>Effacer la recherche</strong> sur l'&eacute;cran d'aper&ccedil;u.</p>
+
+<h2>Inverser la s&eacute;lection</h2>
+<p>Vous pouvez inverser l'&eacute;tat de s&eacute;lection de la liste des tables.
+Utilisez <strong>Inverser la s&eacute;lection</strong> depuis le menu contextuel.</p>
+
+<p><a href="toc.html">Retour &agrave; la table des mati&egrave;res</a></p>
+
+</body>
+</html>

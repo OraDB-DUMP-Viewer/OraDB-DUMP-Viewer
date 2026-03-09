@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Поддерживаемые форматы и ограничения - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Поддерживаемые форматы и ограничения</h1>
+
+<h2>Поддерживаемые форматы дампов</h2>
+<table>
+<tr><th>Формат</th><th>Поддержка</th><th>Примечания</th></tr>
+<tr><td>EXP (команда exp)</td><td>Поддерживается</td><td>Oracle 7&ndash;11g</td></tr>
+<tr><td>EXPDP (команда expdp)</td><td>Поддерживается</td><td>Oracle 10g&ndash;23ai</td></tr>
+<tr><td>EXPDP со сжатием</td><td>Частично</td><td>Только определения таблиц (данные не поддерживаются)</td></tr>
+</table>
+
+<h2>Поддерживаемые типы данных</h2>
+<table>
+<tr><th>Тип данных</th><th>Просмотр</th><th>Экспорт CSV/SQL</th><th>Извлечение LOB</th></tr>
+<tr><td>CHAR / VARCHAR2</td><td>Поддерживается</td><td>Поддерживается</td><td>-</td></tr>
+<tr><td>NCHAR / NVARCHAR2</td><td>Поддерживается</td><td>Поддерживается</td><td>-</td></tr>
+<tr><td>NUMBER</td><td>Поддерживается</td><td>Поддерживается</td><td>-</td></tr>
+<tr><td>BINARY_FLOAT</td><td>Поддерживается</td><td>Поддерживается</td><td>-</td></tr>
+<tr><td>BINARY_DOUBLE</td><td>Поддерживается</td><td>Поддерживается</td><td>-</td></tr>
+<tr><td>DATE</td><td>Поддерживается</td><td>Поддерживается</td><td>-</td></tr>
+<tr><td>TIMESTAMP</td><td>Поддерживается</td><td>Поддерживается</td><td>-</td></tr>
+<tr><td>TIMESTAMP WITH TIME ZONE</td><td>Поддерживается</td><td>Поддерживается</td><td>-</td></tr>
+<tr><td>TIMESTAMP WITH LOCAL TIME ZONE</td><td>Поддерживается</td><td>Поддерживается</td><td>-</td></tr>
+<tr><td>INTERVAL YEAR TO MONTH</td><td>Поддерживается</td><td>Поддерживается</td><td>-</td></tr>
+<tr><td>INTERVAL DAY TO SECOND</td><td>Поддерживается</td><td>Поддерживается</td><td>-</td></tr>
+<tr><td>RAW / LONG RAW</td><td>Поддерживается</td><td>Поддерживается</td><td>-</td></tr>
+<tr><td>BLOB</td><td>%BLOB%</td><td>Пропускается</td><td>Поддерживается</td></tr>
+<tr><td>CLOB</td><td>%CLOB%</td><td>Пропускается</td><td>Поддерживается</td></tr>
+<tr><td>NCLOB</td><td>%NCLOB%</td><td>Пропускается</td><td>Поддерживается</td></tr>
+<tr><td>XMLTYPE</td><td>Поддерживается</td><td>Поддерживается</td><td>-</td></tr>
+<tr><td>ROWID</td><td>Поддерживается</td><td>Поддерживается</td><td>-</td></tr>
+</table>
+
+<h2>Ограничения</h2>
+<ul>
+    <li>Записи данных в сжатых дампах EXPDP не могут быть прочитаны (только метаданные)</li>
+    <li>Фактические данные типа BFILE не могут быть извлечены (только информация о пути)</li>
+    <li>Зашифрованные файлы дампов не поддерживаются</li>
+    <li>Дампы через сетевое соединение (network link) не поддерживаются</li>
+    <li>Максимальное количество таблиц: 1 000</li>
+    <li>Максимальное количество столбцов: 1 000 (на таблицу)</li>
+</ul>
+
+<h2>Кодировки символов</h2>
+<p>Поддерживаются следующие кодировки NLS:</p>
+<ul>
+    <li>AL32UTF8 / UTF8</li>
+    <li>JA16SJIS</li>
+    <li>JA16EUC</li>
+    <li>AL16UTF16</li>
+    <li>US7ASCII</li>
+    <li>WE8ISO8859P1 / WE8MSWIN1252</li>
+</ul>
+
+<p><a href="toc.html">Вернуться к содержанию</a></p>
+
+</body>
+</html>

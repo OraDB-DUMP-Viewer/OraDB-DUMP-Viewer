@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Opening a Dump File - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Opening a Dump File</h1>
+
+<h2>Steps</h2>
+<ol>
+    <li>Select <strong>File(&amp;F)</strong> &gt; <strong>Open Dump File(&amp;O)...</strong> from the menu.
+        <br>Or click the <strong>Open</strong> button on the toolbar.</li>
+    <li>In the file dialog, select a dump file (<code>.dmp</code>).</li>
+    <li>Analysis begins and a progress bar is displayed.</li>
+    <li>When complete, the table list appears in the workspace.</li>
+</ol>
+
+<h2>Auto-Detection</h2>
+<p>The dump file format (EXP / EXPDP / EXPDP Compressed) is detected automatically
+by analyzing the leading bytes and marker bytes of the file.</p>
+
+<table>
+<tr><th>Format</th><th>Detection Method</th></tr>
+<tr><td>EXP</td><td>Leading bytes 0x01-0x05 + "EXPORT:" string</td></tr>
+<tr><td>EXPDP</td><td>"xml version" string</td></tr>
+<tr><td>EXPDP (Compressed)</td><td>"KGC" + "HDR" markers</td></tr>
+</table>
+
+<h2>Character Set</h2>
+<p>The dump file character set is also detected automatically.
+Supported character sets:</p>
+<ul>
+    <li>AL32UTF8 / UTF8</li>
+    <li>JA16SJIS (Shift_JIS)</li>
+    <li>JA16EUC (EUC-JP)</li>
+    <li>AL16UTF16</li>
+    <li>US7ASCII</li>
+    <li>WE8ISO8859P1 / WE8MSWIN1252</li>
+</ul>
+
+<div class="note">
+<strong>Note:</strong> For compressed EXPDP dumps, only table definitions (DDL) can be read.
+Decompression of data records is not supported.
+</div>
+
+<p><a href="toc.html">Back to Table of Contents</a></p>
+
+</body>
+</html>

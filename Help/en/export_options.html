@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Export Options - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Export Options</h1>
+
+<h2>How to Access</h2>
+<p>Click the <strong>Options</strong> button on the toolbar
+to open the Export Options dialog.</p>
+
+<h2>Date Format</h2>
+<table>
+<tr><th>Format</th><th>Example</th><th>Description</th></tr>
+<tr><td>YYYY/MM/DD HH:MI:SS</td><td>2026/01/15 09:30:00</td><td>Standard format (default)</td></tr>
+<tr><td>YYYYMMDD</td><td>20260115</td><td>Compact (date only)</td></tr>
+<tr><td>YYYYMMDDHH24MISS</td><td>20260115093000</td><td>Compact (date and time)</td></tr>
+<tr><td>Custom</td><td>Any</td><td>Tokens: YYYY, MM, DD, HH24, MI, SS</td></tr>
+</table>
+
+<h2>CSV Options</h2>
+<table>
+<tr><th>Setting</th><th>Default</th><th>Description</th></tr>
+<tr><td>Output Header Row</td><td>ON</td><td>Output column names in the first row</td></tr>
+<tr><td>Output Type Info Row</td><td>OFF</td><td>Output column types in the row after the header</td></tr>
+</table>
+
+<h2>SQL Options</h2>
+<p>A dialog is displayed before SQL export.
+The following options can be toggled via checkboxes:</p>
+<table>
+<tr><th>Setting</th><th>Default</th><th>Description</th></tr>
+<tr><td>Output DROP TABLE + CREATE TABLE</td><td>ON</td><td>Output DROP TABLE IF EXISTS and CREATE TABLE DDL before INSERT statements. Toggleable via checkbox. Drops and recreates existing tables</td></tr>
+<tr><td>DBMS Type</td><td>Oracle</td><td>Oracle / PostgreSQL / MySQL / SQL Server</td></tr>
+</table>
+
+<div class="note">
+<strong>Note:</strong> Option settings are saved in application settings and persist across restarts.
+</div>
+
+<p><a href="toc.html">Back to Table of Contents</a></p>
+
+</body>
+</html>

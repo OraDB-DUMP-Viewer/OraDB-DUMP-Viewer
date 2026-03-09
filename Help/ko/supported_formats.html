@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>지원 형식 및 제한 사항 - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>지원 형식 및 제한 사항</h1>
+
+<h2>지원 덤프 형식</h2>
+<table>
+<tr><th>형식</th><th>지원</th><th>비고</th></tr>
+<tr><td>EXP (exp 명령)</td><td>지원</td><td>Oracle 7&ndash;11g</td></tr>
+<tr><td>EXPDP (expdp 명령)</td><td>지원</td><td>Oracle 10g&ndash;23ai</td></tr>
+<tr><td>EXPDP 압축</td><td>부분 지원</td><td>테이블 정의만 (데이터 미지원)</td></tr>
+</table>
+
+<h2>지원 데이터 타입</h2>
+<table>
+<tr><th>데이터 타입</th><th>미리보기</th><th>CSV/SQL 내보내기</th><th>LOB 추출</th></tr>
+<tr><td>CHAR / VARCHAR2</td><td>지원</td><td>지원</td><td>-</td></tr>
+<tr><td>NCHAR / NVARCHAR2</td><td>지원</td><td>지원</td><td>-</td></tr>
+<tr><td>NUMBER</td><td>지원</td><td>지원</td><td>-</td></tr>
+<tr><td>BINARY_FLOAT</td><td>지원</td><td>지원</td><td>-</td></tr>
+<tr><td>BINARY_DOUBLE</td><td>지원</td><td>지원</td><td>-</td></tr>
+<tr><td>DATE</td><td>지원</td><td>지원</td><td>-</td></tr>
+<tr><td>TIMESTAMP</td><td>지원</td><td>지원</td><td>-</td></tr>
+<tr><td>TIMESTAMP WITH TIME ZONE</td><td>지원</td><td>지원</td><td>-</td></tr>
+<tr><td>TIMESTAMP WITH LOCAL TIME ZONE</td><td>지원</td><td>지원</td><td>-</td></tr>
+<tr><td>INTERVAL YEAR TO MONTH</td><td>지원</td><td>지원</td><td>-</td></tr>
+<tr><td>INTERVAL DAY TO SECOND</td><td>지원</td><td>지원</td><td>-</td></tr>
+<tr><td>RAW / LONG RAW</td><td>지원</td><td>지원</td><td>-</td></tr>
+<tr><td>BLOB</td><td>%BLOB%</td><td>건너뜀</td><td>지원</td></tr>
+<tr><td>CLOB</td><td>%CLOB%</td><td>건너뜀</td><td>지원</td></tr>
+<tr><td>NCLOB</td><td>%NCLOB%</td><td>건너뜀</td><td>지원</td></tr>
+<tr><td>XMLTYPE</td><td>지원</td><td>지원</td><td>-</td></tr>
+<tr><td>ROWID</td><td>지원</td><td>지원</td><td>-</td></tr>
+</table>
+
+<h2>제한 사항</h2>
+<ul>
+    <li>압축된 EXPDP 덤프의 데이터 레코드는 읽을 수 없습니다 (메타데이터만 가능)</li>
+    <li>BFILE 타입의 실제 데이터는 추출할 수 없습니다 (경로 정보만 가능)</li>
+    <li>암호화된 덤프 파일은 지원되지 않습니다</li>
+    <li>네트워크 링크를 통한 덤프는 지원되지 않습니다</li>
+    <li>최대 테이블 수: 1,000</li>
+    <li>최대 컬럼 수: 1,000 (테이블당)</li>
+</ul>
+
+<h2>문자 세트</h2>
+<p>다음 NLS 문자 세트를 지원합니다:</p>
+<ul>
+    <li>AL32UTF8 / UTF8</li>
+    <li>JA16SJIS</li>
+    <li>JA16EUC</li>
+    <li>AL16UTF16</li>
+    <li>US7ASCII</li>
+    <li>WE8ISO8859P1 / WE8MSWIN1252</li>
+</ul>
+
+<p><a href="toc.html">목차로 돌아가기</a></p>
+
+</body>
+</html>

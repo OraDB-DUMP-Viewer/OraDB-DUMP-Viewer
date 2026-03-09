@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Anteprima tabella - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Anteprima tabella</h1>
+
+<h2>Apertura di una tabella</h2>
+<p>Fare doppio clic sul nome di una tabella nell'elenco delle tabelle per aprire l'anteprima dei dati.
+Oppure fare clic con il tasto destro sulla tabella e selezionare <strong>Apri(&amp;O)</strong>.</p>
+
+<h2>Visualizzazione dei dati</h2>
+<p>I dati vengono visualizzati in un DataGridView.</p>
+<ul>
+    <li>I nomi delle colonne appaiono nelle intestazioni delle colonne.</li>
+    <li>Ogni riga visualizza un record.</li>
+    <li>I valori NULL vengono mostrati come vuoti.</li>
+    <li>I dati LOB (BLOB/CLOB/NCLOB) vengono mostrati come <code>%BLOB%</code>, <code>%CLOB%</code>, <code>%NCLOB%</code>.</li>
+</ul>
+
+<h2>Paginazione</h2>
+<p>Quando la quantità di dati è elevata, vengono visualizzati pagina per pagina.</p>
+<ul>
+    <li><strong>Righe per pagina</strong> &mdash; Regolabile tramite il campo numerico in alto a destra (predefinito: 100 righe)</li>
+    <li><strong>Info pagina</strong> &mdash; Vengono visualizzati il numero di pagina corrente e il totale delle pagine</li>
+    <li>Utilizzare i pulsanti di navigazione per passare da una pagina all'altra</li>
+</ul>
+
+<h2>Ordinamento</h2>
+<p>Fare clic sull'intestazione di una colonna per ordinare i dati in base a quella colonna.
+Fare clic di nuovo per alternare tra ordine crescente e decrescente.</p>
+
+<h2>Copia delle celle</h2>
+<p>Selezionare le celle nell'anteprima e premere <span class="shortcut">Ctrl+C</span> per copiare negli appunti.
+È supportata anche la selezione e la copia di più celle.</p>
+
+<h2>Ricerca avanzata</h2>
+<p>Fare clic sul pulsante <strong>Ricerca avanzata</strong> nella schermata di anteprima per filtrare i dati
+utilizzando 12 operatori con condizioni composte AND/OR.
+Consultare <a href="search.html">Ricerca e filtro</a> per i dettagli.</p>
+
+<h2>Esportazione dall'anteprima</h2>
+<p>Le seguenti esportazioni sono disponibili dalla barra degli strumenti dell'anteprima:</p>
+<ul>
+    <li><strong>SQL</strong> &mdash; Output script SQL</li>
+    <li><strong>CSV</strong> &mdash; Output file CSV</li>
+    <li><strong>Excel</strong> &mdash; Output file Excel</li>
+    <li><strong>Access</strong> &mdash; Output database Access</li>
+    <li><strong>SQL Server</strong> &mdash; Output diretto in SQL Server</li>
+    <li><strong>ODBC</strong> &mdash; Output in un database compatibile ODBC</li>
+</ul>
+
+<h2>Proprietà della tabella</h2>
+<p>Fare clic con il tasto destro su una tabella e selezionare <strong>Proprietà(&amp;P)</strong> per visualizzare
+le definizioni delle colonne (nome colonna, tipo di dato, lunghezza, ecc.).</p>
+
+<h2>Esclusione tabelle</h2>
+<p>È possibile nascondere temporaneamente le tabelle indesiderate.</p>
+<ol>
+    <li>Selezionare le tabelle nell'elenco delle tabelle (selezione multipla supportata).</li>
+    <li>Scegliere <strong>Elimina(&amp;D)</strong> dal menu contestuale,
+        oppure premere il tasto <span class="shortcut">Canc</span>.</li>
+    <li>Le tabelle escluse vengono mostrate nella barra di stato.</li>
+</ol>
+
+<p>Per annullare l'esclusione:</p>
+<ul>
+    <li><strong>Modifica(&amp;E)</strong> &gt; <strong>Annulla</strong>
+        (<span class="shortcut">Ctrl+Z</span>)</li>
+    <li><strong>Oggetto(&amp;O)</strong> &gt; <strong>Cancella tutti i filtri(&amp;F)</strong>
+        per rimuovere tutte le esclusioni</li>
+</ul>
+
+<p><a href="toc.html">Torna al sommario</a></p>
+
+</body>
+</html>

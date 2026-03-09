@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Exportación por lotes - OraDB DUMP Viewer</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h1>Exportación por lotes</h1>
+
+<h2>Descripción general</h2>
+<p>Exporte múltiples tablas a archivos CSV o SQL de una sola vez.
+Cada tabla se genera como un archivo individual.</p>
+
+<h2>Pasos</h2>
+<ol>
+    <li>Haga clic en el botón <strong>Exportación por lotes</strong> de la barra de herramientas.</li>
+    <li>Se muestra el cuadro de diálogo de exportación.</li>
+    <li>Seleccione el formato de salida (CSV / SQL).</li>
+    <li>Especifique la carpeta de salida.</li>
+    <li>Confirme las tablas a exportar.
+        <br>Desmarque las tablas que no necesite.</li>
+    <li>Haga clic en el botón <strong>Exportar</strong>.</li>
+</ol>
+
+<h2>Nombres de archivos de salida</h2>
+<p>Los nombres de archivo se generan automáticamente con el formato
+<code>NombreEsquema.NombreTabla.csv</code> o <code>NombreEsquema.NombreTabla.sql</code>.</p>
+
+<h2>Selección / exclusión de tablas</h2>
+<ul>
+    <li>Botones <strong>Seleccionar todo</strong> / <strong>Deseleccionar todo</strong> para operaciones masivas</li>
+    <li><strong>Invertir selección</strong> para alternar los estados de selección</li>
+    <li>Haga clic en casillas de verificación individuales para seleccionar tablas específicas</li>
+</ul>
+
+<div class="tip">
+<strong>Consejo:</strong> Las tablas excluidas en el espacio de trabajo también se excluyen
+automáticamente de la exportación por lotes.
+</div>
+
+<h2>Salida de informes</h2>
+<p>Desde <strong>Objeto(&amp;O)</strong> &gt; <strong>Salida de informes(&amp;R)</strong>,
+también puede generar información de tablas en archivos de texto.</p>
+<ul>
+    <li><strong>Lista de objetos</strong> &mdash; Genera una lista de texto con nombres de tablas y conteo de filas</li>
+    <li><strong>Definiciones de tablas</strong> &mdash; Genera las definiciones de columnas (nombre, tipo, tamaño) de todas las tablas</li>
+</ul>
+
+<p><a href="toc.html">Volver a la tabla de contenido</a></p>
+
+</body>
+</html>

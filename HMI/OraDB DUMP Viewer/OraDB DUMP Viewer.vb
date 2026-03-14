@@ -6,6 +6,11 @@ Public Class OraDB_DUMP_Viewer
 
     Private Const MRU_MAX As Integer = 5
 
+    ''' <summary>現在ロード中のマスク定義（Nothing = マスク無効）</summary>
+    Private _maskingDefinition As MaskingDefinition = Nothing
+    ''' <summary>現在のマスク定義ファイルパス</summary>
+    Private _maskingDefinitionPath As String = String.Empty
+
 #Region "フォームロード・初期化"
     Private Sub OraDB_DUMP_Viewer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LocaleManager.InitializeLanguage()
@@ -119,6 +124,8 @@ Public Class OraDB_DUMP_Viewer
         ' ツール
         ツールTToolStripMenuItem.Text = Loc.S("Menu_Tools")
         ファイルの取り出しFToolStripMenuItem.Text = Loc.S("Menu_Tools_ExtractFile")
+        データマスキング設定DToolStripMenuItem.Text = Loc.S("Menu_Tools_MaskingConfig")
+        データマスキング解除ToolStripMenuItem.Text = Loc.S("Menu_Tools_MaskingClear")
         オプションOToolStripMenuItem.Text = Loc.S("Menu_Tools_Options")
 
         ' ウィンドウ
@@ -329,6 +336,18 @@ Public Class OraDB_DUMP_Viewer
                 Dim ws = TryCast(Me.ActiveMdiChild, Workspace)
                 If ws IsNot Nothing Then ws.WorkspacePath = dlg.FileName
 
+                ' マスク定義パスがあれば復元
+                If Not String.IsNullOrEmpty(data.MaskingDefinitionPath) AndAlso
+                   File.Exists(data.MaskingDefinitionPath) Then
+                    Try
+                        _maskingDefinition = MaskingDefinition.Load(data.MaskingDefinitionPath)
+                        _maskingDefinitionPath = data.MaskingDefinitionPath
+                        UpdateMaskingStatus()
+                    Catch
+                        ' マスク定義の読み込みに失敗してもワークスペースは開く
+                    End Try
+                End If
+
                 ' MRU にワークスペースを追加
                 AddToMru(My.Settings.RecentWorkspaces, dlg.FileName)
                 BuildMruMenus()
@@ -374,6 +393,8 @@ Public Class OraDB_DUMP_Viewer
     Private Sub SaveWorkspace(ws As Workspace, savePath As String)
         Try
             Dim data = ws.GetWorkspaceData()
+            ' マスク定義パスをワークスペースに保存
+            data.MaskingDefinitionPath = _maskingDefinitionPath
             data.Save(savePath)
             ws.WorkspacePath = savePath
 
@@ -732,6 +753,20 @@ Public Class OraDB_DUMP_Viewer
     End Function
 
     ''' <summary>
+    ''' マスク定義がロードされている場合、データにマスクを適用して返す。
+    ''' マスク定義がない場合は元データをそのまま返す。
+    ''' </summary>
+    Private Function ApplyMaskingIfEnabled(
+        data As List(Of String()),
+        columnNames As List(Of String),
+        schema As String,
+        tableName As String
+    ) As List(Of String())
+        If _maskingDefinition Is Nothing Then Return data
+        Return DataMaskingLogic.ApplyMask(data, columnNames, schema, tableName, _maskingDefinition)
+    End Function
+
+    ''' <summary>
     ''' ActiveMdiChild が TablePreview の場合、そのインスタンスを返す
     ''' </summary>
     Private Function GetActiveTablePreview() As TablePreview
@@ -776,8 +811,10 @@ Public Class OraDB_DUMP_Viewer
                     Sub(worker, args)
                         Dim ok As Boolean
                         If preview IsNot Nothing Then
-                            ' TablePreview: インメモリデータから出力
-                            ok = SqlExportLogic.ExportFromData(preview.FilteredData,
+                            ' TablePreview: インメモリデータから出力（マスク適用）
+                            Dim exportData = ApplyMaskingIfEnabled(preview.FilteredData,
+                                    preview.ExportColumnNames, ctx.Schema, ctx.TableName)
+                            ok = SqlExportLogic.ExportFromData(exportData,
                                     preview.ExportColumnNames, ctx.ColumnTypes,
                                     ctx.Schema, ctx.TableName, outputPath, dbmsType, worker)
                         Else
@@ -804,7 +841,7 @@ Public Class OraDB_DUMP_Viewer
                     Dim folder = fbd.SelectedPath
                     Dim success = dlg.RunExport(
                         Sub(worker, args)
-                            Dim ok = BulkExportLogic.ExportSql(contexts, folder, dbmsType, worker)
+                            Dim ok = BulkExportLogic.ExportSql(contexts, folder, dbmsType, worker, _maskingDefinition)
                             If Not ok Then args.Cancel = True
                         End Sub)
                     If success Then
@@ -831,8 +868,10 @@ Public Class OraDB_DUMP_Viewer
                     Sub(worker, args)
                         Dim ok As Boolean
                         If preview IsNot Nothing Then
-                            ' TablePreview: インメモリデータから出力
-                            ok = CsvExportLogic.ExportFromData(preview.FilteredData,
+                            ' TablePreview: インメモリデータから出力（マスク適用）
+                            Dim exportData = ApplyMaskingIfEnabled(preview.FilteredData,
+                                    preview.ExportColumnNames, ctx.Schema, ctx.TableName)
+                            ok = CsvExportLogic.ExportFromData(exportData,
                                     preview.ExportColumnNames, outputPath, worker, ctx.TableName)
                         Else
                             ' Workspace: DLLから再パース
@@ -858,7 +897,7 @@ Public Class OraDB_DUMP_Viewer
                     Dim folder = fbd.SelectedPath
                     Dim success = dlg.RunExport(
                         Sub(worker, args)
-                            Dim ok = BulkExportLogic.ExportCsv(contexts, folder, worker)
+                            Dim ok = BulkExportLogic.ExportCsv(contexts, folder, worker, _maskingDefinition)
                             If Not ok Then args.Cancel = True
                         End Sub)
                     If success Then
@@ -890,8 +929,9 @@ Public Class OraDB_DUMP_Viewer
                         Dim rows As List(Of String()) = Nothing
 
                         If preview IsNot Nothing Then
-                            ' TablePreview: インメモリデータを使用
-                            rows = preview.FilteredData
+                            ' TablePreview: インメモリデータを使用（マスク適用）
+                            rows = ApplyMaskingIfEnabled(preview.FilteredData,
+                                    preview.ExportColumnNames, ctx.Schema, ctx.TableName)
                         Else
                             ' Workspace: DLLから再パース
                             Dim tableData = OraDB_NativeParser.ParseDump(ctx.DumpFilePath,
@@ -900,6 +940,10 @@ Public Class OraDB_DUMP_Viewer
                                tableData.ContainsKey(ctx.Schema) AndAlso
                                tableData(ctx.Schema).ContainsKey(ctx.TableName) Then
                                 rows = tableData(ctx.Schema)(ctx.TableName)
+                            End If
+                            ' Workspace経由の場合もマスク適用
+                            If rows IsNot Nothing Then
+                                rows = ApplyMaskingIfEnabled(rows, columnList, ctx.Schema, ctx.TableName)
                             End If
                         End If
                         If rows Is Nothing Then rows = New List(Of String())
@@ -925,7 +969,7 @@ Public Class OraDB_DUMP_Viewer
             Using dlg As New ExportProgressDialog()
                 Dim success = dlg.RunExport(
                     Sub(worker, args)
-                        Dim ok = BulkExportLogic.ExportExcel(contexts, outputPath, worker)
+                        Dim ok = BulkExportLogic.ExportExcel(contexts, outputPath, worker, _maskingDefinition)
                         If Not ok Then args.Cancel = True
                     End Sub)
                 If success Then
@@ -956,8 +1000,9 @@ Public Class OraDB_DUMP_Viewer
                         Dim rows As List(Of String()) = Nothing
 
                         If preview IsNot Nothing Then
-                            ' TablePreview: インメモリデータを使用
-                            rows = preview.FilteredData
+                            ' TablePreview: インメモリデータを使用（マスク適用）
+                            rows = ApplyMaskingIfEnabled(preview.FilteredData,
+                                    preview.ExportColumnNames, ctx.Schema, ctx.TableName)
                         Else
                             ' Workspace: DLLから再パース
                             Dim tableData = OraDB_NativeParser.ParseDump(ctx.DumpFilePath,
@@ -966,6 +1011,10 @@ Public Class OraDB_DUMP_Viewer
                                tableData.ContainsKey(ctx.Schema) AndAlso
                                tableData(ctx.Schema).ContainsKey(ctx.TableName) Then
                                 rows = tableData(ctx.Schema)(ctx.TableName)
+                            End If
+                            ' Workspace経由の場合もマスク適用
+                            If rows IsNot Nothing Then
+                                rows = ApplyMaskingIfEnabled(rows, columnList, ctx.Schema, ctx.TableName)
                             End If
                         End If
                         If rows Is Nothing Then rows = New List(Of String())
@@ -991,7 +1040,7 @@ Public Class OraDB_DUMP_Viewer
             Using dlg As New ExportProgressDialog()
                 Dim success = dlg.RunExport(
                     Sub(worker, args)
-                        Dim ok = BulkExportLogic.ExportAccess(contexts, outputPath, worker)
+                        Dim ok = BulkExportLogic.ExportAccess(contexts, outputPath, worker, _maskingDefinition)
                         If Not ok Then args.Cancel = True
                     End Sub)
                 If success Then
@@ -1027,8 +1076,9 @@ Public Class OraDB_DUMP_Viewer
                         Dim rows As List(Of String()) = Nothing
 
                         If preview IsNot Nothing Then
-                            ' TablePreview: インメモリデータを使用
-                            rows = preview.FilteredData
+                            ' TablePreview: インメモリデータを使用（マスク適用）
+                            rows = ApplyMaskingIfEnabled(preview.FilteredData,
+                                    preview.ExportColumnNames, ctx.Schema, ctx.TableName)
                         Else
                             ' Workspace: DLLから再パース
                             Dim tableData = OraDB_NativeParser.ParseDump(ctx.DumpFilePath,
@@ -1037,6 +1087,10 @@ Public Class OraDB_DUMP_Viewer
                                tableData.ContainsKey(ctx.Schema) AndAlso
                                tableData(ctx.Schema).ContainsKey(ctx.TableName) Then
                                 rows = tableData(ctx.Schema)(ctx.TableName)
+                            End If
+                            ' Workspace経由の場合もマスク適用
+                            If rows IsNot Nothing Then
+                                rows = ApplyMaskingIfEnabled(rows, columnList, ctx.Schema, ctx.TableName)
                             End If
                         End If
                         If rows Is Nothing Then rows = New List(Of String())
@@ -1060,7 +1114,7 @@ Public Class OraDB_DUMP_Viewer
                 Dim connStr = connDlg.ConnectionString
                 Dim success = dlg.RunExport(
                     Sub(worker, args)
-                        Dim ok = BulkExportLogic.ExportSqlServer(contexts, connStr, worker)
+                        Dim ok = BulkExportLogic.ExportSqlServer(contexts, connStr, worker, _maskingDefinition)
                         If Not ok Then args.Cancel = True
                     End Sub)
                 If success Then
@@ -1096,8 +1150,9 @@ Public Class OraDB_DUMP_Viewer
                         Dim rows As List(Of String()) = Nothing
 
                         If preview IsNot Nothing Then
-                            ' TablePreview: インメモリデータを使用
-                            rows = preview.FilteredData
+                            ' TablePreview: インメモリデータを使用（マスク適用）
+                            rows = ApplyMaskingIfEnabled(preview.FilteredData,
+                                    preview.ExportColumnNames, ctx.Schema, ctx.TableName)
                         Else
                             ' Workspace: DLLから再パース
                             Dim tableData = OraDB_NativeParser.ParseDump(ctx.DumpFilePath,
@@ -1106,6 +1161,10 @@ Public Class OraDB_DUMP_Viewer
                                tableData.ContainsKey(ctx.Schema) AndAlso
                                tableData(ctx.Schema).ContainsKey(ctx.TableName) Then
                                 rows = tableData(ctx.Schema)(ctx.TableName)
+                            End If
+                            ' Workspace経由の場合もマスク適用
+                            If rows IsNot Nothing Then
+                                rows = ApplyMaskingIfEnabled(rows, columnList, ctx.Schema, ctx.TableName)
                             End If
                         End If
                         If rows Is Nothing Then rows = New List(Of String())
@@ -1129,7 +1188,7 @@ Public Class OraDB_DUMP_Viewer
                 Dim connStr = connDlg.ConnectionString
                 Dim success = dlg.RunExport(
                     Sub(worker, args)
-                        Dim ok = BulkExportLogic.ExportOdbc(contexts, connStr, worker)
+                        Dim ok = BulkExportLogic.ExportOdbc(contexts, connStr, worker, _maskingDefinition)
                         If Not ok Then args.Cancel = True
                     End Sub)
                 If success Then
@@ -1178,6 +1237,43 @@ Public Class OraDB_DUMP_Viewer
                                            ctx.ColumnNames, ctx.ColumnTypes, ctx.DataOffset)
             dlg.ShowDialog(Me)
         End Using
+    End Sub
+#End Region
+
+#Region "メニューイベント: ツール (データマスキング)"
+    Private Sub データマスキング設定DToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles データマスキング設定DToolStripMenuItem.Click
+        Dim ws = TryCast(Me.ActiveMdiChild, Workspace)
+        If ws Is Nothing Then
+            ' Workspace が開いていなくてもダイアログは開ける（既存定義の編集用）
+            ' ただしテーブル一覧は空になる
+        End If
+
+        Dim colNamesMap = If(ws?.ColumnNamesMap, New Dictionary(Of String, String()))
+        Dim colTypesMap = If(ws?.ColumnTypesMap, New Dictionary(Of String, String()))
+
+        Using dlg As New MaskingConfigDialog(colNamesMap, colTypesMap, _maskingDefinitionPath)
+            If dlg.ShowDialog(Me) = DialogResult.OK Then
+                _maskingDefinition = dlg.ResultDefinition
+                _maskingDefinitionPath = dlg.ResultFilePath
+                UpdateMaskingStatus()
+            End If
+        End Using
+    End Sub
+
+    ''' <summary>マスク有効/無効のステータス表示を更新する</summary>
+    Private Sub UpdateMaskingStatus()
+        If _maskingDefinition IsNot Nothing AndAlso _maskingDefinition.Tables.Count > 0 Then
+            COMMON.Set_StatusLabel(Loc.S("Masking_StatusEnabled"))
+        Else
+            COMMON.ReSet_StatusLavel()
+        End If
+    End Sub
+
+    ''' <summary>マスク定義をクリアする</summary>
+    Private Sub データマスキング解除ToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles データマスキング解除ToolStripMenuItem.Click
+        _maskingDefinition = Nothing
+        _maskingDefinitionPath = String.Empty
+        COMMON.ReSet_StatusLavel()
     End Sub
 #End Region
 

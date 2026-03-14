@@ -494,5 +494,29 @@ https://www.microsoft.com/en-us/download/details.aspx?id=54920</value></data>
   <data name="ErrorReport_AttachDump" xml:space="preserve"><value>Прикрепить файл дампа ({0} МБ)</value></data>
   <data name="ErrorReport_AttachDumpTooLarge" xml:space="preserve"><value>Файл дампа слишком большой (более 50 МБ)</value></data>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve"><value>Файл дампа не открыт</value></data>
+  <data name="Menu_Tools_MaskingConfig" xml:space="preserve"><value>Настройки маскирования данных(&amp;D)</value></data>
+  <data name="Menu_Tools_MaskingClear" xml:space="preserve"><value>Очистить маскирование</value></data>
+  <data name="Masking_FormTitle" xml:space="preserve"><value>Настройки маскирования данных</value></data>
+  <data name="Masking_FilePath" xml:space="preserve"><value>Файл определения:</value></data>
+  <data name="Masking_Open" xml:space="preserve"><value>Открыть</value></data>
+  <data name="Masking_New" xml:space="preserve"><value>Новый</value></data>
+  <data name="Masking_Save" xml:space="preserve"><value>Сохранить</value></data>
+  <data name="Masking_Description" xml:space="preserve"><value>Описание:</value></data>
+  <data name="Masking_DefaultMaskValue" xml:space="preserve"><value>Значение маски по умолчанию:</value></data>
+  <data name="Masking_TableList" xml:space="preserve"><value>Список таблиц</value></data>
+  <data name="Masking_ColumnSettings" xml:space="preserve"><value>Настройки маски столбца</value></data>
+  <data name="Masking_ColCheck" xml:space="preserve"><value>Маска</value></data>
+  <data name="Masking_ColName" xml:space="preserve"><value>Столбец</value></data>
+  <data name="Masking_ColType" xml:space="preserve"><value>Тип</value></data>
+  <data name="Masking_ColMaskValue" xml:space="preserve"><value>Значение маски</value></data>
+  <data name="Masking_FileFilter" xml:space="preserve"><value>Файл определения маски (*.odmask)|*.odmask</value></data>
+  <data name="Masking_OpenTitle" xml:space="preserve"><value>Открыть определение маски</value></data>
+  <data name="Masking_SaveTitle" xml:space="preserve"><value>Сохранить определение маски</value></data>
+  <data name="Masking_LoadError" xml:space="preserve"><value>Ошибка загрузки определения маски: {0}</value></data>
+  <data name="Masking_SaveError" xml:space="preserve"><value>Ошибка сохранения определения маски: {0}</value></data>
+  <data name="Masking_SaveSuccess" xml:space="preserve"><value>Определение маски успешно сохранено.</value></data>
+  <data name="Masking_ErrorTitle" xml:space="preserve"><value>Ошибка</value></data>
+  <data name="Masking_InfoTitle" xml:space="preserve"><value>Информация</value></data>
+  <data name="Masking_StatusEnabled" xml:space="preserve"><value>Маскирование включено</value></data>
 
 </root>

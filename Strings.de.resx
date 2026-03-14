@@ -1162,4 +1162,28 @@ Bitte installieren Sie die Microsoft Edge WebView2-Laufzeit.</value>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve">
     <value>Keine Dump-Datei geöffnet</value>
   </data>
+  <data name="Menu_Tools_MaskingConfig" xml:space="preserve"><value>Datenmaskierung-Einstellungen(&amp;D)</value></data>
+  <data name="Menu_Tools_MaskingClear" xml:space="preserve"><value>Datenmaskierung aufheben</value></data>
+  <data name="Masking_FormTitle" xml:space="preserve"><value>Datenmaskierung-Einstellungen</value></data>
+  <data name="Masking_FilePath" xml:space="preserve"><value>Definitionsdatei:</value></data>
+  <data name="Masking_Open" xml:space="preserve"><value>Öffnen</value></data>
+  <data name="Masking_New" xml:space="preserve"><value>Neu</value></data>
+  <data name="Masking_Save" xml:space="preserve"><value>Speichern</value></data>
+  <data name="Masking_Description" xml:space="preserve"><value>Beschreibung:</value></data>
+  <data name="Masking_DefaultMaskValue" xml:space="preserve"><value>Standard-Maskenwert:</value></data>
+  <data name="Masking_TableList" xml:space="preserve"><value>Tabellenliste</value></data>
+  <data name="Masking_ColumnSettings" xml:space="preserve"><value>Spaltenmaskierung</value></data>
+  <data name="Masking_ColCheck" xml:space="preserve"><value>Maske</value></data>
+  <data name="Masking_ColName" xml:space="preserve"><value>Spalte</value></data>
+  <data name="Masking_ColType" xml:space="preserve"><value>Typ</value></data>
+  <data name="Masking_ColMaskValue" xml:space="preserve"><value>Maskenwert</value></data>
+  <data name="Masking_FileFilter" xml:space="preserve"><value>Maskendefinitionsdatei (*.odmask)|*.odmask</value></data>
+  <data name="Masking_OpenTitle" xml:space="preserve"><value>Maskendefinition öffnen</value></data>
+  <data name="Masking_SaveTitle" xml:space="preserve"><value>Maskendefinition speichern</value></data>
+  <data name="Masking_LoadError" xml:space="preserve"><value>Fehler beim Laden der Maskendefinition: {0}</value></data>
+  <data name="Masking_SaveError" xml:space="preserve"><value>Fehler beim Speichern der Maskendefinition: {0}</value></data>
+  <data name="Masking_SaveSuccess" xml:space="preserve"><value>Maskendefinition erfolgreich gespeichert.</value></data>
+  <data name="Masking_ErrorTitle" xml:space="preserve"><value>Fehler</value></data>
+  <data name="Masking_InfoTitle" xml:space="preserve"><value>Information</value></data>
+  <data name="Masking_StatusEnabled" xml:space="preserve"><value>Maskierung aktiv</value></data>
 </root>

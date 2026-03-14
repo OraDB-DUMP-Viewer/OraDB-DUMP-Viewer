@@ -14,16 +14,28 @@ Public Class BulkExportLogic
     ''' </summary>
     Public Shared Function ExportCsv(contexts As List(Of ExportHelper.TableExportContext),
                                       outputFolder As String,
-                                      worker As BackgroundWorker) As Boolean
+                                      worker As BackgroundWorker,
+                                      Optional maskDef As MaskingDefinition = Nothing) As Boolean
         For i As Integer = 0 To contexts.Count - 1
             If worker IsNot Nothing AndAlso worker.CancellationPending Then Return False
 
             Dim ctx = contexts(i)
             Dim outputPath = Path.Combine(outputFolder, $"{ctx.TableName}.csv")
 
-            ' C DLL ストリーミング (進捗はテーブル単位)
-            Dim ok = CsvExportLogic.ExportFromDump(ctx, outputPath)
-            If Not ok Then Return False
+            If maskDef IsNot Nothing Then
+                ' マスク適用: DLLストリーミングではなくインメモリ経由で出力
+                Dim tableData = LoadTableData(ctx)
+                Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
+                Dim columnList = New List(Of String)(colNames)
+                tableData = DataMaskingLogic.ApplyMask(tableData, columnList, ctx.Schema, ctx.TableName, maskDef)
+                Dim ok = CsvExportLogic.ExportFromData(tableData, columnList, outputPath, worker, ctx.TableName)
+                If Not ok Then Return False
+                tableData = Nothing
+            Else
+                ' C DLL ストリーミング (進捗はテーブル単位)
+                Dim ok = CsvExportLogic.ExportFromDump(ctx, outputPath)
+                If Not ok Then Return False
+            End If
 
             ReportTableProgress(worker, ctx.TableName, i + 1, contexts.Count)
         Next
@@ -36,16 +48,29 @@ Public Class BulkExportLogic
     Public Shared Function ExportSql(contexts As List(Of ExportHelper.TableExportContext),
                                       outputFolder As String,
                                       dbmsType As Integer,
-                                      worker As BackgroundWorker) As Boolean
+                                      worker As BackgroundWorker,
+                                      Optional maskDef As MaskingDefinition = Nothing) As Boolean
         For i As Integer = 0 To contexts.Count - 1
             If worker IsNot Nothing AndAlso worker.CancellationPending Then Return False
 
             Dim ctx = contexts(i)
             Dim outputPath = Path.Combine(outputFolder, $"{ctx.TableName}.sql")
 
-            ' C DLL ストリーミング
-            Dim ok = SqlExportLogic.ExportFromDump(ctx, outputPath, dbmsType)
-            If Not ok Then Return False
+            If maskDef IsNot Nothing Then
+                ' マスク適用: インメモリ経由で出力
+                Dim tableData = LoadTableData(ctx)
+                Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
+                Dim columnList = New List(Of String)(colNames)
+                tableData = DataMaskingLogic.ApplyMask(tableData, columnList, ctx.Schema, ctx.TableName, maskDef)
+                Dim ok = SqlExportLogic.ExportFromData(tableData, columnList, ctx.ColumnTypes,
+                                                        ctx.Schema, ctx.TableName, outputPath, dbmsType, worker)
+                If Not ok Then Return False
+                tableData = Nothing
+            Else
+                ' C DLL ストリーミング
+                Dim ok = SqlExportLogic.ExportFromDump(ctx, outputPath, dbmsType)
+                If Not ok Then Return False
+            End If
 
             ReportTableProgress(worker, ctx.TableName, i + 1, contexts.Count)
         Next
@@ -57,7 +82,8 @@ Public Class BulkExportLogic
     ''' </summary>
     Public Shared Function ExportExcel(contexts As List(Of ExportHelper.TableExportContext),
                                         outputPath As String,
-                                        worker As BackgroundWorker) As Boolean
+                                        worker As BackgroundWorker,
+                                        Optional maskDef As MaskingDefinition = Nothing) As Boolean
         Try
             Using wb As New ClosedXML.Excel.XLWorkbook()
                 For i As Integer = 0 To contexts.Count - 1
@@ -70,6 +96,11 @@ Public Class BulkExportLogic
 
                     Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
                     Dim columnList = New List(Of String)(colNames)
+
+                    ' マスク適用
+                    If maskDef IsNot Nothing Then
+                        tableData = DataMaskingLogic.ApplyMask(tableData, columnList, ctx.Schema, ctx.TableName, maskDef)
+                    End If
 
                     ' シート名 (31文字制限、禁止文字置換)
                     Dim sheetName = SanitizeSheetName(ctx.TableName)
@@ -120,7 +151,8 @@ Public Class BulkExportLogic
     ''' </summary>
     Public Shared Function ExportAccess(contexts As List(Of ExportHelper.TableExportContext),
                                          outputPath As String,
-                                         worker As BackgroundWorker) As Boolean
+                                         worker As BackgroundWorker,
+                                         Optional maskDef As MaskingDefinition = Nothing) As Boolean
         ' 最初のテーブルで .accdb を新規作成、以降はテーブル追加
         For i As Integer = 0 To contexts.Count - 1
             If worker IsNot Nothing AndAlso worker.CancellationPending Then Return False
@@ -131,6 +163,11 @@ Public Class BulkExportLogic
 
             Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
             Dim columnList = New List(Of String)(colNames)
+
+            ' マスク適用
+            If maskDef IsNot Nothing Then
+                tableData = DataMaskingLogic.ApplyMask(tableData, columnList, ctx.Schema, ctx.TableName, maskDef)
+            End If
 
             Dim ok = AccessExportLogic.Export(tableData, columnList, ctx.ColumnTypes,
                                               ctx.TableName, outputPath, worker)
@@ -148,7 +185,8 @@ Public Class BulkExportLogic
     ''' </summary>
     Public Shared Function ExportSqlServer(contexts As List(Of ExportHelper.TableExportContext),
                                             connectionString As String,
-                                            worker As BackgroundWorker) As Boolean
+                                            worker As BackgroundWorker,
+                                            Optional maskDef As MaskingDefinition = Nothing) As Boolean
         For i As Integer = 0 To contexts.Count - 1
             If worker IsNot Nothing AndAlso worker.CancellationPending Then Return False
 
@@ -158,6 +196,11 @@ Public Class BulkExportLogic
 
             Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
             Dim columnList = New List(Of String)(colNames)
+
+            ' マスク適用
+            If maskDef IsNot Nothing Then
+                tableData = DataMaskingLogic.ApplyMask(tableData, columnList, ctx.Schema, ctx.TableName, maskDef)
+            End If
 
             Dim ok = SqlServerExportLogic.Export(tableData, columnList, ctx.ColumnTypes,
                                                  ctx.Schema, ctx.TableName, connectionString, worker)
@@ -175,7 +218,8 @@ Public Class BulkExportLogic
     ''' </summary>
     Public Shared Function ExportOdbc(contexts As List(Of ExportHelper.TableExportContext),
                                        connectionString As String,
-                                       worker As BackgroundWorker) As Boolean
+                                       worker As BackgroundWorker,
+                                       Optional maskDef As MaskingDefinition = Nothing) As Boolean
         For i As Integer = 0 To contexts.Count - 1
             If worker IsNot Nothing AndAlso worker.CancellationPending Then Return False
 
@@ -185,6 +229,11 @@ Public Class BulkExportLogic
 
             Dim colNames = If(ctx.ColumnNames, Array.Empty(Of String)())
             Dim columnList = New List(Of String)(colNames)
+
+            ' マスク適用
+            If maskDef IsNot Nothing Then
+                tableData = DataMaskingLogic.ApplyMask(tableData, columnList, ctx.Schema, ctx.TableName, maskDef)
+            End If
 
             Dim ok = OdbcExportLogic.Export(tableData, columnList, ctx.ColumnTypes,
                                              ctx.TableName, connectionString, worker)

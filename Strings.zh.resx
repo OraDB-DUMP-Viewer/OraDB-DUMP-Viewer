@@ -493,5 +493,29 @@ https://www.microsoft.com/en-us/download/details.aspx?id=54920</value></data>
   <data name="ErrorReport_AttachDump" xml:space="preserve"><value>附加转储文件 ({0} MB)</value></data>
   <data name="ErrorReport_AttachDumpTooLarge" xml:space="preserve"><value>转储文件过大 (超过 50 MB)</value></data>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve"><value>未打开转储文件</value></data>
+  <data name="Menu_Tools_MaskingConfig" xml:space="preserve"><value>数据脱敏设置(&amp;D)</value></data>
+  <data name="Menu_Tools_MaskingClear" xml:space="preserve"><value>清除数据脱敏</value></data>
+  <data name="Masking_FormTitle" xml:space="preserve"><value>数据脱敏设置</value></data>
+  <data name="Masking_FilePath" xml:space="preserve"><value>定义文件:</value></data>
+  <data name="Masking_Open" xml:space="preserve"><value>打开</value></data>
+  <data name="Masking_New" xml:space="preserve"><value>新建</value></data>
+  <data name="Masking_Save" xml:space="preserve"><value>保存</value></data>
+  <data name="Masking_Description" xml:space="preserve"><value>说明:</value></data>
+  <data name="Masking_DefaultMaskValue" xml:space="preserve"><value>默认掩码值:</value></data>
+  <data name="Masking_TableList" xml:space="preserve"><value>表列表</value></data>
+  <data name="Masking_ColumnSettings" xml:space="preserve"><value>列掩码设置</value></data>
+  <data name="Masking_ColCheck" xml:space="preserve"><value>掩码</value></data>
+  <data name="Masking_ColName" xml:space="preserve"><value>列名</value></data>
+  <data name="Masking_ColType" xml:space="preserve"><value>类型</value></data>
+  <data name="Masking_ColMaskValue" xml:space="preserve"><value>掩码值</value></data>
+  <data name="Masking_FileFilter" xml:space="preserve"><value>掩码定义文件 (*.odmask)|*.odmask</value></data>
+  <data name="Masking_OpenTitle" xml:space="preserve"><value>打开掩码定义</value></data>
+  <data name="Masking_SaveTitle" xml:space="preserve"><value>保存掩码定义</value></data>
+  <data name="Masking_LoadError" xml:space="preserve"><value>加载掩码定义失败: {0}</value></data>
+  <data name="Masking_SaveError" xml:space="preserve"><value>保存掩码定义失败: {0}</value></data>
+  <data name="Masking_SaveSuccess" xml:space="preserve"><value>掩码定义已保存。</value></data>
+  <data name="Masking_ErrorTitle" xml:space="preserve"><value>错误</value></data>
+  <data name="Masking_InfoTitle" xml:space="preserve"><value>信息</value></data>
+  <data name="Masking_StatusEnabled" xml:space="preserve"><value>脱敏已启用</value></data>
 
 </root>

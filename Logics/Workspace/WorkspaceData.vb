@@ -10,6 +10,7 @@ Public Class WorkspaceData
     Public Property SearchFilter As String = String.Empty
     Public Property CurrentSchema As String = String.Empty
     Public Property ExpandedNodes As List(Of String) = New List(Of String)
+    Public Property MaskingDefinitionPath As String = String.Empty
 
     Private Shared ReadOnly _jsonOptions As New JsonSerializerOptions() With {
         .WriteIndented = True

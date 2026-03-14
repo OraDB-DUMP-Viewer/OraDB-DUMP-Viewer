@@ -495,5 +495,29 @@ Please install the Microsoft Edge WebView2 Runtime.</value></data>
   <data name="ErrorReport_AttachDump" xml:space="preserve"><value>Attach dump file ({0} MB)</value></data>
   <data name="ErrorReport_AttachDumpTooLarge" xml:space="preserve"><value>Dump file too large (over 50 MB)</value></data>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve"><value>No dump file opened</value></data>
+  <data name="Menu_Tools_MaskingConfig" xml:space="preserve"><value>Data Masking Settings(&amp;D)</value></data>
+  <data name="Menu_Tools_MaskingClear" xml:space="preserve"><value>Clear Data Masking</value></data>
+  <data name="Masking_FormTitle" xml:space="preserve"><value>Data Masking Settings</value></data>
+  <data name="Masking_FilePath" xml:space="preserve"><value>Definition file:</value></data>
+  <data name="Masking_Open" xml:space="preserve"><value>Open</value></data>
+  <data name="Masking_New" xml:space="preserve"><value>New</value></data>
+  <data name="Masking_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Masking_Description" xml:space="preserve"><value>Description:</value></data>
+  <data name="Masking_DefaultMaskValue" xml:space="preserve"><value>Default mask value:</value></data>
+  <data name="Masking_TableList" xml:space="preserve"><value>Table List</value></data>
+  <data name="Masking_ColumnSettings" xml:space="preserve"><value>Column Mask Settings</value></data>
+  <data name="Masking_ColCheck" xml:space="preserve"><value>Mask</value></data>
+  <data name="Masking_ColName" xml:space="preserve"><value>Column</value></data>
+  <data name="Masking_ColType" xml:space="preserve"><value>Type</value></data>
+  <data name="Masking_ColMaskValue" xml:space="preserve"><value>Mask Value</value></data>
+  <data name="Masking_FileFilter" xml:space="preserve"><value>Mask Definition File (*.odmask)|*.odmask</value></data>
+  <data name="Masking_OpenTitle" xml:space="preserve"><value>Open Mask Definition</value></data>
+  <data name="Masking_SaveTitle" xml:space="preserve"><value>Save Mask Definition</value></data>
+  <data name="Masking_LoadError" xml:space="preserve"><value>Failed to load mask definition: {0}</value></data>
+  <data name="Masking_SaveError" xml:space="preserve"><value>Failed to save mask definition: {0}</value></data>
+  <data name="Masking_SaveSuccess" xml:space="preserve"><value>Mask definition saved successfully.</value></data>
+  <data name="Masking_ErrorTitle" xml:space="preserve"><value>Error</value></data>
+  <data name="Masking_InfoTitle" xml:space="preserve"><value>Information</value></data>
+  <data name="Masking_StatusEnabled" xml:space="preserve"><value>Masking Enabled</value></data>
 
 </root>

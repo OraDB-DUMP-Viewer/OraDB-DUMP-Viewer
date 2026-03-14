@@ -494,5 +494,29 @@ Microsoft Edge WebView2 Runtime을 설치해 주세요.</value></data>
   <data name="ErrorReport_AttachDump" xml:space="preserve"><value>덤프 파일 첨부 ({0} MB)</value></data>
   <data name="ErrorReport_AttachDumpTooLarge" xml:space="preserve"><value>덤프 파일이 너무 큽니다 (50 MB 초과)</value></data>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve"><value>열려 있는 덤프 파일이 없습니다</value></data>
+  <data name="Menu_Tools_MaskingConfig" xml:space="preserve"><value>데이터 마스킹 설정(&amp;D)</value></data>
+  <data name="Menu_Tools_MaskingClear" xml:space="preserve"><value>데이터 마스킹 해제</value></data>
+  <data name="Masking_FormTitle" xml:space="preserve"><value>데이터 마스킹 설정</value></data>
+  <data name="Masking_FilePath" xml:space="preserve"><value>정의 파일:</value></data>
+  <data name="Masking_Open" xml:space="preserve"><value>열기</value></data>
+  <data name="Masking_New" xml:space="preserve"><value>새로 만들기</value></data>
+  <data name="Masking_Save" xml:space="preserve"><value>저장</value></data>
+  <data name="Masking_Description" xml:space="preserve"><value>설명:</value></data>
+  <data name="Masking_DefaultMaskValue" xml:space="preserve"><value>기본 마스크 값:</value></data>
+  <data name="Masking_TableList" xml:space="preserve"><value>테이블 목록</value></data>
+  <data name="Masking_ColumnSettings" xml:space="preserve"><value>열 마스크 설정</value></data>
+  <data name="Masking_ColCheck" xml:space="preserve"><value>마스크</value></data>
+  <data name="Masking_ColName" xml:space="preserve"><value>열 이름</value></data>
+  <data name="Masking_ColType" xml:space="preserve"><value>유형</value></data>
+  <data name="Masking_ColMaskValue" xml:space="preserve"><value>마스크 값</value></data>
+  <data name="Masking_FileFilter" xml:space="preserve"><value>마스크 정의 파일 (*.odmask)|*.odmask</value></data>
+  <data name="Masking_OpenTitle" xml:space="preserve"><value>마스크 정의 열기</value></data>
+  <data name="Masking_SaveTitle" xml:space="preserve"><value>마스크 정의 저장</value></data>
+  <data name="Masking_LoadError" xml:space="preserve"><value>마스크 정의 로드 실패: {0}</value></data>
+  <data name="Masking_SaveError" xml:space="preserve"><value>마스크 정의 저장 실패: {0}</value></data>
+  <data name="Masking_SaveSuccess" xml:space="preserve"><value>마스크 정의가 저장되었습니다.</value></data>
+  <data name="Masking_ErrorTitle" xml:space="preserve"><value>오류</value></data>
+  <data name="Masking_InfoTitle" xml:space="preserve"><value>정보</value></data>
+  <data name="Masking_StatusEnabled" xml:space="preserve"><value>마스킹 활성화</value></data>
 
 </root>

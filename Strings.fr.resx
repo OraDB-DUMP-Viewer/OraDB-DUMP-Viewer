@@ -1218,5 +1218,29 @@ Veuillez installer le runtime Microsoft Edge WebView2.</value>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve">
     <value>Aucun fichier Dump ouvert</value>
   </data>
+  <data name="Menu_Tools_MaskingConfig" xml:space="preserve"><value>Paramètres de masquage(&amp;D)</value></data>
+  <data name="Menu_Tools_MaskingClear" xml:space="preserve"><value>Effacer le masquage</value></data>
+  <data name="Masking_FormTitle" xml:space="preserve"><value>Paramètres de masquage des données</value></data>
+  <data name="Masking_FilePath" xml:space="preserve"><value>Fichier de définition :</value></data>
+  <data name="Masking_Open" xml:space="preserve"><value>Ouvrir</value></data>
+  <data name="Masking_New" xml:space="preserve"><value>Nouveau</value></data>
+  <data name="Masking_Save" xml:space="preserve"><value>Enregistrer</value></data>
+  <data name="Masking_Description" xml:space="preserve"><value>Description :</value></data>
+  <data name="Masking_DefaultMaskValue" xml:space="preserve"><value>Valeur de masque par défaut :</value></data>
+  <data name="Masking_TableList" xml:space="preserve"><value>Liste des tables</value></data>
+  <data name="Masking_ColumnSettings" xml:space="preserve"><value>Paramètres de masque de colonne</value></data>
+  <data name="Masking_ColCheck" xml:space="preserve"><value>Masque</value></data>
+  <data name="Masking_ColName" xml:space="preserve"><value>Colonne</value></data>
+  <data name="Masking_ColType" xml:space="preserve"><value>Type</value></data>
+  <data name="Masking_ColMaskValue" xml:space="preserve"><value>Valeur de masque</value></data>
+  <data name="Masking_FileFilter" xml:space="preserve"><value>Fichier de définition de masque (*.odmask)|*.odmask</value></data>
+  <data name="Masking_OpenTitle" xml:space="preserve"><value>Ouvrir la définition de masque</value></data>
+  <data name="Masking_SaveTitle" xml:space="preserve"><value>Enregistrer la définition de masque</value></data>
+  <data name="Masking_LoadError" xml:space="preserve"><value>Échec du chargement de la définition de masque : {0}</value></data>
+  <data name="Masking_SaveError" xml:space="preserve"><value>Échec de l'enregistrement de la définition de masque : {0}</value></data>
+  <data name="Masking_SaveSuccess" xml:space="preserve"><value>Définition de masque enregistrée avec succès.</value></data>
+  <data name="Masking_ErrorTitle" xml:space="preserve"><value>Erreur</value></data>
+  <data name="Masking_InfoTitle" xml:space="preserve"><value>Information</value></data>
+  <data name="Masking_StatusEnabled" xml:space="preserve"><value>Masquage activé</value></data>
 
 </root>

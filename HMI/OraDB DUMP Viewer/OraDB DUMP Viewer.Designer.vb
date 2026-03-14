@@ -69,6 +69,9 @@ Partial Class OraDB_DUMP_Viewer
         テーブル定義ToolStripMenuItem = New ToolStripMenuItem()
         ツールTToolStripMenuItem = New ToolStripMenuItem()
         ファイルの取り出しFToolStripMenuItem = New ToolStripMenuItem()
+        データマスキング設定DToolStripMenuItem = New ToolStripMenuItem()
+        データマスキング解除ToolStripMenuItem = New ToolStripMenuItem()
+        ToolStripSeparatorMasking = New ToolStripSeparator()
         ToolStripSeparator8 = New ToolStripSeparator()
         オプションOToolStripMenuItem = New ToolStripMenuItem()
         ウィンドウWToolStripMenuItem = New ToolStripMenuItem()
@@ -390,7 +393,7 @@ Partial Class OraDB_DUMP_Viewer
         ' 
         ' ツールTToolStripMenuItem
         ' 
-        ツールTToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {ファイルの取り出しFToolStripMenuItem, ToolStripSeparator8, オプションOToolStripMenuItem})
+        ツールTToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {ファイルの取り出しFToolStripMenuItem, ToolStripSeparatorMasking, データマスキング設定DToolStripMenuItem, データマスキング解除ToolStripMenuItem, ToolStripSeparator8, オプションOToolStripMenuItem})
         ツールTToolStripMenuItem.Name = "ツールTToolStripMenuItem"
         ツールTToolStripMenuItem.Size = New Size(60, 22)
         ツールTToolStripMenuItem.Text = "ツール(&T)"
@@ -400,9 +403,26 @@ Partial Class OraDB_DUMP_Viewer
         ファイルの取り出しFToolStripMenuItem.Name = "ファイルの取り出しFToolStripMenuItem"
         ファイルの取り出しFToolStripMenuItem.Size = New Size(172, 22)
         ファイルの取り出しFToolStripMenuItem.Text = "ファイルの取り出し(&F)"
-        ' 
+        '
+        ' ToolStripSeparatorMasking
+        '
+        ToolStripSeparatorMasking.Name = "ToolStripSeparatorMasking"
+        ToolStripSeparatorMasking.Size = New Size(169, 6)
+        '
+        ' データマスキング設定DToolStripMenuItem
+        '
+        データマスキング設定DToolStripMenuItem.Name = "データマスキング設定DToolStripMenuItem"
+        データマスキング設定DToolStripMenuItem.Size = New Size(172, 22)
+        データマスキング設定DToolStripMenuItem.Text = "データマスキング設定(&D)"
+        '
+        ' データマスキング解除ToolStripMenuItem
+        '
+        データマスキング解除ToolStripMenuItem.Name = "データマスキング解除ToolStripMenuItem"
+        データマスキング解除ToolStripMenuItem.Size = New Size(172, 22)
+        データマスキング解除ToolStripMenuItem.Text = "データマスキング解除"
+        '
         ' ToolStripSeparator8
-        ' 
+        '
         ToolStripSeparator8.Name = "ToolStripSeparator8"
         ToolStripSeparator8.Size = New Size(169, 6)
         ' 
@@ -667,6 +687,9 @@ Partial Class OraDB_DUMP_Viewer
     Friend WithEvents テーブル定義ToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ツールTToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ファイルの取り出しFToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents データマスキング設定DToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents データマスキング解除ToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ToolStripSeparatorMasking As ToolStripSeparator
     Friend WithEvents ToolStripSeparator8 As ToolStripSeparator
     Friend WithEvents オプションOToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ウィンドウWToolStripMenuItem As ToolStripMenuItem

@@ -63,6 +63,14 @@
         End If
         Application.DoEvents() ' UIの更新を強制
     End Sub
+
+    ''' <summary>
+    ''' ToolStripStatusLabelに任意のテキストを設定する
+    ''' </summary>
+    Public Shared Sub Set_StatusLabel(text As String)
+        OraDB_DUMP_Viewer.ToolStripStatusLabel.Text = text
+        Application.DoEvents()
+    End Sub
 #End Region
 
 #Region "プログレスバー関連"

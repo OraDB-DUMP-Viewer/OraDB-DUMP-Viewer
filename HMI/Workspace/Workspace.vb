@@ -18,6 +18,20 @@ Public Class Workspace
     Private _columnNamesMap As New Dictionary(Of String, String())
     ''' <summary>テーブルごとのカラム型 (キー: "schema.table")</summary>
     Private _columnTypesMap As New Dictionary(Of String, String())
+
+    ''' <summary>テーブルごとのカラム名マップを取得する（データマスキング設定用）</summary>
+    Public ReadOnly Property ColumnNamesMap As Dictionary(Of String, String())
+        Get
+            Return _columnNamesMap
+        End Get
+    End Property
+
+    ''' <summary>テーブルごとのカラム型マップを取得する（データマスキング設定用）</summary>
+    Public ReadOnly Property ColumnTypesMap As Dictionary(Of String, String())
+        Get
+            Return _columnTypesMap
+        End Get
+    End Property
     Private _currentSchema As String = String.Empty
     ''' <summary>除外テーブル (キー: "schema.table")</summary>
     Private _excludedTables As New HashSet(Of String)

@@ -52,6 +52,11 @@ Partial Class OraDB_DUMP_Viewer
         ツールバーTToolStripMenuItem = New ToolStripMenuItem()
         エクスポートToolStripMenuItem = New ToolStripMenuItem()
         ステータスバーSToolStripMenuItem = New ToolStripMenuItem()
+        ToolStripSeparatorTheme = New ToolStripSeparator()
+        テーマToolStripMenuItem = New ToolStripMenuItem()
+        テーマシステムToolStripMenuItem = New ToolStripMenuItem()
+        テーマライトToolStripMenuItem = New ToolStripMenuItem()
+        テーマダークToolStripMenuItem = New ToolStripMenuItem()
         オブジェクトOToolStripMenuItem = New ToolStripMenuItem()
         開くToolStripMenuItem1 = New ToolStripMenuItem()
         ToolStripSeparator5 = New ToolStripSeparator()
@@ -269,7 +274,7 @@ Partial Class OraDB_DUMP_Viewer
         ' 
         ' 表示VToolStripMenuItem
         ' 
-        表示VToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {ツールバーTToolStripMenuItem, ステータスバーSToolStripMenuItem})
+        表示VToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {ツールバーTToolStripMenuItem, ステータスバーSToolStripMenuItem, ToolStripSeparatorTheme, テーマToolStripMenuItem})
         表示VToolStripMenuItem.Name = "表示VToolStripMenuItem"
         表示VToolStripMenuItem.Size = New Size(58, 22)
         表示VToolStripMenuItem.Text = "表示(&V)"
@@ -296,7 +301,37 @@ Partial Class OraDB_DUMP_Viewer
         ステータスバーSToolStripMenuItem.Name = "ステータスバーSToolStripMenuItem"
         ステータスバーSToolStripMenuItem.Size = New Size(199, 22)
         ステータスバーSToolStripMenuItem.Text = "ステータスバー(&S)"
-        ' 
+        '
+        ' ToolStripSeparatorTheme
+        '
+        ToolStripSeparatorTheme.Name = "ToolStripSeparatorTheme"
+        ToolStripSeparatorTheme.Size = New Size(196, 6)
+        '
+        ' テーマToolStripMenuItem
+        '
+        テーマToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {テーマシステムToolStripMenuItem, テーマライトToolStripMenuItem, テーマダークToolStripMenuItem})
+        テーマToolStripMenuItem.Name = "テーマToolStripMenuItem"
+        テーマToolStripMenuItem.Size = New Size(199, 22)
+        テーマToolStripMenuItem.Text = "テーマ(&T)"
+        '
+        ' テーマシステムToolStripMenuItem
+        '
+        テーマシステムToolStripMenuItem.Name = "テーマシステムToolStripMenuItem"
+        テーマシステムToolStripMenuItem.Size = New Size(150, 22)
+        テーマシステムToolStripMenuItem.Text = "システム"
+        '
+        ' テーマライトToolStripMenuItem
+        '
+        テーマライトToolStripMenuItem.Name = "テーマライトToolStripMenuItem"
+        テーマライトToolStripMenuItem.Size = New Size(150, 22)
+        テーマライトToolStripMenuItem.Text = "ライト"
+        '
+        ' テーマダークToolStripMenuItem
+        '
+        テーマダークToolStripMenuItem.Name = "テーマダークToolStripMenuItem"
+        テーマダークToolStripMenuItem.Size = New Size(150, 22)
+        テーマダークToolStripMenuItem.Text = "ダーク"
+        '
         ' オブジェクトOToolStripMenuItem
         ' 
         オブジェクトOToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {開くToolStripMenuItem1, ToolStripSeparator5, すべてのフィルタをクリアFToolStripMenuItem, ToolStripSeparator6, 削除DToolStripMenuItem, 更新の取り消しCToolStripMenuItem, プロパティPToolStripMenuItem, ToolStripSeparator7, エクスポートToolStripMenuItem1, レポート出力RToolStripMenuItem})
@@ -697,4 +732,9 @@ Partial Class OraDB_DUMP_Viewer
     Friend WithEvents ToolStripSeparator11 As ToolStripSeparator
     Friend WithEvents btnExportOdbc As ToolStripButton
     Friend WithEvents ToolStripSeparator13 As ToolStripSeparator
+    Friend WithEvents ToolStripSeparatorTheme As ToolStripSeparator
+    Friend WithEvents テーマToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents テーマシステムToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents テーマライトToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents テーマダークToolStripMenuItem As ToolStripMenuItem
 End Class

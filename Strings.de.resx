@@ -1162,4 +1162,16 @@ Bitte installieren Sie die Microsoft Edge WebView2-Laufzeit.</value>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve">
     <value>Keine Dump-Datei geöffnet</value>
   </data>
+  <data name="Menu_View_Theme" xml:space="preserve">
+    <value>Design(&amp;T)</value>
+  </data>
+  <data name="Theme_System" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="Theme_Light" xml:space="preserve">
+    <value>Hell</value>
+  </data>
+  <data name="Theme_Dark" xml:space="preserve">
+    <value>Dunkel</value>
+  </data>
 </root>

@@ -7,6 +7,7 @@ Imports Microsoft.Data.SqlClient
 ''' </summary>
 Public Class DatabaseConnectionDialog
     Implements ILocalizable
+    Implements IThemeable
 
     ''' <summary>接続種別: True=SQL Server, False=ODBC</summary>
     <ComponentModel.DesignerSerializationVisibility(ComponentModel.DesignerSerializationVisibility.Hidden)>
@@ -38,6 +39,9 @@ Public Class DatabaseConnectionDialog
 
     Private Sub DatabaseConnectionDialog_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         UpdateAuthUI()
+
+        ' テーマ適用
+        ThemeManager.ApplyToForm(Me)
     End Sub
 
     ''' <summary>認証方式変更時にユーザー名/パスワードの有効/無効を切り替え</summary>
@@ -172,6 +176,12 @@ Public Class DatabaseConnectionDialog
         lblConnStr.Text = Loc.S("DbConn_ConnectionStringLabel")
         btnOK.Text = Loc.S("Button_OK")
         btnCancel.Text = Loc.S("Button_Cancel")
+    End Sub
+#End Region
+
+#Region "テーマ"
+    Public Sub ApplyTheme(isDark As Boolean) Implements IThemeable.ApplyTheme
+        ThemeManager.ApplyToControl(Me, isDark)
     End Sub
 #End Region
 

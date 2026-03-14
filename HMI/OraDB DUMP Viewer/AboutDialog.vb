@@ -10,6 +10,7 @@ Imports System.Text.Json
 ''' </summary>
 Partial Public Class AboutDialog
     Implements ILocalizable
+    Implements IThemeable
 
     Private Const GitHubApiUrl As String = "https://api.github.com/repos/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases/latest"
     Private Const ReleasesPageUrl As String = "https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases/latest"
@@ -31,6 +32,9 @@ Partial Public Class AboutDialog
 
         ' 最新バージョンを非同期で確認
         CheckLatestVersionAsync(currentVersion)
+
+        ' テーマ適用
+        ThemeManager.ApplyToForm(Me)
     End Sub
 
     ''' <summary>
@@ -236,6 +240,12 @@ Partial Public Class AboutDialog
         lblLatestVersion.Text = Loc.S("About_Checking")
         btnUpdate.Text = Loc.S("Button_Update")
         btnClose.Text = Loc.S("Button_Close")
+    End Sub
+#End Region
+
+#Region "テーマ"
+    Public Sub ApplyTheme(isDark As Boolean) Implements IThemeable.ApplyTheme
+        ThemeManager.ApplyToControl(Me, isDark)
     End Sub
 #End Region
 

@@ -8,6 +8,7 @@ Imports Microsoft.Web.WebView2.Core
 ''' </summary>
 Partial Public Class HelpViewerForm
     Implements ILocalizable
+    Implements IThemeable
 
     ''' <summary>シングルトンインスタンス</summary>
     Private Shared _instance As HelpViewerForm = Nothing
@@ -47,6 +48,7 @@ Partial Public Class HelpViewerForm
         _helpBasePath = Path.Combine(Application.StartupPath, "Help")
         BuildTocTree()
         InitWebViewAsync()
+        ThemeManager.ApplyToForm(Me)
     End Sub
 
     ''' <summary>
@@ -69,6 +71,9 @@ Partial Public Class HelpViewerForm
             AddHandler webView.CoreWebView2.NewWindowRequested, AddressOf WebView_NewWindowRequested
 
             _webViewReady = True
+
+            ' 初期化時点のテーマを適用
+            ApplyWebViewTheme(ThemeManager.IsDark())
 
             ' 初期化待ちのナビゲーションがあれば実行
             If _pendingNavigation IsNot Nothing Then
@@ -304,6 +309,47 @@ Partial Public Class HelpViewerForm
         MyBase.OnFormClosing(e)
     End Sub
 
+#End Region
+
+#Region "テーマ"
+    Public Sub ApplyTheme(isDark As Boolean) Implements IThemeable.ApplyTheme
+        ThemeManager.ApplyToControl(Me, isDark)
+
+        ' ToolStrip にテーマ適用
+        For Each ctrl As Control In Me.Controls
+            If TypeOf ctrl Is ToolStrip Then
+                ThemeManager.ApplyToToolStrip(DirectCast(ctrl, ToolStrip), isDark)
+            End If
+        Next
+
+        ' WebView2 にダークCSS を注入
+        ApplyWebViewTheme(isDark)
+    End Sub
+
+    Private Sub ApplyWebViewTheme(isDark As Boolean)
+        If Not _webViewReady Then Return
+        Try
+            If isDark Then
+                ' PreferredColorScheme を Dark に設定
+                webView.CoreWebView2.Profile.PreferredColorScheme = CoreWebView2PreferredColorScheme.Dark
+
+                ' ダークCSSを注入
+                Dim darkCssPath = Path.Combine(_helpBasePath, "style-dark.css")
+                If File.Exists(darkCssPath) Then
+                    Dim cssContent = File.ReadAllText(darkCssPath).Replace("'", "\'").Replace(vbCrLf, " ").Replace(vbLf, " ")
+                    Dim script = $"(function(){{ var s=document.getElementById('dark-theme-override'); if(!s){{ s=document.createElement('style'); s.id='dark-theme-override'; document.head.appendChild(s); }} s.textContent='{cssContent}'; }})()"
+                    webView.CoreWebView2.ExecuteScriptAsync(script)
+                End If
+            Else
+                webView.CoreWebView2.Profile.PreferredColorScheme = CoreWebView2PreferredColorScheme.Light
+
+                ' ダークCSS を除去
+                Dim script = "(function(){ var s=document.getElementById('dark-theme-override'); if(s) s.remove(); })()"
+                webView.CoreWebView2.ExecuteScriptAsync(script)
+            End If
+        Catch
+        End Try
+    End Sub
 #End Region
 
 #Region "ローカライズ"

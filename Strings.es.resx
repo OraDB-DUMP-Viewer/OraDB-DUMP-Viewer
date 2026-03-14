@@ -1162,4 +1162,16 @@ Por favor, instale el runtime Microsoft Edge WebView2.</value>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve">
     <value>No hay archivo Dump abierto</value>
   </data>
+  <data name="Menu_View_Theme" xml:space="preserve">
+    <value>Tema(&amp;T)</value>
+  </data>
+  <data name="Theme_System" xml:space="preserve">
+    <value>Sistema</value>
+  </data>
+  <data name="Theme_Light" xml:space="preserve">
+    <value>Claro</value>
+  </data>
+  <data name="Theme_Dark" xml:space="preserve">
+    <value>Oscuro</value>
+  </data>
 </root>

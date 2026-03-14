@@ -495,4 +495,16 @@ Por favor, instale o runtime Microsoft Edge WebView2.</value></data>
   <data name="ErrorReport_AttachDumpTooLarge" xml:space="preserve"><value>Arquivo Dump muito grande (mais de 50 MB)</value></data>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve"><value>Nenhum arquivo Dump aberto</value></data>
 
+  <data name="Menu_View_Theme" xml:space="preserve">
+    <value>Tema(&amp;T)</value>
+  </data>
+  <data name="Theme_System" xml:space="preserve">
+    <value>Sistema</value>
+  </data>
+  <data name="Theme_Light" xml:space="preserve">
+    <value>Claro</value>
+  </data>
+  <data name="Theme_Dark" xml:space="preserve">
+    <value>Escuro</value>
+  </data>
 </root>

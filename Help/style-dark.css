@@ -1,0 +1,52 @@
+/* OraDB DUMP Viewer Help - Dark Theme Override */
+body {
+    color: #D4D4D4;
+    background-color: #1E1E1E;
+}
+h1 {
+    color: #4FC1FF;
+    border-bottom-color: #007ACC;
+}
+h2 {
+    color: #9CDCFE;
+    border-bottom-color: #3F3F46;
+}
+h3 {
+    color: #C8C8C8;
+}
+table {
+    border-color: #3F3F46;
+}
+th, td {
+    border-color: #3F3F46;
+}
+th {
+    background-color: #333333;
+    color: #D4D4D4;
+}
+code {
+    background-color: #2D2D30;
+    color: #CE9178;
+}
+.note {
+    background-color: #3E3A2E;
+    border-left-color: #F39C12;
+    color: #D4D4D4;
+}
+.tip {
+    background-color: #2E3E2E;
+    border-left-color: #27AE60;
+    color: #D4D4D4;
+}
+.caution {
+    background-color: #3E2E2E;
+    border-left-color: #E74C3C;
+    color: #D4D4D4;
+}
+a { color: #4FC1FF; }
+a:hover { color: #80D4FF; }
+.shortcut {
+    background-color: #3C3C3C;
+    border-color: #3F3F46;
+    color: #D4D4D4;
+}

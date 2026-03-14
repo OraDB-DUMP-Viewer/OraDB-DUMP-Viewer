@@ -494,4 +494,16 @@ https://www.microsoft.com/en-us/download/details.aspx?id=54920</value></data>
   <data name="ErrorReport_AttachDumpTooLarge" xml:space="preserve"><value>转储文件过大 (超过 50 MB)</value></data>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve"><value>未打开转储文件</value></data>
 
+  <data name="Menu_View_Theme" xml:space="preserve">
+    <value>主题(&amp;T)</value>
+  </data>
+  <data name="Theme_System" xml:space="preserve">
+    <value>系统</value>
+  </data>
+  <data name="Theme_Light" xml:space="preserve">
+    <value>浅色</value>
+  </data>
+  <data name="Theme_Dark" xml:space="preserve">
+    <value>深色</value>
+  </data>
 </root>

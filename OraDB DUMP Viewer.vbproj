@@ -44,6 +44,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>Help\style.css</Link>
     </Content>
+    <Content Include="Help\style-dark.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Help\style-dark.css</Link>
+    </Content>
     <!-- 言語別ヘルプファイル (Help/{lang}/*.html) -->
     <Content Include="Help\**\*.html" Exclude="Help\*.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

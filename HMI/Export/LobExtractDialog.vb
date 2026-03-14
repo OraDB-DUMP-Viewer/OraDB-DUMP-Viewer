@@ -6,6 +6,7 @@
 ''' </summary>
 Public Class LobExtractDialog
     Implements ILocalizable
+    Implements IThemeable
 
 #Region "フィールド"
     Private _dumpFilePath As String
@@ -48,6 +49,9 @@ Public Class LobExtractDialog
 
         ' LOBカラムと全カラムをコンボに設定
         SetupColumnCombos()
+
+        ' テーマ適用
+        ThemeManager.ApplyToForm(Me)
     End Sub
 
     ''' <summary>
@@ -176,6 +180,12 @@ Public Class LobExtractDialog
         grpSettings.Text = Loc.S("LobExtract_SettingsGroup")
         btnExtract.Text = Loc.S("Button_Extract")
         btnClose.Text = Loc.S("Button_Close")
+    End Sub
+#End Region
+
+#Region "テーマ"
+    Public Sub ApplyTheme(isDark As Boolean) Implements IThemeable.ApplyTheme
+        ThemeManager.ApplyToControl(Me, isDark)
     End Sub
 #End Region
 

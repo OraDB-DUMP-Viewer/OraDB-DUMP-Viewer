@@ -5,6 +5,7 @@
 ''' </summary>
 Partial Public Class ErrorReportDialog
     Implements ILocalizable
+    Implements IThemeable
 
     Private _sysInfo As ErrorReportLogic.SystemInfo
 
@@ -46,6 +47,9 @@ Partial Public Class ErrorReportDialog
             chkAttachDump.Enabled = False
             chkAttachDump.Text = Loc.S("ErrorReport_AttachDumpNoFile")
         End If
+
+        ' テーマ適用
+        ThemeManager.ApplyToForm(Me)
     End Sub
 
     ''' <summary>
@@ -164,6 +168,12 @@ Partial Public Class ErrorReportDialog
         lblDumpInfoCaption.Text = Loc.S("ErrorReport_DumpLabel")
         btnSubmit.Text = Loc.S("Button_Submit")
         btnCancel.Text = Loc.S("Button_Cancel")
+    End Sub
+#End Region
+
+#Region "テーマ"
+    Public Sub ApplyTheme(isDark As Boolean) Implements IThemeable.ApplyTheme
+        ThemeManager.ApplyToControl(Me, isDark)
     End Sub
 #End Region
 

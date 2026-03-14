@@ -3,13 +3,16 @@ Imports System.Text
 
 Public Class OraDB_DUMP_Viewer
     Implements ILocalizable
+    Implements IThemeable
 
     Private Const MRU_MAX As Integer = 5
 
 #Region "フォームロード・初期化"
     Private Sub OraDB_DUMP_Viewer_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         LocaleManager.InitializeLanguage()
+        ThemeManager.InitializeTheme()
         ApplyLocalization()
+        ApplyTheme(ThemeManager.IsDark())
 
         COMMON.ReSet_StatusLavel()
         COMMON.ResetProgressBar()
@@ -101,6 +104,10 @@ Public Class OraDB_DUMP_Viewer
         ツールバーTToolStripMenuItem.Text = Loc.S("Menu_View_Toolbar")
         エクスポートToolStripMenuItem.Text = Loc.S("Menu_View_Export")
         ステータスバーSToolStripMenuItem.Text = Loc.S("Menu_View_StatusBar")
+        テーマToolStripMenuItem.Text = Loc.S("Menu_View_Theme")
+        テーマシステムToolStripMenuItem.Text = Loc.S("Theme_System")
+        テーマライトToolStripMenuItem.Text = Loc.S("Theme_Light")
+        テーマダークToolStripMenuItem.Text = Loc.S("Theme_Dark")
 
         ' オブジェクト
         オブジェクトOToolStripMenuItem.Text = Loc.S("Menu_Object")
@@ -1183,8 +1190,50 @@ Public Class OraDB_DUMP_Viewer
 
 #Region "メニューイベント: 終了"
     Private Sub 終了XToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles 終了XToolStripMenuItem.Click
+        ThemeManager.UnregisterOsListener()
         'アプリケーションを終了する
         Application.Exit()
+    End Sub
+#End Region
+
+#Region "テーマ"
+    Public Sub ApplyTheme(isDark As Boolean) Implements IThemeable.ApplyTheme
+        ' フォーム全体にテーマ適用
+        ThemeManager.ApplyToControl(Me, isDark)
+
+        ' MenuStrip / ToolStrip / StatusStrip
+        ThemeManager.ApplyToToolStrip(MenuStrip, isDark)
+        ThemeManager.ApplyToToolStrip(ToolExport, isDark)
+        ThemeManager.ApplyToToolStrip(StatusStrip, isDark)
+
+        ' MDIClient 背景色
+        For Each ctrl As Control In Me.Controls
+            If TypeOf ctrl Is MdiClient Then
+                ctrl.BackColor = If(isDark, ThemeManager.DarkFormBackColor, SystemColors.AppWorkspace)
+                Exit For
+            End If
+        Next
+
+        ' テーマメニューのチェック状態を更新
+        UpdateThemeMenuChecks()
+    End Sub
+
+    Private Sub UpdateThemeMenuChecks()
+        テーマシステムToolStripMenuItem.Checked = (ThemeManager.CurrentTheme = AppTheme.System)
+        テーマライトToolStripMenuItem.Checked = (ThemeManager.CurrentTheme = AppTheme.Light)
+        テーマダークToolStripMenuItem.Checked = (ThemeManager.CurrentTheme = AppTheme.Dark)
+    End Sub
+
+    Private Sub テーマシステムToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles テーマシステムToolStripMenuItem.Click
+        ThemeManager.SetTheme(AppTheme.System)
+    End Sub
+
+    Private Sub テーマライトToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles テーマライトToolStripMenuItem.Click
+        ThemeManager.SetTheme(AppTheme.Light)
+    End Sub
+
+    Private Sub テーマダークToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles テーマダークToolStripMenuItem.Click
+        ThemeManager.SetTheme(AppTheme.Dark)
     End Sub
 #End Region
 

@@ -4,6 +4,7 @@
 ''' </summary>
 Public Class SqlExportDialog
     Implements ILocalizable
+    Implements IThemeable
 
     ''' <summary>選択された DBMS タイプ</summary>
     <ComponentModel.DesignerSerializationVisibility(ComponentModel.DesignerSerializationVisibility.Hidden)>
@@ -23,6 +24,9 @@ Public Class SqlExportDialog
 
         ' ExportOptions の現在値を反映
         chkCreateTable.Checked = ExportOptions.SqlCreateTable
+
+        ' テーマ適用
+        ThemeManager.ApplyToForm(Me)
     End Sub
 
     Private Sub btnOK_Click(sender As Object, e As EventArgs) Handles btnOK.Click
@@ -45,6 +49,12 @@ Public Class SqlExportDialog
         chkCreateTable.Text = Loc.S("ExportOptions_SqlCreateTable")
         btnOK.Text = Loc.S("Button_OK")
         btnCancel.Text = Loc.S("Button_Cancel")
+    End Sub
+#End Region
+
+#Region "テーマ"
+    Public Sub ApplyTheme(isDark As Boolean) Implements IThemeable.ApplyTheme
+        ThemeManager.ApplyToControl(Me, isDark)
     End Sub
 #End Region
 

@@ -31,6 +31,7 @@ Imports System.Collections.Generic
 
 Public Class AdvancedSearchForm
     Implements ILocalizable
+    Implements IThemeable
 
 #Region "フィールド・プロパティ"
 
@@ -42,6 +43,9 @@ Public Class AdvancedSearchForm
 
     ''' <summary>現在追加されている検索条件行のリスト</summary>
     Private _conditionRows As New List(Of SearchConditionRow)()
+
+    ''' <summary>クリアボタンによる閉じ処理中フラグ</summary>
+    Private _isClearing As Boolean = False
 
 #End Region
 
@@ -134,6 +138,9 @@ Public Class AdvancedSearchForm
             ' これにより、ユーザーは即座に条件を入力できる状態になる
             AddSearchConditionRow()
         End If
+
+        ' テーマ適用
+        ThemeManager.ApplyToForm(Me)
     End Sub
 #End Region
 
@@ -173,6 +180,11 @@ Public Class AdvancedSearchForm
             row.LogicalComboBox = CType(logicalPanel.Controls(1), ComboBox)
             ' UI に追加
             flowLayoutPanel.Controls.Add(logicalPanel)
+
+            ' ダークモード時は新規追加パネルにもテーマを適用
+            If ThemeManager.IsDark() Then
+                ThemeManager.ApplyToControl(logicalPanel, True)
+            End If
         End If
 
         ' 削除ボタンの表示制御
@@ -185,6 +197,11 @@ Public Class AdvancedSearchForm
         flowLayoutPanel.Controls.Add(row)
         ' 内部リストに追加
         _conditionRows.Add(row)
+
+        ' ダークモード時は新規追加コントロールにもテーマを適用
+        If ThemeManager.IsDark() Then
+            ThemeManager.ApplyToControl(row, True)
+        End If
     End Sub
 
     ''' <summary>
@@ -286,15 +303,12 @@ Public Class AdvancedSearchForm
     ''' 「クリア」ボタンのクリックイベントハンドラー
     ''' </summary>
     Private Sub ButtonClear_Click(sender As Object, e As EventArgs)
-        ' 既存の条件行をすべてクリア
-        _conditionRows.Clear()
-        flowLayoutPanel.Controls.Clear()
-
-        ' 検索条件をリセット
+        ' 検索条件を空にして親フォームに返す（フィルタ解除）
+        _isClearing = True
         _searchCondition = New SearchCondition.ComplexSearchCondition()
-
-        ' デフォルト状態に戻す（条件1行を追加）
-        AddSearchConditionRow()
+        Me.SearchConditionResult = _searchCondition
+        Me.DialogResult = DialogResult.OK
+        Me.Close()
     End Sub
 
     ''' <summary>
@@ -339,6 +353,9 @@ Public Class AdvancedSearchForm
     ''' フォームクローズ時のイベントハンドラー
     ''' </summary>
     Private Sub AdvancedSearchForm_FormClosing(sender As Object, e As FormClosingEventArgs)
+        ' クリアボタンによる閉じ処理の場合はバリデーションをスキップ
+        If _isClearing Then Return
+
         ' OK ボタン（検索ボタン）でクローズされた場合
         If Me.DialogResult = DialogResult.OK Then
             ' 検索条件の構築（念のため再実行）
@@ -466,6 +483,12 @@ Public Class AdvancedSearchForm
         buttonClear.Text = Loc.S("Button_Clear")
         buttonSearch.Text = Loc.S("Button_Search")
         buttonCancel.Text = Loc.S("Button_Cancel")
+    End Sub
+#End Region
+
+#Region "テーマ"
+    Public Sub ApplyTheme(isDark As Boolean) Implements IThemeable.ApplyTheme
+        ThemeManager.ApplyToControl(Me, isDark)
     End Sub
 #End Region
 

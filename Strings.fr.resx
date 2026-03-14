@@ -1219,4 +1219,16 @@ Veuillez installer le runtime Microsoft Edge WebView2.</value>
     <value>Aucun fichier Dump ouvert</value>
   </data>
 
+  <data name="Menu_View_Theme" xml:space="preserve">
+    <value>Thème(&amp;T)</value>
+  </data>
+  <data name="Theme_System" xml:space="preserve">
+    <value>Système</value>
+  </data>
+  <data name="Theme_Light" xml:space="preserve">
+    <value>Clair</value>
+  </data>
+  <data name="Theme_Dark" xml:space="preserve">
+    <value>Sombre</value>
+  </data>
 </root>

@@ -495,4 +495,16 @@ Microsoft Edge WebView2 Runtime을 설치해 주세요.</value></data>
   <data name="ErrorReport_AttachDumpTooLarge" xml:space="preserve"><value>덤프 파일이 너무 큽니다 (50 MB 초과)</value></data>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve"><value>열려 있는 덤프 파일이 없습니다</value></data>
 
+  <data name="Menu_View_Theme" xml:space="preserve">
+    <value>테마(&amp;T)</value>
+  </data>
+  <data name="Theme_System" xml:space="preserve">
+    <value>시스템</value>
+  </data>
+  <data name="Theme_Light" xml:space="preserve">
+    <value>라이트</value>
+  </data>
+  <data name="Theme_Dark" xml:space="preserve">
+    <value>다크</value>
+  </data>
 </root>

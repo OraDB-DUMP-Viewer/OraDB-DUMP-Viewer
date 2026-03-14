@@ -4,6 +4,7 @@ Imports System.ComponentModel
 Public Class Workspace
     Inherits Form
     Implements ILocalizable
+    Implements IThemeable
 
 #Region "フィールド・コンストラクタ"
     <DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)>
@@ -86,6 +87,9 @@ Public Class Workspace
 
         ' テーブル検索テキストボックスのイベント設定
         AddHandler txtTableSearch.TextChanged, AddressOf TxtTableSearch_TextChanged
+
+        ' テーマ適用
+        ThemeManager.ApplyToForm(Me)
     End Sub
 
     ''' <summary>
@@ -637,6 +641,12 @@ Public Class Workspace
         Catch ex As Exception
             MessageBox.Show(Loc.SF("Workspace_TableListError", ex.Message), Loc.S("Title_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
+    End Sub
+#End Region
+
+#Region "テーマ"
+    Public Sub ApplyTheme(isDark As Boolean) Implements IThemeable.ApplyTheme
+        ThemeManager.ApplyToControl(Me, isDark)
     End Sub
 #End Region
 

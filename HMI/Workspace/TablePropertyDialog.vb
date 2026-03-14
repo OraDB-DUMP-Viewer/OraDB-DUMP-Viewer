@@ -4,6 +4,7 @@
 ''' </summary>
 Partial Public Class TablePropertyDialog
     Implements ILocalizable
+    Implements IThemeable
 
     Public Sub New(schemaName As String, tableName As String, columnNames As String(), columnTypes As String(), rowCount As Long)
         InitializeComponent()
@@ -32,6 +33,9 @@ Partial Public Class TablePropertyDialog
                 lstColumns.Items.Add(item)
             Next
         End If
+
+        ' テーマ適用
+        ThemeManager.ApplyToForm(Me)
     End Sub
 
 #Region "ローカライズ"
@@ -45,6 +49,12 @@ Partial Public Class TablePropertyDialog
         colName.Text = Loc.S("TableProp_ColumnNameHeader")
         colType.Text = Loc.S("TableProp_TypeHeader")
         btnClose.Text = Loc.S("Button_Close")
+    End Sub
+#End Region
+
+#Region "テーマ"
+    Public Sub ApplyTheme(isDark As Boolean) Implements IThemeable.ApplyTheme
+        ThemeManager.ApplyToControl(Me, isDark)
     End Sub
 #End Region
 

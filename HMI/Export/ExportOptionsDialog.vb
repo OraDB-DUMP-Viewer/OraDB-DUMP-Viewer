@@ -4,6 +4,7 @@
 ''' </summary>
 Public Class ExportOptionsDialog
     Implements ILocalizable
+    Implements IThemeable
 
     Public Sub New()
         InitializeComponent()
@@ -26,6 +27,9 @@ Public Class ExportOptionsDialog
         chkCsvHeader.Checked = ExportOptions.CsvWriteHeader
         chkCsvTypes.Checked = ExportOptions.CsvWriteTypes
         chkCreateTable.Checked = ExportOptions.SqlCreateTable
+
+        ' テーマ適用
+        ThemeManager.ApplyToForm(Me)
     End Sub
 
     Private Sub rdoCustom_CheckedChanged(sender As Object, e As EventArgs) Handles rdoCustom.CheckedChanged
@@ -66,6 +70,12 @@ Public Class ExportOptionsDialog
         chkCreateTable.Text = Loc.S("ExportOptions_SqlCreateTable")
         btnOK.Text = Loc.S("Button_OK")
         btnCancel.Text = Loc.S("Button_Cancel")
+    End Sub
+#End Region
+
+#Region "テーマ"
+    Public Sub ApplyTheme(isDark As Boolean) Implements IThemeable.ApplyTheme
+        ThemeManager.ApplyToControl(Me, isDark)
     End Sub
 #End Region
 

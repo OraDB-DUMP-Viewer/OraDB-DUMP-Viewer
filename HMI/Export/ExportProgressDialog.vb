@@ -15,6 +15,7 @@
 ''' </summary>
 Public Class ExportProgressDialog
     Implements ILocalizable
+    Implements IThemeable
 
 #Region "フィールド"
     Private WithEvents _worker As New System.ComponentModel.BackgroundWorker()
@@ -64,6 +65,9 @@ Public Class ExportProgressDialog
 
         ' 経過時間を1秒ごとに更新するタイマー
         _elapsedTimer.Interval = 1000
+
+        ' テーマ適用
+        ThemeManager.ApplyToForm(Me)
     End Sub
 #End Region
 
@@ -203,6 +207,12 @@ Public Class ExportProgressDialog
     Public Sub ApplyLocalization() Implements ILocalizable.ApplyLocalization
         Me.Text = Loc.S("ExportProgress_FormTitle")
         btnCancel.Text = Loc.S("Button_Cancel")
+    End Sub
+#End Region
+
+#Region "テーマ"
+    Public Sub ApplyTheme(isDark As Boolean) Implements IThemeable.ApplyTheme
+        ThemeManager.ApplyToControl(Me, isDark)
     End Sub
 #End Region
 

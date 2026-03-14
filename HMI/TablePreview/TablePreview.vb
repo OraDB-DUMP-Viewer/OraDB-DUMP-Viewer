@@ -30,6 +30,7 @@ Imports System.Collections.Generic
 ''' </summary>
 Public Class TablePreview
     Implements ILocalizable
+    Implements IThemeable
 
 #Region "フィールド・コンストラクタ"
 
@@ -210,6 +211,9 @@ Public Class TablePreview
         UpdateDataDisplay()
 
         _isInitializing = False
+
+        ' テーマ適用
+        ThemeManager.ApplyToForm(Me)
     End Sub
 
     ''' <summary>
@@ -265,8 +269,16 @@ Public Class TablePreview
             ' 検索条件を取得
             _currentSearchCondition = advancedForm.SearchConditionResult
 
-            ' 検索条件を保持（ディープコピー）
-            _lastSearchCondition = CopySearchCondition(_currentSearchCondition)
+            ' 空の条件（クリア）の場合はフィルタを解除
+            If _currentSearchCondition Is Nothing OrElse
+               _currentSearchCondition.Conditions Is Nothing OrElse
+               _currentSearchCondition.Conditions.Count = 0 Then
+                _currentSearchCondition = Nothing
+                _lastSearchCondition = Nothing
+            Else
+                ' 検索条件を保持（ディープコピー）
+                _lastSearchCondition = CopySearchCondition(_currentSearchCondition)
+            End If
 
             ' データをフィルタリング
             FilterData()
@@ -687,6 +699,12 @@ Public Class TablePreview
         labelPageSize.Text = Loc.S("Preview_PageSizeLabel")
         buttonPrev.Text = Loc.S("Button_Previous")
         buttonNext.Text = Loc.S("Button_Next")
+    End Sub
+#End Region
+
+#Region "テーマ"
+    Public Sub ApplyTheme(isDark As Boolean) Implements IThemeable.ApplyTheme
+        ThemeManager.ApplyToControl(Me, isDark)
     End Sub
 #End Region
 

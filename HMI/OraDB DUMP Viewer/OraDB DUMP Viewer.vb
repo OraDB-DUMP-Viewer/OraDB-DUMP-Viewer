@@ -32,6 +32,15 @@ Public Class OraDB_DUMP_Viewer
 
         ' ドラッグ&ドロップでダンプファイルを開けるようにする
         Me.AllowDrop = True
+
+        ' コマンドライン引数で指定されたダンプファイルを開く（ファイル関連付け用）
+        For Each arg In My.Application.CommandLineArgs
+            If File.Exists(arg) AndAlso
+               (arg.EndsWith(".dmp", StringComparison.OrdinalIgnoreCase) OrElse
+                arg.EndsWith(".DMP", StringComparison.OrdinalIgnoreCase)) Then
+                OpenDumpFile(arg)
+            End If
+        Next
     End Sub
 
     Private Sub OraDB_DUMP_Viewer_DragEnter(sender As Object, e As DragEventArgs) Handles MyBase.DragEnter

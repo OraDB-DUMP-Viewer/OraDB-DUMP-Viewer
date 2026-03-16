@@ -90,6 +90,11 @@ OraDB DUMP Viewer/
 │     ├─ odv_csv.c                         # CSV出力
 │     ├─ odv_sql.c                         # SQL INSERT文生成
 │     └─ _build.cmd                        # MSVCビルドスクリプト
+├─ installer/                              # Inno Setup インストーラー
+│  ├─ setup.iss                            # Inno Setup スクリプト（10言語対応）
+│  ├─ ChineseSimplified.isl               # 中国語（簡体字）翻訳（CI で自動DL）
+│  ├─ WizardImage.bmp                     # バナー画像（CI で自動生成）
+│  └─ WizardSmallImage.bmp               # 小バナー画像（CI で自動生成）
 ├─ .github/workflows/
 │  ├─ build-and-release.yml                # CI/CD 正式版（release ブランチ）
 │  └─ build-and-release-beta.yml           # CI/CD ベータ版（beta ブランチ）
@@ -138,6 +143,13 @@ main (開発) → beta (ベータ公開) → release (正式公開)
 | `beta` | ベータ版公開 (最短毎日) | push → GitHub Actions | Pre-release |
 | `release` | 正式版公開 | push → GitHub Actions | Release |
 
+### インストーラー
+
+- **技術**: Inno Setup 6（EXE 形式、10言語自動検出）
+- **スクリプト**: `installer/setup.iss`
+- **機能**: OS言語自動検出、ファイル関連付け (.dmp)、インストール後起動、アンインストール時設定削除確認
+- **配布**: インストーラー版 (EXE) + ポータブル版 (ZIP) を別々に配布
+
 ### リリース手順
 
 **ベータ版公開:**
@@ -162,7 +174,7 @@ git push origin main:release
 |---|---|---|
 | インストール先 | `Program Files\OraDB DUMP Viewer` | `Program Files\OraDB DUMP Viewer Beta` |
 | ショートカット名 | `OraDB DUMP Viewer` | `OraDB DUMP Viewer (Beta)` |
-| WiX UpgradeCode | `cd3b541d-5df6-4737-9bcc-16a4329a8a54` | `a6f03b60-f9ab-4182-a1fc-aa9801428121` |
+| Inno Setup AppId | `cd3b541d-5df6-4737-9bcc-16a4329a8a54` | `a6f03b60-f9ab-4182-a1fc-aa9801428121` |
 | Winget ID | `OraDBDumpViewer.OraDBDumpViewer` | `OraDBDumpViewer.OraDBDumpViewer.BETA` |
 
 同一 PC に両方インストール可能。

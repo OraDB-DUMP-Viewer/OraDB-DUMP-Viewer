@@ -128,6 +128,7 @@ chinesesimplified.VisitReleasePage=打开最新版本页面
 ; ============================================================
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
+Name: "fileassoc";   Description: "{cm:AssocFileExtension,{#MyAppName},.dmp}"
 
 ; ============================================================
 ; [Files] - インストールするファイル
@@ -141,6 +142,15 @@ Source: "{#MySourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdir
 [Icons]
 Name: "{group}\{#MyAppName}";      Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+
+; ============================================================
+; [Registry] - ファイル関連付け (.dmp)
+; ============================================================
+[Registry]
+Root: HKA; Subkey: "Software\Classes\.dmp";                                 ValueType: string; ValueName: ""; ValueData: "OraDBDumpViewer.dmp"; Flags: uninsdeletevalue; Tasks: fileassoc
+Root: HKA; Subkey: "Software\Classes\OraDBDumpViewer.dmp";                  ValueType: string; ValueName: ""; ValueData: "Oracle DUMP File"; Flags: uninsdeletekey; Tasks: fileassoc
+Root: HKA; Subkey: "Software\Classes\OraDBDumpViewer.dmp\DefaultIcon";      ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"; Tasks: fileassoc
+Root: HKA; Subkey: "Software\Classes\OraDBDumpViewer.dmp\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Tasks: fileassoc
 
 ; ============================================================
 ; [Run] - インストール後の実行

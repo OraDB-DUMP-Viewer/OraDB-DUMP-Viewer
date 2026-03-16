@@ -85,6 +85,7 @@ NUMBER / DATE / TIMESTAMP / VARCHAR2 / CHAR / CLOB / BINARY_FLOAT / BINARY_DOUBL
 | **テーブル除外** | 不要テーブルの非表示 / 元に戻す (Undo/Redo) |
 | **最近使ったファイル** | ダンプファイル・ワークスペースの MRU リスト |
 | **ドラッグ & ドロップ** | .dmp ファイルをウィンドウにドロップして開く |
+| **ファイル関連付け** | .dmp ファイルをダブルクリックで直接開く (インストーラー版) |
 | **ヘルプ** | HTML ヘルプ (CHM) / F1 キー |
 
 ---
@@ -93,8 +94,8 @@ NUMBER / DATE / TIMESTAMP / VARCHAR2 / CHAR / CLOB / BINARY_FLOAT / BINARY_DOUBL
 
 | 項目 | 要件 |
 |---|---|
-| OS | Windows 7 以降 (x64 / ARM64) |
-| ランタイム | ポータブル版: 不要 (同梱済み) / MSI 版: [.NET 10.0](https://dotnet.microsoft.com/ja-jp/download/dotnet/10.0) |
+| OS | Windows 10 以降 (x64 / ARM64) |
+| ランタイム | 不要 (.NET ランタイム同梱済み) |
 | 対応ファイル | Oracle .dmp (EXP / EXPDP) |
 
 ---
@@ -103,10 +104,15 @@ NUMBER / DATE / TIMESTAMP / VARCHAR2 / CHAR / CLOB / BINARY_FLOAT / BINARY_DOUBL
 
 [Releases](https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases) ページからダウンロードしてください。
 
-| 配布形式 | ファイル名 | .NET ランタイム | 説明 |
-|---|---|:---:|---|
-| **ポータブル版** (推奨) | `OraDBDumpViewer_vX.X.X_portable.zip` | **同梱済み** | 解凍してすぐ使える |
-| **MSI インストーラー** | `OraDBDumpViewer_vX.X.X_installer.msi` | 別途必要 | 軽量。ショートカット自動作成 |
+| 配布形式 | ファイル名 | 説明 |
+|---|---|---|
+| **インストーラー** (推奨) | `OraDBDumpViewer_vX.X.X_installer_{arch}.exe` | ショートカット・ファイル関連付け (.dmp) 付き。多言語対応 |
+| **ポータブル版** | `OraDBDumpViewer_vX.X.X_portable_{arch}.zip` | 解凍してすぐ使える。レジストリ変更なし |
+
+> **winget でのインストール:**
+> ```
+> winget install OraDBDumpViewer.OraDBDumpViewer
+> ```
 
 ---
 
@@ -138,7 +144,7 @@ NUMBER / DATE / TIMESTAMP / VARCHAR2 / CHAR / CLOB / BINARY_FLOAT / BINARY_DOUBL
 ## 使い方
 
 1. アプリケーションを起動し、ライセンス認証を完了
-2. **ファイル(F) > ダンプファイル(D)** から .dmp ファイルを選択 (ドラッグ & ドロップも可)
+2. **ファイル(F) > ダンプファイル(D)** から .dmp ファイルを選択 (ドラッグ & ドロップ、またはエクスプローラーからダブルクリックも可)
 3. テーブル一覧が自動取得され、左側ツリーにスキーマが表示
 4. スキーマを選択 → 右側にテーブル一覧を表示
 5. テーブルをダブルクリック → データを解析・表示

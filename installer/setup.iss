@@ -85,43 +85,43 @@ Name: "chinesesimplified";    MessagesFile: "ChineseSimplified.isl"
 ; --- 日本語 ---
 japanese.LaunchAfterInstall=インストール後に {#MyAppName} を起動する
 japanese.DeleteSettings=ユーザー設定を削除しますか？（ライセンス情報等）
-japanese.VisitReleasePage=最新リリースページを開く
+japanese.VisitReleasePage=フィードバックを送信する（ブラウザが開きます）
 ; --- English ---
 english.LaunchAfterInstall=Launch {#MyAppName} after installation
 english.DeleteSettings=Do you want to delete user settings? (license info, etc.)
-english.VisitReleasePage=Open the latest release page
+english.VisitReleasePage=Send feedback (opens browser)
 ; --- Deutsch ---
 german.LaunchAfterInstall={#MyAppName} nach der Installation starten
 german.DeleteSettings=Möchten Sie die Benutzereinstellungen löschen? (Lizenzinformationen usw.)
-german.VisitReleasePage=Neueste Release-Seite öffnen
+german.VisitReleasePage=Feedback senden (öffnet Browser)
 ; --- Español ---
 spanish.LaunchAfterInstall=Iniciar {#MyAppName} después de la instalación
 spanish.DeleteSettings=¿Desea eliminar la configuración del usuario? (información de licencia, etc.)
-spanish.VisitReleasePage=Abrir la página de la última versión
+spanish.VisitReleasePage=Enviar comentarios (abre el navegador)
 ; --- Français ---
 french.LaunchAfterInstall=Lancer {#MyAppName} après l'installation
 french.DeleteSettings=Voulez-vous supprimer les paramètres utilisateur ? (informations de licence, etc.)
-french.VisitReleasePage=Ouvrir la page de la dernière version
+french.VisitReleasePage=Envoyer des commentaires (ouvre le navigateur)
 ; --- Italiano ---
 italian.LaunchAfterInstall=Avvia {#MyAppName} dopo l'installazione
 italian.DeleteSettings=Eliminare le impostazioni utente? (informazioni sulla licenza, ecc.)
-italian.VisitReleasePage=Apri la pagina dell'ultima versione
+italian.VisitReleasePage=Invia feedback (apre il browser)
 ; --- 한국어 ---
 korean.LaunchAfterInstall=설치 후 {#MyAppName} 실행
 korean.DeleteSettings=사용자 설정을 삭제하시겠습니까? (라이선스 정보 등)
-korean.VisitReleasePage=최신 릴리스 페이지 열기
+korean.VisitReleasePage=피드백 보내기 (브라우저가 열립니다)
 ; --- Português (BR) ---
 brazilianportuguese.LaunchAfterInstall=Iniciar {#MyAppName} após a instalação
 brazilianportuguese.DeleteSettings=Deseja excluir as configurações do usuário? (informações de licença, etc.)
-brazilianportuguese.VisitReleasePage=Abrir a página da versão mais recente
+brazilianportuguese.VisitReleasePage=Enviar feedback (abre o navegador)
 ; --- Русский ---
 russian.LaunchAfterInstall=Запустить {#MyAppName} после установки
 russian.DeleteSettings=Удалить пользовательские настройки? (информация о лицензии и т.д.)
-russian.VisitReleasePage=Открыть страницу последнего релиза
+russian.VisitReleasePage=Отправить отзыв (откроется браузер)
 ; --- 中文 (简体) ---
 chinesesimplified.LaunchAfterInstall=安装后启动 {#MyAppName}
 chinesesimplified.DeleteSettings=是否删除用户设置？（许可证信息等）
-chinesesimplified.VisitReleasePage=打开最新版本页面
+chinesesimplified.VisitReleasePage=发送反馈（将打开浏览器）
 
 ; ============================================================
 ; [Tasks] - インストールオプション
@@ -190,13 +190,31 @@ begin
 end;
 
 /// <summary>
-/// アンインストール完了後: 最新リリースページへの誘導
+/// アンインストール完了後: フィードバックページへの誘導
+/// インストール時の言語設定に応じたURLを生成
 /// </summary>
 procedure DeinitializeUninstall();
 var
   ErrorCode: Integer;
+  Lang: String;
+  URL: String;
 begin
   if MsgBox(CustomMessage('VisitReleasePage'), mbConfirmation, MB_YESNO) = IDNO then
     Exit;
-  ShellExec('open', 'https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/releases/latest', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+
+  Lang := ActiveLanguage();
+  if Lang = 'japanese' then Lang := 'ja'
+  else if Lang = 'english' then Lang := 'en'
+  else if Lang = 'german' then Lang := 'de'
+  else if Lang = 'spanish' then Lang := 'es'
+  else if Lang = 'french' then Lang := 'fr'
+  else if Lang = 'italian' then Lang := 'it'
+  else if Lang = 'korean' then Lang := 'ko'
+  else if Lang = 'brazilianportuguese' then Lang := 'pt'
+  else if Lang = 'russian' then Lang := 'ru'
+  else if Lang = 'chinesesimplified' then Lang := 'zh'
+  else Lang := 'en';
+
+  URL := 'https://www.odv.dev/' + Lang + '/feedback?source=uninstall&version={#MyAppVersion}';
+  ShellExec('open', URL, '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
 end;

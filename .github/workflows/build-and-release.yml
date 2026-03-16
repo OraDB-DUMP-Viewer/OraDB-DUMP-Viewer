@@ -238,7 +238,7 @@ jobs:
           wix build installer.wxs `
             -ext WixToolset.UI.wixext `
             -arch ${{ matrix.wix_arch }} `
-            -culture "ja-JP;en-US;de-DE;es-ES;fr-FR;it-IT;ko-KR;pt-BR;ru-RU;zh-CN" `
+            -culture ja-JP `
             -o "./publish/OraDBDumpViewer_v${version}_installer_${{ matrix.arch }}.msi"
 
       # ─────────────────────────────────────

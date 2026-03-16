@@ -129,6 +129,20 @@ dotnet build "OraDB DUMP Viewer.vbproj"
 - 言語: Visual Basic .NET
 - UI: Windows Forms (WinForms)
 
+### バージョンポリシー
+
+**すべてのランタイム・SDK・ツールは常に最新バージョンを使用する。**
+
+- .NET SDK: メジャー・マイナーともに最新版を追従（例: .NET 10.0 → 10.1 → 11.0）
+- Visual Studio: 最新版を使用
+- Node.js (CI): 最新 LTS を使用
+- GitHub Actions: Node.js 24 対応版アクションを使用
+
+バージョンアップ時の更新対象:
+- `OraDB DUMP Viewer.vbproj` の `TargetFramework`
+- CI/CD ワークフロー (`dotnet-version`, `node-version`, アクションバージョン)
+- `README.md` の動作環境記載
+
 ## Release Flow
 
 ### ブランチ戦略

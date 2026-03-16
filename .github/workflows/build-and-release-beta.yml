@@ -143,7 +143,43 @@ jobs:
             -OutFile "installer/ChineseSimplified.isl"
 
       # ─────────────────────────────────────
-      # 12. Inno Setup でインストーラーをビルド
+      # 12. ウィザード用バナー画像を app.ico から生成
+      # ─────────────────────────────────────
+      - name: Generate wizard banner images
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.Drawing
+          $icon = New-Object System.Drawing.Icon("app.ico", 256, 256)
+          $iconBmp = $icon.ToBitmap()
+
+          # 大バナー (164x314) - ダークレッド背景にロゴ
+          $lg = New-Object System.Drawing.Bitmap(164, 314)
+          $g = [System.Drawing.Graphics]::FromImage($lg)
+          $g.SmoothingMode = 'HighQuality'
+          $g.InterpolationMode = 'HighQualityBicubic'
+          $g.Clear([System.Drawing.Color]::FromArgb(120, 0, 0))
+          $g.DrawImage($iconBmp, 32, 90, 100, 100)
+          $g.Dispose()
+          $lg.Save("installer/WizardImage.bmp", [System.Drawing.Imaging.ImageFormat]::Bmp)
+          $lg.Dispose()
+
+          # 小バナー (55x55) - ダークレッド背景にロゴ
+          $sm = New-Object System.Drawing.Bitmap(55, 55)
+          $g = [System.Drawing.Graphics]::FromImage($sm)
+          $g.SmoothingMode = 'HighQuality'
+          $g.InterpolationMode = 'HighQualityBicubic'
+          $g.Clear([System.Drawing.Color]::FromArgb(120, 0, 0))
+          $g.DrawImage($iconBmp, 5, 5, 45, 45)
+          $g.Dispose()
+          $sm.Save("installer/WizardSmallImage.bmp", [System.Drawing.Imaging.ImageFormat]::Bmp)
+          $sm.Dispose()
+
+          $iconBmp.Dispose()
+          $icon.Dispose()
+          Write-Host "Wizard images generated"
+
+      # ─────────────────────────────────────
+      # 13. Inno Setup でインストーラーをビルド
       # ─────────────────────────────────────
       - name: Build EXE installer
         shell: pwsh

@@ -38,7 +38,8 @@ Public Class SqlExportLogic
                                           Optional worker As System.ComponentModel.BackgroundWorker = Nothing,
                                           Optional columnNotNulls As Boolean() = Nothing,
                                           Optional columnDefaults As String() = Nothing,
-                                          Optional databaseName As String = Nothing) As Boolean
+                                          Optional databaseName As String = Nothing,
+                                          Optional constraintsJson As String = Nothing) As Boolean
         Try
             Dim totalRows As Long = data.Count
             Dim isSqlServer = (dbmsType = ExportHelper.DBMS_SQLSERVER)
@@ -75,6 +76,12 @@ Public Class SqlExportLogic
                     WriteCreateTable(sw, schema, tableName, columnNames, effectiveTypes, dbmsType,
                                      columnNotNulls, columnDefaults)
                     sw.WriteLine()
+
+                    ' 制約 DDL (PK/UNIQUE/FK)
+                    If Not String.IsNullOrEmpty(constraintsJson) AndAlso constraintsJson <> "[]" Then
+                        WriteConstraints(sw, schema, tableName, constraintsJson, dbmsType)
+                        sw.WriteLine()
+                    End If
 
                     ' GO (SQL Server のみ)
                     If isSqlServer Then
@@ -236,5 +243,70 @@ Public Class SqlExportLogic
 
         Return sb.ToString()
     End Function
+
+    ''' <summary>
+    ''' 制約 DDL を出力 (JSON からデシリアライズして ALTER TABLE 文を生成)
+    ''' </summary>
+    Private Shared Sub WriteConstraints(sw As StreamWriter, schema As String, tableName As String,
+                                         constraintsJson As String, dbmsType As Integer)
+        Try
+            Dim constraints = Text.Json.JsonSerializer.Deserialize(Of List(Of ConstraintInfo))(constraintsJson)
+            If constraints Is Nothing OrElse constraints.Count = 0 Then Return
+
+            Dim fullName As String
+            If Not String.IsNullOrEmpty(schema) Then
+                fullName = ExportHelper.EscapeSqlIdentifier(schema, dbmsType) & "." & ExportHelper.EscapeSqlIdentifier(tableName, dbmsType)
+            Else
+                fullName = ExportHelper.EscapeSqlIdentifier(tableName, dbmsType)
+            End If
+
+            For Each c In constraints
+                Dim colList = String.Join(", ", c.columns.Select(Function(col) ExportHelper.EscapeSqlIdentifier(col, dbmsType)))
+
+                Select Case c.type
+                    Case 0 ' PRIMARY KEY
+                        If Not String.IsNullOrEmpty(c.name) Then
+                            sw.WriteLine($"ALTER TABLE {fullName} ADD CONSTRAINT {ExportHelper.EscapeSqlIdentifier(c.name, dbmsType)} PRIMARY KEY ({colList});")
+                        Else
+                            sw.WriteLine($"ALTER TABLE {fullName} ADD PRIMARY KEY ({colList});")
+                        End If
+
+                    Case 1 ' UNIQUE
+                        If Not String.IsNullOrEmpty(c.name) Then
+                            sw.WriteLine($"ALTER TABLE {fullName} ADD CONSTRAINT {ExportHelper.EscapeSqlIdentifier(c.name, dbmsType)} UNIQUE ({colList});")
+                        Else
+                            sw.WriteLine($"ALTER TABLE {fullName} ADD UNIQUE ({colList});")
+                        End If
+
+                    Case 2 ' FOREIGN KEY
+                        Dim refName As String
+                        If Not String.IsNullOrEmpty(c.ref_schema) Then
+                            refName = ExportHelper.EscapeSqlIdentifier(c.ref_schema, dbmsType) & "." & ExportHelper.EscapeSqlIdentifier(c.ref_table, dbmsType)
+                        Else
+                            refName = ExportHelper.EscapeSqlIdentifier(If(c.ref_table, ""), dbmsType)
+                        End If
+                        Dim refColList = String.Join(", ", If(c.ref_columns, {}).Select(Function(col) ExportHelper.EscapeSqlIdentifier(col, dbmsType)))
+
+                        If Not String.IsNullOrEmpty(c.name) Then
+                            sw.WriteLine($"ALTER TABLE {fullName} ADD CONSTRAINT {ExportHelper.EscapeSqlIdentifier(c.name, dbmsType)} FOREIGN KEY ({colList}) REFERENCES {refName} ({refColList});")
+                        Else
+                            sw.WriteLine($"ALTER TABLE {fullName} ADD FOREIGN KEY ({colList}) REFERENCES {refName} ({refColList});")
+                        End If
+                End Select
+            Next
+        Catch
+            ' JSON パースエラーは無視
+        End Try
+    End Sub
+
+    ''' <summary>制約情報のデシリアライズ用クラス</summary>
+    Private Class ConstraintInfo
+        Public Property type As Integer
+        Public Property name As String
+        Public Property columns As String()
+        Public Property ref_schema As String
+        Public Property ref_table As String
+        Public Property ref_columns As String()
+    End Class
 
 End Class

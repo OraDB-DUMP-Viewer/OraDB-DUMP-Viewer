@@ -790,7 +790,7 @@ Public Class OraDB_DUMP_Viewer
                             ok = SqlExportLogic.ExportFromData(preview.FilteredData,
                                     preview.ExportColumnNames, ctx.ColumnTypes,
                                     ctx.Schema, ctx.TableName, outputPath, dbmsType, worker,
-                                    ctx.ColumnNotNulls, ctx.ColumnDefaults, dbName)
+                                    ctx.ColumnNotNulls, ctx.ColumnDefaults, dbName, ctx.ConstraintsJson)
                         ElseIf ExportOptions.SqlInferInteger Then
                             ' InferInteger ON: データを読み込んで VB.NET パスで出力
                             Dim tableData = OraDB_NativeParser.ParseDump(ctx.DumpFilePath,
@@ -804,7 +804,7 @@ Public Class OraDB_DUMP_Viewer
                             Dim colNames = New List(Of String)(If(ctx.ColumnNames, Array.Empty(Of String)()))
                             ok = SqlExportLogic.ExportFromData(rows, colNames, ctx.ColumnTypes,
                                     ctx.Schema, ctx.TableName, outputPath, dbmsType, worker,
-                                    ctx.ColumnNotNulls, ctx.ColumnDefaults, dbName)
+                                    ctx.ColumnNotNulls, ctx.ColumnDefaults, dbName, ctx.ConstraintsJson)
                         Else
                             ' Workspace: DLLから再パース
                             ok = SqlExportLogic.ExportFromDump(ctx, outputPath, dbmsType)

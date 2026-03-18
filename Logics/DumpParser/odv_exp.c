@@ -155,8 +155,13 @@ static int parse_exp_header(ODV_SESSION *s, FILE *fp)
                     s->exp_state.oracle_version = atoi((char *)&word[2]);
                 break;
             case 1:
-                /* Record 1: Export user/schema (e.g. "DNO1CCUSER") */
-                if (word[0] != '\0')
+                /* Record 1: Export user/schema
+                   First byte is a mode flag ('D'=direct, 'R'=conventional, etc.)
+                   followed by the actual schema name. Skip the first byte. */
+                if (word[0] != '\0' && word[1] != '\0')
+                    odv_strcpy(s->exp_state.export_user, (char *)&word[1],
+                               ODV_OBJNAME_LEN);
+                else if (word[0] != '\0')
                     odv_strcpy(s->exp_state.export_user, (char *)word,
                                ODV_OBJNAME_LEN);
                 break;
@@ -206,6 +211,151 @@ static int parse_exp_header(ODV_SESSION *s, FILE *fp)
 
     s->exp_state.header_size = EXP_HEADER_SIZE;
     return ODV_OK;
+}
+
+/*---------------------------------------------------------------------------
+    parse_constraint_columns
+
+    Extracts column names from a parenthesized list like ("col1", "col2").
+    Returns pointer past the closing paren, or NULL on failure.
+ ---------------------------------------------------------------------------*/
+static const char *parse_constraint_columns(const char *p, ODV_CONSTRAINT *c, int is_ref)
+{
+    char (*cols)[ODV_OBJNAME_LEN + 1] = is_ref ? c->ref_columns : c->columns;
+    int *cnt = is_ref ? &c->ref_col_count : &c->col_count;
+    *cnt = 0;
+
+    p = skip_ws(p);
+    if (*p != '(') return NULL;
+    p++;
+
+    while (*p && *p != ')') {
+        char col[ODV_OBJNAME_LEN + 1] = {0};
+        int len = 0;
+        p = skip_ws(p);
+        if (*p == '"') {
+            p++;
+            while (*p && *p != '"' && len < ODV_OBJNAME_LEN)
+                col[len++] = *p++;
+            col[len] = '\0';
+            if (*p == '"') p++;
+        } else {
+            while (*p && *p != ',' && *p != ')' && *p != ' ' && len < ODV_OBJNAME_LEN)
+                col[len++] = *p++;
+            col[len] = '\0';
+            trim_right(col);
+        }
+        if (col[0] && *cnt < ODV_MAX_CONSTRAINT_COLS) {
+            odv_strcpy(cols[*cnt], col, ODV_OBJNAME_LEN);
+            (*cnt)++;
+        }
+        p = skip_ws(p);
+        if (*p == ',') p++;
+    }
+    if (*p == ')') p++;
+    return p;
+}
+
+/*---------------------------------------------------------------------------
+    add_constraint
+
+    Adds a constraint to the current table if there's room.
+    Returns pointer to the new constraint, or NULL if full.
+ ---------------------------------------------------------------------------*/
+static ODV_CONSTRAINT *add_constraint(ODV_SESSION *s, int type)
+{
+    /* If a constraint with the same name already exists, upgrade it
+       (e.g., CREATE UNIQUE INDEX → ALTER TABLE ADD PRIMARY KEY) */
+    /* For PK/UNIQUE: check if name matches an existing UNIQUE and upgrade to PK */
+    if (s->table.constraint_count >= ODV_MAX_CONSTRAINTS) return NULL;
+    ODV_CONSTRAINT *c = &s->table.constraints[s->table.constraint_count];
+    memset(c, 0, sizeof(ODV_CONSTRAINT));
+    c->type = type;
+    s->table.constraint_count++;
+    return c;
+}
+
+/* Find existing constraint by name. Returns NULL if not found. */
+static ODV_CONSTRAINT *find_constraint_by_name(ODV_SESSION *s, const char *name)
+{
+    int i;
+    if (!name || !name[0]) return NULL;
+    for (i = 0; i < s->table.constraint_count; i++) {
+        if (strcmp(s->table.constraints[i].name, name) == 0)
+            return &s->table.constraints[i];
+    }
+    return NULL;
+}
+
+/*---------------------------------------------------------------------------
+    serialize_constraints_json
+
+    Serialize constraint array to JSON string.
+    Caller must free the returned buffer.
+ ---------------------------------------------------------------------------*/
+static char *serialize_constraints_json(ODV_SESSION *s)
+{
+    int i, j;
+    int buf_size = 4096;
+    int pos = 0;
+    char *buf;
+
+    if (s->table.constraint_count == 0) {
+        buf = (char *)malloc(3);
+        if (buf) { buf[0] = '['; buf[1] = ']'; buf[2] = '\0'; }
+        return buf;
+    }
+
+    buf = (char *)malloc(buf_size);
+    if (!buf) return NULL;
+
+    buf[pos++] = '[';
+    for (i = 0; i < s->table.constraint_count; i++) {
+        ODV_CONSTRAINT *c = &s->table.constraints[i];
+        char tmp[2048];
+        int n;
+
+        /* Ensure buffer space */
+        if (pos + 2048 > buf_size) {
+            buf_size *= 2;
+            buf = (char *)realloc(buf, buf_size);
+            if (!buf) return NULL;
+        }
+
+        if (i > 0) buf[pos++] = ',';
+
+        /* type, name */
+        n = snprintf(tmp, sizeof(tmp),
+            "{\"type\":%d,\"name\":\"%s\",\"columns\":[", c->type, c->name);
+        memcpy(buf + pos, tmp, n); pos += n;
+
+        /* columns */
+        for (j = 0; j < c->col_count; j++) {
+            if (j > 0) buf[pos++] = ',';
+            n = snprintf(tmp, sizeof(tmp), "\"%s\"", c->columns[j]);
+            memcpy(buf + pos, tmp, n); pos += n;
+        }
+        buf[pos++] = ']';
+
+        /* FK ref */
+        if (c->type == CONSTRAINT_FK) {
+            n = snprintf(tmp, sizeof(tmp),
+                ",\"ref_schema\":\"%s\",\"ref_table\":\"%s\",\"ref_columns\":[",
+                c->ref_schema, c->ref_table);
+            memcpy(buf + pos, tmp, n); pos += n;
+            for (j = 0; j < c->ref_col_count; j++) {
+                if (j > 0) buf[pos++] = ',';
+                n = snprintf(tmp, sizeof(tmp), "\"%s\"", c->ref_columns[j]);
+                memcpy(buf + pos, tmp, n); pos += n;
+            }
+            buf[pos++] = ']';
+        }
+
+        buf[pos++] = '}';
+    }
+    buf[pos++] = ']';
+    buf[pos] = '\0';
+    return buf;
 }
 
 /*---------------------------------------------------------------------------
@@ -584,6 +734,7 @@ static void notify_exp_table(ODV_SESSION *s, int64_t row_count)
     }
 
     if (s->table_cb) {
+        char *cjson;
         for (i = 0; i < s->table.col_count && i < ODV_MAX_COLUMNS; i++) {
             conv_name(s->table.columns[i].name, s->dump_charset, s->out_charset,
                       conv_col_names[i], sizeof(conv_col_names[i]));
@@ -592,6 +743,7 @@ static void notify_exp_table(ODV_SESSION *s, int64_t row_count)
             col_not_nulls[i] = s->table.columns[i].not_null;
             col_defaults[i] = s->table.columns[i].default_val;
         }
+        cjson = serialize_constraints_json(s);
         s->table_cb(
             conv_schema,
             conv_name_buf,
@@ -600,10 +752,13 @@ static void notify_exp_table(ODV_SESSION *s, int64_t row_count)
             col_types,
             col_not_nulls,
             col_defaults,
+            s->table.constraint_count,
+            cjson ? cjson : "[]",
             row_count,
             s->table.ddl_offset,
             s->table_ud
         );
+        if (cjson) free(cjson);
     }
 }
 
@@ -1136,6 +1291,7 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
     unsigned char meta_buf[4];
     int null_count = 0;
     int pending_table = 0;  /* 1=table parsed but not yet notified */
+    int64_t pending_row_count = 0; /* row count to pass when notifying */
     int filter_found = 0;   /* 1=filter target table already processed */
 
     word = (char *)malloc(EXP_DDL_BUF_SIZE);
@@ -1265,10 +1421,11 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                     if (starts_with_ci(after, "TABLE") &&
                         (after[5] == ' ' || after[5] == '\t' ||
                          after[5] == '"' || after[5] == '\0')) {
-                        /* Notify previous pending table if it had no INSERT INTO */
+                        /* Notify previous pending table (with accumulated constraints) */
                         if (pending_table && s->table.name[0] != '\0') {
-                            notify_exp_table(s, 0);
+                            notify_exp_table(s, pending_row_count);
                             pending_table = 0;
+                            pending_row_count = 0;
                         }
                         if (parse_create_table(s, word)) {
                             /* Record file position of this CREATE TABLE
@@ -1339,35 +1496,183 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
 
                             /* notify_exp_table is deferred to after record counting */
                         }
+                    } else if (pending_table) {
+                        /* CREATE [UNIQUE] INDEX "name" ON "table" ("col1", "col2") */
+                        int is_unique_idx = 0;
+                        const char *cp = after;
+                        if (starts_with_ci(cp, "UNIQUE ")) {
+                            is_unique_idx = 1;
+                            cp = skip_ws(cp + 7);
+                        }
+                        if (starts_with_ci(cp, "INDEX")) {
+                            cp += 5; cp = skip_ws(cp);
+                            char idx_name[ODV_OBJNAME_LEN + 1] = {0};
+                            int nl = 0;
+                            if (*cp == '"') {
+                                cp++;
+                                while (*cp && *cp != '"' && nl < ODV_OBJNAME_LEN) idx_name[nl++] = *cp++;
+                                idx_name[nl] = '\0';
+                                if (*cp == '"') cp++;
+                            }
+                            cp = skip_ws(cp);
+                            if (starts_with_ci(cp, "ON")) {
+                                cp += 2; cp = skip_ws(cp);
+                                /* skip table reference (schema.table or table) */
+                                if (*cp == '"') { cp++; while (*cp && *cp != '"') cp++; if (*cp == '"') cp++; }
+                                cp = skip_ws(cp);
+                                if (*cp == '.') {
+                                    cp++; cp = skip_ws(cp);
+                                    if (*cp == '"') { cp++; while (*cp && *cp != '"') cp++; if (*cp == '"') cp++; }
+                                }
+                                cp = skip_ws(cp);
+                                if (is_unique_idx) {
+                                    ODV_CONSTRAINT *c = add_constraint(s, CONSTRAINT_UNIQUE);
+                                    if (c) {
+                                        odv_strcpy(c->name, idx_name, ODV_OBJNAME_LEN);
+                                        parse_constraint_columns(cp, c, 0);
+                                    }
+                                }
+                            }
+                        }
                     }
-                    /* Other CREATE types (TRIGGER, INDEX...) are ignored */
 
                 } else if (starts_with_ci(word, "ALTER ") && pending_table) {
-                    /* Parse ALTER TABLE ... MODIFY ("col" DEFAULT value)
-                       to capture DEFAULT values for columns */
                     const char *ap = word;
-                    if (starts_with_ci(ap, "ALTER TABLE") ||
-                        starts_with_ci(ap, "ALTER TABLE")) {
-                        /* Skip to MODIFY keyword */
-                        while (*ap && !starts_with_ci(ap, "MODIFY")) ap++;
-                        if (*ap) {
-                            ap += 6; /* skip "MODIFY" */
+                    if (starts_with_ci(ap, "ALTER TABLE")) {
+                        ap += 11;
+                        ap = skip_ws(ap);
+                        /* Skip table name */
+                        if (*ap == '"') { ap++; while (*ap && *ap != '"') ap++; if (*ap == '"') ap++; }
+                        else { while (*ap && *ap != ' ') ap++; }
+                        /* Skip optional schema.table dot */
+                        ap = skip_ws(ap);
+                        if (*ap == '.') {
+                            ap++;
+                            ap = skip_ws(ap);
+                            if (*ap == '"') { ap++; while (*ap && *ap != '"') ap++; if (*ap == '"') ap++; }
+                            else { while (*ap && *ap != ' ') ap++; }
+                        }
+                        ap = skip_ws(ap);
+
+                        if (starts_with_ci(ap, "ADD")) {
+                            ap += 3;
+                            ap = skip_ws(ap);
+
+                            /* ALTER TABLE ... ADD PRIMARY KEY (...) */
+                            if (starts_with_ci(ap, "PRIMARY KEY")) {
+                                /* Check if PK already exists (from CREATE UNIQUE INDEX) */
+                                int pk_exists = 0;
+                                { int ci; for (ci = 0; ci < s->table.constraint_count; ci++) {
+                                    if (s->table.constraints[ci].type == CONSTRAINT_PK) { pk_exists = 1; break; }
+                                }}
+                                if (!pk_exists) {
+                                    ap += 11;
+                                    ap = skip_ws(ap);
+                                    ODV_CONSTRAINT *c = add_constraint(s, CONSTRAINT_PK);
+                                    if (c) parse_constraint_columns(ap, c, 0);
+                                }
+                            }
+                            /* ALTER TABLE ... ADD CONSTRAINT "name" PRIMARY KEY/UNIQUE/FOREIGN KEY */
+                            else if (starts_with_ci(ap, "CONSTRAINT")) {
+                                char cname[ODV_OBJNAME_LEN + 1] = {0};
+                                ap += 10;
+                                ap = skip_ws(ap);
+                                /* Extract constraint name */
+                                if (*ap == '"') {
+                                    int nl = 0; ap++;
+                                    while (*ap && *ap != '"' && nl < ODV_OBJNAME_LEN) cname[nl++] = *ap++;
+                                    cname[nl] = '\0';
+                                    if (*ap == '"') ap++;
+                                } else {
+                                    int nl = 0;
+                                    while (*ap && *ap != ' ' && nl < ODV_OBJNAME_LEN) cname[nl++] = *ap++;
+                                    cname[nl] = '\0';
+                                }
+                                ap = skip_ws(ap);
+
+                                if (starts_with_ci(ap, "PRIMARY KEY")) {
+                                    ap += 11; ap = skip_ws(ap);
+                                    ODV_CONSTRAINT *c = find_constraint_by_name(s, cname);
+                                    if (c) {
+                                        /* Upgrade existing UNIQUE to PK */
+                                        c->type = CONSTRAINT_PK;
+                                    } else {
+                                        c = add_constraint(s, CONSTRAINT_PK);
+                                        if (c) {
+                                            odv_strcpy(c->name, cname, ODV_OBJNAME_LEN);
+                                            parse_constraint_columns(ap, c, 0);
+                                        }
+                                    }
+                                } else if (starts_with_ci(ap, "UNIQUE")) {
+                                    ap += 6; ap = skip_ws(ap);
+                                    ODV_CONSTRAINT *c = find_constraint_by_name(s, cname);
+                                    if (!c) {
+                                        c = add_constraint(s, CONSTRAINT_UNIQUE);
+                                        if (c) {
+                                            odv_strcpy(c->name, cname, ODV_OBJNAME_LEN);
+                                            parse_constraint_columns(ap, c, 0);
+                                        }
+                                    }
+                                } else if (starts_with_ci(ap, "FOREIGN KEY")) {
+                                    ap += 11; ap = skip_ws(ap);
+                                    ODV_CONSTRAINT *c = add_constraint(s, CONSTRAINT_FK);
+                                    if (c) {
+                                        odv_strcpy(c->name, cname, ODV_OBJNAME_LEN);
+                                        ap = parse_constraint_columns(ap, c, 0);
+                                        if (ap) {
+                                            ap = skip_ws(ap);
+                                            if (starts_with_ci(ap, "REFERENCES")) {
+                                                ap += 10; ap = skip_ws(ap);
+                                                /* Extract ref schema.table */
+                                                {
+                                                    char ref1[ODV_OBJNAME_LEN + 1] = {0};
+                                                    char ref2[ODV_OBJNAME_LEN + 1] = {0};
+                                                    int rl = 0;
+                                                    if (*ap == '"') {
+                                                        ap++;
+                                                        while (*ap && *ap != '"' && rl < ODV_OBJNAME_LEN) ref1[rl++] = *ap++;
+                                                        ref1[rl] = '\0';
+                                                        if (*ap == '"') ap++;
+                                                    }
+                                                    ap = skip_ws(ap);
+                                                    if (*ap == '.') {
+                                                        ap++; ap = skip_ws(ap);
+                                                        rl = 0;
+                                                        if (*ap == '"') {
+                                                            ap++;
+                                                            while (*ap && *ap != '"' && rl < ODV_OBJNAME_LEN) ref2[rl++] = *ap++;
+                                                            ref2[rl] = '\0';
+                                                            if (*ap == '"') ap++;
+                                                        }
+                                                        odv_strcpy(c->ref_schema, ref1, ODV_OBJNAME_LEN);
+                                                        odv_strcpy(c->ref_table, ref2, ODV_OBJNAME_LEN);
+                                                    } else {
+                                                        odv_strcpy(c->ref_table, ref1, ODV_OBJNAME_LEN);
+                                                    }
+                                                }
+                                                ap = skip_ws(ap);
+                                                parse_constraint_columns(ap, c, 1);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        /* ALTER TABLE ... MODIFY ("col" DEFAULT value) */
+                        else if (starts_with_ci(ap, "MODIFY")) {
+                            ap += 6;
                             while (*ap == ' ' || *ap == '\t' || *ap == '\n' || *ap == '\r') ap++;
-                            /* Skip optional "DEFAULT\n" preamble line */
                             if (starts_with_ci(ap, "DEFAULT") && (ap[7] == '\0' || ap[7] <= ' ')) {
-                                /* This is just the preamble line, skip */
+                                /* preamble line, skip */
                             } else if (*ap == '(') {
-                                /* ("col_name" DEFAULT value) */
                                 char acol[ODV_OBJNAME_LEN + 1] = {0};
                                 char adef[256] = {0};
                                 int alen = 0;
-                                ap++; /* skip ( */
+                                ap++;
                                 while (*ap == ' ') ap++;
                                 if (*ap == '"') {
                                     ap++;
-                                    while (*ap && *ap != '"' && alen < ODV_OBJNAME_LEN) {
-                                        acol[alen++] = *ap++;
-                                    }
+                                    while (*ap && *ap != '"' && alen < ODV_OBJNAME_LEN) acol[alen++] = *ap++;
                                     acol[alen] = '\0';
                                     if (*ap == '"') ap++;
                                 }
@@ -1376,11 +1681,8 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                                     ap += 7;
                                     while (*ap == ' ') ap++;
                                     alen = 0;
-                                    while (*ap && *ap != ')' && alen < 250) {
-                                        adef[alen++] = *ap++;
-                                    }
+                                    while (*ap && *ap != ')' && alen < 250) adef[alen++] = *ap++;
                                     adef[alen] = '\0';
-                                    /* trim trailing spaces */
                                     while (alen > 0 && adef[alen-1] == ' ') adef[--alen] = '\0';
                                 }
                                 if (acol[0] && adef[0]) {
@@ -1626,9 +1928,9 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                 if (c == 0x00) {
                     null_count++;
                 } else if (c == 0xFF) {
-                    /* No record data for this table — back to DDL */
-                    notify_exp_table(s, 0);
-                    pending_table = 0;
+                    /* No record data for this table — back to DDL
+                       (defer notify until constraints are collected) */
+                    pending_row_count = 0;
                     step = 2;
                     wlen = 0;
                 } else {
@@ -1659,8 +1961,7 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                                         odv_report_progress(s, fp);
                                 }
                             }
-                            notify_exp_table(s, 0);
-                            pending_table = 0;
+                            pending_row_count = 0;
                         } else if (list_only && s->filter_active && s->pass_flg) {
                             /* Filtered out in list_only: skip records entirely */
                             /* Scan forward to find 0xFFFF end marker */
@@ -1675,13 +1976,11 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                                         odv_report_progress(s, fp);
                                 }
                             }
-                            notify_exp_table(s, 0);
-                            pending_table = 0;
+                            pending_row_count = 0;
                         } else if (!s->filter_active || !s->pass_flg) {
                             /* Parse records (list_only=count only, full=deliver) */
                             rc = parse_exp_records(s, fp, rec_start, list_only);
-                            notify_exp_table(s, s->table.record_count);
-                            pending_table = 0;
+                            pending_row_count = s->table.record_count;
                         } else {
                             /* Filtered out in full parse: skip */
                             {
@@ -1695,8 +1994,7 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                                         odv_report_progress(s, fp);
                                 }
                             }
-                            notify_exp_table(s, 0);
-                            pending_table = 0;
+                            pending_row_count = 0;
                         }
                         /* Update address to match new file position */
                         address = odv_ftell(fp);
@@ -1714,9 +2012,9 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
     }
 
 done:
-    /* Notify last pending table if not yet notified */
+    /* Notify last pending table if not yet notified (with constraints) */
     if (pending_table && s->table.name[0] != '\0') {
-        notify_exp_table(s, s->table.record_count);
+        notify_exp_table(s, pending_row_count > 0 ? pending_row_count : s->table.record_count);
     }
 
     free(word);

@@ -83,6 +83,8 @@ typedef void (__stdcall *ODV_TABLE_CALLBACK)(
     const char **col_types,
     const int *col_not_nulls,
     const char **col_defaults,
+    int constraint_count,
+    const char *constraints_json,
     int64_t row_count,
     int64_t data_offset,
     void *user_data

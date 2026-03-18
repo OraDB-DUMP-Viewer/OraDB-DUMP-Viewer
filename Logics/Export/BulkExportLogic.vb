@@ -51,7 +51,7 @@ Public Class BulkExportLogic
                 Dim colNames = New List(Of String)(If(ctx.ColumnNames, Array.Empty(Of String)()))
                 ok = SqlExportLogic.ExportFromData(tableData, colNames, ctx.ColumnTypes,
                         ctx.Schema, ctx.TableName, outputPath, dbmsType, worker,
-                        ctx.ColumnNotNulls, ctx.ColumnDefaults, databaseName)
+                        ctx.ColumnNotNulls, ctx.ColumnDefaults, databaseName, ctx.ConstraintsJson)
                 tableData = Nothing
             Else
                 ' C DLL ストリーミング

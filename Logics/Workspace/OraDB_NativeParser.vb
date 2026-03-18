@@ -67,6 +67,8 @@ Public Class OraDB_NativeParser
         colTypes As IntPtr,
         colNotNulls As IntPtr,
         colDefaults As IntPtr,
+        constraintCount As Integer,
+        constraintsJson As IntPtr,
         rowCount As Long,
         dataOffset As Long,
         userData As IntPtr
@@ -299,6 +301,8 @@ Public Class OraDB_NativeParser
         Public ColumnNotNulls As New Dictionary(Of String, Boolean())
         ''' <summary>テーブルごとの DEFAULT 値 (キー: "schema.table")</summary>
         Public ColumnDefaults As New Dictionary(Of String, String())
+        ''' <summary>テーブルごとの制約 JSON (キー: "schema.table")</summary>
+        Public ConstraintsJson As New Dictionary(Of String, String)
     End Class
 #End Region
 
@@ -428,7 +432,8 @@ Public Class OraDB_NativeParser
                                       Optional ByRef columnNamesMap As Dictionary(Of String, String()) = Nothing,
                                       Optional ByRef columnTypesMap As Dictionary(Of String, String()) = Nothing,
                                       Optional ByRef columnNotNullsMap As Dictionary(Of String, Boolean()) = Nothing,
-                                      Optional ByRef columnDefaultsMap As Dictionary(Of String, String()) = Nothing) As List(Of Tuple(Of String, String, Integer, Long, Long))
+                                      Optional ByRef columnDefaultsMap As Dictionary(Of String, String()) = Nothing,
+                                      Optional ByRef constraintsJsonMap As Dictionary(Of String, String) = Nothing) As List(Of Tuple(Of String, String, Integer, Long, Long))
         Dim session As IntPtr = IntPtr.Zero
         Dim ctx As New ListTablesContext()
         ctx.Tables = New List(Of Tuple(Of String, String, Integer, Long, Long))
@@ -452,6 +457,7 @@ Public Class OraDB_NativeParser
             columnTypesMap = ctx.ColumnTypes
             columnNotNullsMap = ctx.ColumnNotNulls
             columnDefaultsMap = ctx.ColumnDefaults
+            constraintsJsonMap = ctx.ConstraintsJson
             Return ctx.Tables
 
         Finally
@@ -733,7 +739,9 @@ Public Class OraDB_NativeParser
     Private Shared Sub OnTableListCallback(schemaPtr As IntPtr, tablePtr As IntPtr,
                                            colCount As Integer, colNamesPtr As IntPtr,
                                            colTypesPtr As IntPtr, colNotNullsPtr As IntPtr,
-                                           colDefaultsPtr As IntPtr, rowCount As Long,
+                                           colDefaultsPtr As IntPtr,
+                                           constraintCount As Integer, constraintsJsonPtr As IntPtr,
+                                           rowCount As Long,
                                            dataOffset As Long, userData As IntPtr)
         Try
             Dim gcHandle As GCHandle = GCHandle.FromIntPtr(userData)
@@ -769,6 +777,11 @@ Public Class OraDB_NativeParser
             ' DEFAULT 値を保持
             If colCount > 0 AndAlso colDefaultsPtr <> IntPtr.Zero Then
                 ctx.ColumnDefaults(key) = PtrArrayToStrings(colDefaultsPtr, colCount)
+            End If
+
+            ' 制約 JSON を保持
+            If constraintCount > 0 AndAlso constraintsJsonPtr <> IntPtr.Zero Then
+                ctx.ConstraintsJson(key) = PtrToStringUTF8(constraintsJsonPtr)
             End If
 
         Catch

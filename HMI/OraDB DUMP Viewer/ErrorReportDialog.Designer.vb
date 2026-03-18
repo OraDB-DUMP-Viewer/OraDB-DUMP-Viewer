@@ -154,6 +154,7 @@ Partial Class ErrorReportDialog
         txtDescription.Dock = DockStyle.Fill
         txtDescription.Location = New Point(164, 75)
         txtDescription.Margin = New Padding(4, 5, 4, 5)
+        txtDescription.AcceptsReturn = True
         txtDescription.MaxLength = 5000
         txtDescription.Multiline = True
         txtDescription.Name = "txtDescription"

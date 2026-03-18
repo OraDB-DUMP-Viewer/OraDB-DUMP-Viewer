@@ -73,6 +73,35 @@ Public Module ExportHelper
     End Function
 #End Region
 
+#Region "NUMBER 精度・スケール解析"
+    ''' <summary>
+    ''' Oracle NUMBER 型から精度とスケールを解析する
+    ''' NUMBER(10,2) → prec=10, scale=2  /  NUMBER(10) → prec=10, scale=0
+    ''' </summary>
+    Private Sub ParseNumberPrecScale(original As String, ByRef prec As Integer, ByRef scale As Integer, ByRef hasParen As Boolean)
+        prec = 0
+        scale = 0
+        hasParen = False
+        Dim idx = original.IndexOf("("c)
+        If idx < 0 Then Return
+        hasParen = True
+        Dim inner = original.Substring(idx + 1).TrimEnd(")"c, " "c)
+        Dim parts = inner.Split(","c)
+        Integer.TryParse(parts(0).Trim(), prec)
+        If parts.Length > 1 Then Integer.TryParse(parts(1).Trim(), scale)
+    End Sub
+
+    ''' <summary>
+    ''' スケール0の NUMBER 型を整数型にマッピングする
+    ''' </summary>
+    Private Function MapIntegerType(prec As Integer, smallInt As String, int_ As String, bigInt As String, fallback As String) As String
+        If prec <= 4 Then Return smallInt
+        If prec <= 9 Then Return int_
+        If prec <= 18 Then Return bigInt
+        Return fallback
+    End Function
+#End Region
+
 #Region "Oracle → 各 DBMS 型マッピング"
     ''' <summary>
     ''' Oracle 型文字列を対象 DBMS の型に変換
@@ -100,8 +129,13 @@ Public Module ExportHelper
             Case "VARCHAR2", "NVARCHAR2"
                 Return original.Replace("VARCHAR2", "VARCHAR").Replace("NVARCHAR2", "VARCHAR")
             Case "NUMBER"
-                If original.Contains("(") Then
-                    Return "NUMERIC" & original.Substring(original.IndexOf("("))
+                Dim prec, scale As Integer
+                Dim hasParen As Boolean
+                ParseNumberPrecScale(original, prec, scale, hasParen)
+                If hasParen Then
+                    If scale = 0 Then Return MapIntegerType(prec, "SMALLINT", "INTEGER", "BIGINT", $"NUMERIC({prec},0)")
+                    If scale < 0 Then Return $"NUMERIC({prec + (-scale)},0)"
+                    Return $"NUMERIC({prec},{scale})"
                 End If
                 Return "NUMERIC"
             Case "DATE"
@@ -128,8 +162,13 @@ Public Module ExportHelper
             Case "VARCHAR2", "NVARCHAR2"
                 Return original.Replace("VARCHAR2", "VARCHAR").Replace("NVARCHAR2", "VARCHAR")
             Case "NUMBER"
-                If original.Contains("(") Then
-                    Return "DECIMAL" & original.Substring(original.IndexOf("("))
+                Dim prec, scale As Integer
+                Dim hasParen As Boolean
+                ParseNumberPrecScale(original, prec, scale, hasParen)
+                If hasParen Then
+                    If scale = 0 Then Return MapIntegerType(prec, "SMALLINT", "INT", "BIGINT", $"DECIMAL({prec},0)")
+                    If scale < 0 Then Return $"DECIMAL({prec + (-scale)},0)"
+                    Return $"DECIMAL({prec},{scale})"
                 End If
                 Return "DECIMAL(38,10)"
             Case "DATE", "TIMESTAMP"
@@ -156,8 +195,13 @@ Public Module ExportHelper
             Case "NVARCHAR2"
                 Return original.Replace("NVARCHAR2", "NVARCHAR")
             Case "NUMBER"
-                If original.Contains("(") Then
-                    Return "DECIMAL" & original.Substring(original.IndexOf("("))
+                Dim prec, scale As Integer
+                Dim hasParen As Boolean
+                ParseNumberPrecScale(original, prec, scale, hasParen)
+                If hasParen Then
+                    If scale = 0 Then Return MapIntegerType(prec, "SMALLINT", "INT", "BIGINT", $"DECIMAL({prec},0)")
+                    If scale < 0 Then Return $"DECIMAL({prec + (-scale)},0)"
+                    Return $"DECIMAL({prec},{scale})"
                 End If
                 Return "DECIMAL(38,10)"
             Case "DATE", "TIMESTAMP"

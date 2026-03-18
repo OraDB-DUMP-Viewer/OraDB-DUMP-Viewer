@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.2.1] - 2026-03-18
+
+### バグ修正
+- **エラー報告: 内容欄で Enter キーが改行にならない問題を修正**: 内容欄で Enter を押すとフォームが送信されてしまう問題を修正。`AcceptsReturn` を有効化し、改行を正しく入力可能に
+- **エラー報告: テーブルプレビュー表示中にダンプファイルが未開扱いになる問題を修正**: TablePreview がアクティブな場合に Workspace が見つからず、ダンプファイル情報が取得できなかった問題を修正
+
+### 改善
+- **SQL エクスポート: NUMBER(p,0) を整数型にマッピング**: Oracle の `NUMBER(p,0)` / `INTEGER` / `SMALLINT` が一律 `DECIMAL` に変換されていた問題を修正。精度に応じて `SMALLINT` / `INT` (`INTEGER`) / `BIGINT` に適切にマッピング (PostgreSQL / MySQL / SQL Server 全対応)
+
 ## [2.2.0] - 2026-03-17
 
 ### 改善

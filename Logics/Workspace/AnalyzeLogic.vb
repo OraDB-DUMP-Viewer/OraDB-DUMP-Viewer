@@ -77,7 +77,8 @@ Public Class AnalyzeLogic
                                       Optional ByRef columnNamesMap As Dictionary(Of String, String()) = Nothing,
                                       Optional ByRef columnTypesMap As Dictionary(Of String, String()) = Nothing,
                                       Optional ByRef columnNotNullsMap As Dictionary(Of String, Boolean()) = Nothing,
-                                      Optional ByRef columnDefaultsMap As Dictionary(Of String, String()) = Nothing) As List(Of Tuple(Of String, String, Integer, Long, Long))
+                                      Optional ByRef columnDefaultsMap As Dictionary(Of String, String()) = Nothing,
+                                      Optional ByRef constraintsJsonMap As Dictionary(Of String, String) = Nothing) As List(Of Tuple(Of String, String, Integer, Long, Long))
         Try
             ValidateFilePath(filePath)
 
@@ -85,7 +86,7 @@ Public Class AnalyzeLogic
             COMMON.Set_StatusLavel(Loc.S("Status_GettingTableList"))
 
             Dim startTime As DateTime = DateTime.Now
-            Dim tables = OraDB_NativeParser.ListTables(filePath, columnNamesMap, columnTypesMap, columnNotNullsMap, columnDefaultsMap)
+            Dim tables = OraDB_NativeParser.ListTables(filePath, columnNamesMap, columnTypesMap, columnNotNullsMap, columnDefaultsMap, constraintsJsonMap)
             Dim elapsed As TimeSpan = DateTime.Now - startTime
 
             COMMON.ResetProgressBar()

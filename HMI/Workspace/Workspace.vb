@@ -20,6 +20,7 @@ Public Class Workspace
     Private _columnTypesMap As New Dictionary(Of String, String())
     Private _columnNotNullsMap As New Dictionary(Of String, Boolean())
     Private _columnDefaultsMap As New Dictionary(Of String, String())
+    Private _constraintsJsonMap As New Dictionary(Of String, String)
     Private _currentSchema As String = String.Empty
     ''' <summary>除外テーブル (キー: "schema.table")</summary>
     Private _excludedTables As New HashSet(Of String)
@@ -62,11 +63,13 @@ Public Class Workspace
         Dim typeMap As Dictionary(Of String, String()) = Nothing
         Dim nnMap As Dictionary(Of String, Boolean()) = Nothing
         Dim defMap As Dictionary(Of String, String()) = Nothing
-        Dim tables = AnalyzeLogic.ListTables(DumpFilePath, colMap, typeMap, nnMap, defMap)
+        Dim cjMap As Dictionary(Of String, String) = Nothing
+        Dim tables = AnalyzeLogic.ListTables(DumpFilePath, colMap, typeMap, nnMap, defMap, cjMap)
         If colMap IsNot Nothing Then _columnNamesMap = colMap
         If typeMap IsNot Nothing Then _columnTypesMap = typeMap
         If nnMap IsNot Nothing Then _columnNotNullsMap = nnMap
         If defMap IsNot Nothing Then _columnDefaultsMap = defMap
+        If cjMap IsNot Nothing Then _constraintsJsonMap = cjMap
 
         ' テーブル一覧をスキーマ別に整理
         _tableList.Clear()
@@ -457,6 +460,9 @@ Public Class Workspace
         If _columnDefaultsMap.ContainsKey(tableKey) Then
             ctx.ColumnDefaults = _columnDefaultsMap(tableKey)
         End If
+        If _constraintsJsonMap.ContainsKey(tableKey) Then
+            ctx.ConstraintsJson = _constraintsJsonMap(tableKey)
+        End If
 
         If _tableList.ContainsKey(_currentSchema) Then
             Dim entry = _tableList(_currentSchema).Find(Function(x) x.Item1 = tableName)
@@ -503,6 +509,9 @@ Public Class Workspace
             End If
             If _columnDefaultsMap.ContainsKey(tableKey) Then
                 ctx.ColumnDefaults = _columnDefaultsMap(tableKey)
+            End If
+            If _constraintsJsonMap.ContainsKey(tableKey) Then
+                ctx.ConstraintsJson = _constraintsJsonMap(tableKey)
             End If
 
             result.Add(ctx)

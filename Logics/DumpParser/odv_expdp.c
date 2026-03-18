@@ -397,6 +397,7 @@ static void notify_table(ODV_SESSION *s, int64_t row_count)
         s->table_cb(conv_schema, conv_name,
                      s->table.col_count, col_names, col_types,
                      col_not_nulls, col_defaults,
+                     0, "[]",
                      row_count, s->table.ddl_offset, s->table_ud);
     }
 

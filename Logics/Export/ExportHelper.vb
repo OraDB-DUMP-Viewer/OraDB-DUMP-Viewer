@@ -334,6 +334,7 @@ Public Module ExportHelper
         Public Property ColumnTypes As String()
         Public Property ColumnNotNulls As Boolean()
         Public Property ColumnDefaults As String()
+        Public Property ConstraintsJson As String
         Public Property RowCount As Long
         Public Property DataOffset As Long
     End Class

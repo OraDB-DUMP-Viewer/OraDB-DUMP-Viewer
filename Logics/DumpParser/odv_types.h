@@ -115,6 +115,13 @@
 #define ODV_LOB_CHUNK_LEN   131072   /* 128KB LOB chunk */
 #define ODV_MAX_TABLES        1000
 #define ODV_MAX_COLUMNS       1000
+#define ODV_MAX_CONSTRAINTS     50
+#define ODV_MAX_CONSTRAINT_COLS 16
+
+/* Constraint types */
+#define CONSTRAINT_PK          0   /* PRIMARY KEY */
+#define CONSTRAINT_UNIQUE      1   /* UNIQUE */
+#define CONSTRAINT_FK          2   /* FOREIGN KEY */
 
 /* Date format options */
 #define DATE_FMT_SLASH         0     /* YYYY/MM/DD HH:MI:SS */
@@ -152,6 +159,19 @@ typedef struct {
     char   default_val[256];     /* DEFAULT value expression */
 } ODV_COLUMN;
 
+/* Constraint definition */
+typedef struct {
+    int    type;                                                    /* CONSTRAINT_PK/UNIQUE/FK */
+    char   name[ODV_OBJNAME_LEN + 1];                              /* Constraint name */
+    char   columns[ODV_MAX_CONSTRAINT_COLS][ODV_OBJNAME_LEN + 1];  /* Column names */
+    int    col_count;
+    /* FK only */
+    char   ref_schema[ODV_OBJNAME_LEN + 1];
+    char   ref_table[ODV_OBJNAME_LEN + 1];
+    char   ref_columns[ODV_MAX_CONSTRAINT_COLS][ODV_OBJNAME_LEN + 1];
+    int    ref_col_count;
+} ODV_CONSTRAINT;
+
 /* Table definition */
 typedef struct {
     char        schema[ODV_OBJNAME_LEN + 1];
@@ -167,6 +187,8 @@ typedef struct {
     int64_t     record_count;
     int64_t     ddl_offset;      /* File position of CREATE TABLE DDL (for fast seek) */
     int         is_partition;
+    ODV_CONSTRAINT constraints[ODV_MAX_CONSTRAINTS];
+    int         constraint_count;
 } ODV_TABLE;
 
 /* Table list entry (for list_tables) */
@@ -252,6 +274,8 @@ typedef void (__stdcall *ODV_TABLE_CALLBACK)(
     const char **col_types,
     const int *col_not_nulls,    /* 1=NOT NULL, 0=nullable (per column) */
     const char **col_defaults,   /* DEFAULT value expression (per column, "" if none) */
+    int constraint_count,        /* Number of constraints (PK/UNIQUE/FK) */
+    const char *constraints_json,/* JSON-encoded constraint array (see ODV_CONSTRAINT) */
     int64_t row_count,
     int64_t data_offset,         /* File position of table DDL (for fast seek) */
     void *user_data

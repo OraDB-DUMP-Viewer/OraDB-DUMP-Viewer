@@ -118,6 +118,12 @@
 #define ODV_MAX_CONSTRAINTS     50
 #define ODV_MAX_CONSTRAINT_COLS 16
 
+/* Table/Partition types (for ODV_TABLE_ENTRY.type) */
+#define TABLE_TYPE_TABLE              0
+#define TABLE_TYPE_PARTITION_TABLE    1   /* Parent of partitioned table */
+#define TABLE_TYPE_PARTITION          2
+#define TABLE_TYPE_SUBPARTITION       3
+
 /* Constraint types */
 #define CONSTRAINT_PK          0   /* PRIMARY KEY */
 #define CONSTRAINT_UNIQUE      1   /* UNIQUE */
@@ -191,11 +197,23 @@ typedef struct {
     int         constraint_count;
 } ODV_TABLE;
 
+/* Partition list entry (built from EXPDP dictionary table) */
+typedef struct {
+    char    schema[ODV_OBJNAME_LEN + 1];
+    char    table[ODV_OBJNAME_LEN + 1];
+    char    partition[ODV_OBJNAME_LEN + 1];
+    char    subpartition[ODV_OBJNAME_LEN + 1];
+    int     partition_no;        /* PROCESS_ORDER from dictionary */
+    int64_t row_count;           /* COMPLETED_ROWS from dictionary */
+} ODV_PARTITION_ENTRY;
+
 /* Table list entry (for list_tables) */
 typedef struct {
     char    schema[ODV_OBJNAME_LEN + 1];
     char    name[ODV_OBJNAME_LEN + 1];
-    int     type;                /* 0=TABLE, 1=PARTITION */
+    char    partition[ODV_OBJNAME_LEN + 1];      /* Partition name (if partition/subpartition) */
+    char    parent_partition[ODV_OBJNAME_LEN + 1]; /* Parent partition (if subpartition) */
+    int     type;                /* TABLE_TYPE_* constant */
     int     col_count;
     int64_t row_count;
 } ODV_TABLE_ENTRY;
@@ -296,6 +314,10 @@ struct _odv_session {
     /* Table list */
     ODV_TABLE_ENTRY table_list[ODV_MAX_TABLES];
     int             table_count;
+
+    /* Partition list (built from EXPDP dictionary) */
+    ODV_PARTITION_ENTRY partition_list[ODV_MAX_TABLES];
+    int             partition_count;
 
     /* Parse state */
     ODV_PARSE_STATE state;

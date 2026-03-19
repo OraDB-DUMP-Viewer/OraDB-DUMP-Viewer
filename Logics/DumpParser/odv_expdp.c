@@ -317,10 +317,10 @@ static void ddl_xml_callback(const char *tag, const char *value,
 
 /*---------------------------------------------------------------------------
     Check if a table is an EXPDP system table (should be skipped).
-    Matches:
-      1. DataPump master table (SCN, SEED, OPERATION, etc.)
-      2. System tables (SYS_EXPORT_*, SYS_IMPORT_*, IMPDP_*)
-      3. Tables owned by SYS (system statistics tables)
+    Returns:
+      0 = normal user table
+      1 = system table (skip entirely)
+      2 = dictionary/master table (parse for partition info, then skip)
  ---------------------------------------------------------------------------*/
 static int is_system_table(ODV_TABLE *t, const char *schema)
 {
@@ -354,6 +354,7 @@ static int is_system_table(ODV_TABLE *t, const char *schema)
     }
     return (match >= 10);
 }
+
 
 /*---------------------------------------------------------------------------
     Notify table_callback with current table info
@@ -412,8 +413,34 @@ static void notify_table(ODV_SESSION *s, int64_t row_count)
         ODV_TABLE_ENTRY *e = &s->table_list[s->table_count];
         odv_strcpy(e->schema, conv_schema, ODV_OBJNAME_LEN);
         odv_strcpy(e->name, conv_name, ODV_OBJNAME_LEN);
+        e->partition[0] = '\0';
+        e->parent_partition[0] = '\0';
+        e->type = TABLE_TYPE_TABLE;
         e->col_count = s->table.col_count;
         e->row_count = row_count;
+
+        /* Detect partitioned tables: if the same schema.table already appeared
+           in the table list, this is another partition of that table.
+           Mark duplicates as TABLE_TYPE_PARTITION and mark the first occurrence
+           retroactively as TABLE_TYPE_PARTITION_TABLE. */
+        {
+            int k;
+            for (k = 0; k < s->table_count - 1; k++) {
+                if (strcmp(s->table_list[k].schema, e->schema) == 0 &&
+                    strcmp(s->table_list[k].name, e->name) == 0) {
+                    /* Found a previous occurrence — this table is partitioned */
+                    e->type = TABLE_TYPE_PARTITION;
+
+                    /* Retroactively mark the first occurrence as PARTITION_TABLE
+                       (only if it hasn't been marked yet) */
+                    if (s->table_list[k].type == TABLE_TYPE_TABLE) {
+                        s->table_list[k].type = TABLE_TYPE_PARTITION_TABLE;
+                    }
+                    break;
+                }
+            }
+        }
+
         s->table_count++;
     }
 }

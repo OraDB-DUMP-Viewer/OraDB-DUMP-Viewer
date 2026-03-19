@@ -145,6 +145,18 @@ ODV_API int __stdcall odv_check_dump_kind(ODV_SESSION *s, int *dump_type);
 /* List all tables in the dump (fires table_callback per table) */
 ODV_API int __stdcall odv_list_tables(ODV_SESSION *s);
 
+/* Get partition count after list_tables has been called */
+ODV_API int __stdcall odv_get_partition_count(ODV_SESSION *s);
+
+/* Get partition info by index (0-based).
+   Returns ODV_OK on success, ODV_ERROR if index out of range.
+   type: TABLE_TYPE_PARTITION or TABLE_TYPE_SUBPARTITION
+   All string pointers are valid until the session is destroyed or
+   list_tables is called again. */
+ODV_API int __stdcall odv_get_table_entry(ODV_SESSION *s, int index,
+    const char **schema, const char **name, const char **partition,
+    const char **parent_partition, int *type, int64_t *row_count);
+
 /* Parse all data (fires row_callback per row, progress_callback periodically) */
 ODV_API int __stdcall odv_parse_dump(ODV_SESSION *s);
 

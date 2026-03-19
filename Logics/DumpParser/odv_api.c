@@ -243,6 +243,7 @@ ODV_API int __stdcall odv_list_tables(ODV_SESSION *s)
 
     s->cancelled = 0;
     s->table_count = 0;
+    s->partition_count = 0;
 
     switch (s->dump_type) {
     case DUMP_EXPDP:
@@ -255,6 +256,29 @@ ODV_API int __stdcall odv_list_tables(ODV_SESSION *s)
         set_error(s, "Unknown or unsupported dump format");
         return ODV_ERROR_FORMAT;
     }
+}
+
+ODV_API int __stdcall odv_get_partition_count(ODV_SESSION *s)
+{
+    if (!s) return 0;
+    return s->partition_count;
+}
+
+ODV_API int __stdcall odv_get_table_entry(ODV_SESSION *s, int index,
+    const char **schema, const char **name, const char **partition,
+    const char **parent_partition, int *type, int64_t *row_count)
+{
+    if (!s || index < 0 || index >= s->table_count) return ODV_ERROR;
+
+    ODV_TABLE_ENTRY *e = &s->table_list[index];
+    if (schema) *schema = e->schema;
+    if (name) *name = e->name;
+    if (partition) *partition = e->partition;
+    if (parent_partition) *parent_partition = e->parent_partition;
+    if (type) *type = e->type;
+    if (row_count) *row_count = e->row_count;
+
+    return ODV_OK;
 }
 
 ODV_API int __stdcall odv_parse_dump(ODV_SESSION *s)

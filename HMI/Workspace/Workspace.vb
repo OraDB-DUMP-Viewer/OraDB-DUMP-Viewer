@@ -12,8 +12,8 @@ Public Class Workspace
     <DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)>
     <Browsable(False)>
     Public Property WorkspacePath As String
-    ''' <summary>テーブル一覧メタデータ (スキーマ名→(テーブル名, 行数, データオフセット)リスト)</summary>
-    Private _tableList As New Dictionary(Of String, List(Of Tuple(Of String, Long, Long)))
+    ''' <summary>テーブル一覧メタデータ (スキーマ名→テーブルエントリリスト)</summary>
+    Private _tableList As New Dictionary(Of String, List(Of OraDB_NativeParser.TableEntry))
     ''' <summary>テーブルごとのカラム名 (キー: "schema.table")</summary>
     Private _columnNamesMap As New Dictionary(Of String, String())
     ''' <summary>テーブルごとのカラム型 (キー: "schema.table")</summary>
@@ -71,17 +71,16 @@ Public Class Workspace
         If defMap IsNot Nothing Then _columnDefaultsMap = defMap
         If cjMap IsNot Nothing Then _constraintsJsonMap = cjMap
 
-        ' テーブル一覧をスキーマ別に整理
+        ' テーブル一覧をスキーマ別に整理（TableEntry 参照を直接保持、コピーなし）
         _tableList.Clear()
-        For Each t In tables
-            Dim schema = t.Item1
-            Dim tableName = t.Item2
-            Dim rowCount = t.Item4
-            Dim dataOffset = t.Item5
-            If Not _tableList.ContainsKey(schema) Then
-                _tableList(schema) = New List(Of Tuple(Of String, Long, Long))
+        For Each entry In tables
+            Dim schema = entry.Schema
+            Dim list As List(Of OraDB_NativeParser.TableEntry) = Nothing
+            If Not _tableList.TryGetValue(schema, list) Then
+                list = New List(Of OraDB_NativeParser.TableEntry)
+                _tableList(schema) = list
             End If
-            _tableList(schema).Add(Tuple.Create(tableName, rowCount, dataOffset))
+            list.Add(entry)
         Next
 
         'TreeViewにスキーマ一覧を追加
@@ -177,10 +176,10 @@ Public Class Workspace
             Dim dataOffset As Long = 0
             Dim expectedRowCount As Long = 0
             If _tableList.ContainsKey(_currentSchema) Then
-                Dim entry = _tableList(_currentSchema).Find(Function(x) x.Item1 = tableName)
+                Dim entry = _tableList(_currentSchema).Find(Function(x) x.TableName = tableName)
                 If entry IsNot Nothing Then
-                    dataOffset = entry.Item3
-                    expectedRowCount = entry.Item2
+                    dataOffset = entry.DataOffset
+                    expectedRowCount = entry.RowCount
                 End If
             End If
 
@@ -248,9 +247,9 @@ Public Class Workspace
         ' 行数を取得
         Dim rowCount As Long = 0
         If _tableList.ContainsKey(_currentSchema) Then
-            Dim entry = _tableList(_currentSchema).Find(Function(x) x.Item1 = tableName)
+            Dim entry = _tableList(_currentSchema).Find(Function(x) x.TableName = tableName)
             If entry IsNot Nothing Then
-                rowCount = entry.Item2
+                rowCount = entry.RowCount
             End If
         End If
 
@@ -465,10 +464,10 @@ Public Class Workspace
         End If
 
         If _tableList.ContainsKey(_currentSchema) Then
-            Dim entry = _tableList(_currentSchema).Find(Function(x) x.Item1 = tableName)
+            Dim entry = _tableList(_currentSchema).Find(Function(x) x.TableName = tableName)
             If entry IsNot Nothing Then
-                ctx.RowCount = entry.Item2
-                ctx.DataOffset = entry.Item3
+                ctx.RowCount = entry.RowCount
+                ctx.DataOffset = entry.DataOffset
             End If
         End If
 
@@ -485,8 +484,8 @@ Public Class Workspace
         If Not _tableList.ContainsKey(_currentSchema) Then Return result
 
         For Each tableInfo In _tableList(_currentSchema)
-            Dim tableName = tableInfo.Item1
-            Dim tableKey = $"{_currentSchema}.{tableName}"
+            Dim tableName = tableInfo.TableName
+            Dim tableKey = tableInfo.Key
 
             ' 除外テーブルをスキップ
             If _excludedTables.Contains(tableKey) Then Continue For
@@ -495,8 +494,8 @@ Public Class Workspace
             ctx.DumpFilePath = DumpFilePath
             ctx.Schema = _currentSchema
             ctx.TableName = tableName
-            ctx.RowCount = tableInfo.Item2
-            ctx.DataOffset = tableInfo.Item3
+            ctx.RowCount = tableInfo.RowCount
+            ctx.DataOffset = tableInfo.DataOffset
 
             If _columnNamesMap.ContainsKey(tableKey) Then
                 ctx.ColumnNames = _columnNamesMap(tableKey)
@@ -576,7 +575,7 @@ Public Class Workspace
             sw.WriteLine(New String("-"c, 80))
             For Each schemaKvp In _tableList
                 For Each t In schemaKvp.Value
-                    sw.WriteLine($"{schemaKvp.Key,-20} {t.Item1,-30} {t.Item2,10:#,0}")
+                    sw.WriteLine($"{schemaKvp.Key,-20} {t.TableName,-30} {t.RowCount,10:#,0}")
                 Next
             Next
         End Using
@@ -642,12 +641,12 @@ Public Class Workspace
                 ' テーブル検索フィルタ（大文字小文字区別しない部分一致）
                 Dim searchText = txtTableSearch.Text.Trim()
 
-                For Each tableInfo In tables
-                    Dim tableName = tableInfo.Item1
-                    Dim rowCount = tableInfo.Item2
+                For Each entry In tables
+                    Dim tableName = entry.TableName
+                    Dim rowCount = entry.RowCount
 
                     ' 除外テーブルをスキップ
-                    Dim tableKey = $"{schemaName}.{tableName}"
+                    Dim tableKey = entry.Key
                     If _excludedTables.Contains(tableKey) Then
                         Continue For
                     End If
@@ -658,11 +657,32 @@ Public Class Workspace
                         Continue For
                     End If
 
+                    ' 種類を判定
+                    Dim typeStr As String
+                    Dim displayName As String = tableName
+                    Select Case entry.EntryType
+                        Case OraDB_NativeParser.TABLE_TYPE_PARTITION_TABLE
+                            typeStr = "TABLE (PARTITIONED)"
+                        Case OraDB_NativeParser.TABLE_TYPE_PARTITION
+                            typeStr = "PARTITION"
+                            If entry.PartitionName.Length > 0 Then
+                                displayName = $"{tableName}:{entry.PartitionName}"
+                            End If
+                        Case OraDB_NativeParser.TABLE_TYPE_SUBPARTITION
+                            typeStr = "SUBPARTITION"
+                            If entry.PartitionName.Length > 0 Then
+                                displayName = $"{tableName}:{entry.PartitionName}"
+                            End If
+                        Case Else
+                            typeStr = "TABLE"
+                    End Select
+
                     ' ListViewItemを作成
-                    Dim item As New ListViewItem(tableName)
+                    Dim item As New ListViewItem(displayName)
                     item.SubItems.Add(schemaName)       ' 所有者
-                    item.SubItems.Add("TABLE")          ' 種類
+                    item.SubItems.Add(typeStr)           ' 種類
                     item.SubItems.Add(rowCount.ToString("#,0"))  ' 行数
+                    item.Tag = entry                     ' TableEntry参照を保持
 
                     lstTableList.Items.Add(item)
                 Next

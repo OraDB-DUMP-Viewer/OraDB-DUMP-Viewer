@@ -23,6 +23,12 @@ Public Class OraDB_NativeParser
     Public Const DUMP_EXP As Integer = 10
     Public Const DUMP_EXP_DIRECT As Integer = 11
 
+    ' Table/Partition types (match C DLL TABLE_TYPE_* constants)
+    Public Const TABLE_TYPE_TABLE As Integer = 0
+    Public Const TABLE_TYPE_PARTITION_TABLE As Integer = 1
+    Public Const TABLE_TYPE_PARTITION As Integer = 2
+    Public Const TABLE_TYPE_SUBPARTITION As Integer = 3
+
     ' Date format constants
     Public Const DATE_FMT_SLASH As Integer = 0      ' YYYY/MM/DD HH:MI:SS
     Public Const DATE_FMT_COMPACT As Integer = 1    ' YYYYMMDD
@@ -193,6 +199,13 @@ Public Class OraDB_NativeParser
     <DllImport(DLL_NAME, CallingConvention:=CallingConvention.StdCall)>
     Private Shared Function odv_get_progress_pct(session As IntPtr) As Integer
     End Function
+
+    ' パーティション情報取得
+    <DllImport(DLL_NAME, CallingConvention:=CallingConvention.StdCall)>
+    Private Shared Function odv_get_table_entry(session As IntPtr, index As Integer,
+        ByRef schema As IntPtr, ByRef name As IntPtr, ByRef partition As IntPtr,
+        ByRef parentPartition As IntPtr, ByRef entryType As Integer, ByRef rowCount As Long) As Integer
+    End Function
 #End Region
 
 #Region "ヘルパーメソッド"
@@ -287,12 +300,49 @@ Public Class OraDB_NativeParser
     End Class
 #End Region
 
+#Region "テーブルエントリ"
+    ''' <summary>
+    ''' テーブル一覧のエントリ（パーティション情報を含む）
+    ''' </summary>
+    Public Class TableEntry
+        Public Property Schema As String
+        Public Property TableName As String
+        Public Property ColCount As Integer
+        Public Property RowCount As Long
+        Public Property DataOffset As Long
+        Public Property EntryType As Integer = TABLE_TYPE_TABLE
+        Public Property PartitionName As String = ""
+        Public Property ParentPartition As String = ""
+
+        ''' <summary>キー文字列 (schema.table)</summary>
+        Public ReadOnly Property Key As String
+            Get
+                Return $"{Schema}.{TableName}"
+            End Get
+        End Property
+
+        ''' <summary>パーティションか否か</summary>
+        Public ReadOnly Property IsPartitioned As Boolean
+            Get
+                Return EntryType = TABLE_TYPE_PARTITION_TABLE OrElse
+                       EntryType = TABLE_TYPE_PARTITION OrElse
+                       EntryType = TABLE_TYPE_SUBPARTITION
+            End Get
+        End Property
+
+        ''' <summary>後方互換: 既存の Tuple 形式に変換</summary>
+        Public Function ToTuple() As Tuple(Of String, String, Integer, Long, Long)
+            Return Tuple.Create(Schema, TableName, ColCount, RowCount, DataOffset)
+        End Function
+    End Class
+#End Region
+
 #Region "テーブル一覧コンテキスト"
     ''' <summary>
     ''' ListTables用のコンテキスト
     ''' </summary>
     Public Class ListTablesContext
-        Public Tables As List(Of Tuple(Of String, String, Integer, Long, Long))
+        Public Tables As New List(Of TableEntry)
         ''' <summary>テーブルごとのカラム名 (キー: "schema.table")</summary>
         Public ColumnNames As New Dictionary(Of String, String())
         ''' <summary>テーブルごとのカラム型 (キー: "schema.table")</summary>
@@ -433,10 +483,9 @@ Public Class OraDB_NativeParser
                                       Optional ByRef columnTypesMap As Dictionary(Of String, String()) = Nothing,
                                       Optional ByRef columnNotNullsMap As Dictionary(Of String, Boolean()) = Nothing,
                                       Optional ByRef columnDefaultsMap As Dictionary(Of String, String()) = Nothing,
-                                      Optional ByRef constraintsJsonMap As Dictionary(Of String, String) = Nothing) As List(Of Tuple(Of String, String, Integer, Long, Long))
+                                      Optional ByRef constraintsJsonMap As Dictionary(Of String, String) = Nothing) As List(Of TableEntry)
         Dim session As IntPtr = IntPtr.Zero
         Dim ctx As New ListTablesContext()
-        ctx.Tables = New List(Of Tuple(Of String, String, Integer, Long, Long))
         Dim gcHandle As GCHandle = GCHandle.Alloc(ctx)
         Dim tableCb As New TableCallback(AddressOf OnTableListCallback)
         Dim progCb As New ProgressCallback(AddressOf OnListTablesProgressCallback)
@@ -453,6 +502,19 @@ Public Class OraDB_NativeParser
             odv_set_progress_callback(session, progCb, userData)
 
             odv_list_tables(session)
+
+            ' list_tables 完了後、テーブルエントリからパーティション情報を取得
+            ' （コールバック時点では初回 PARTITION_TABLE が TABLE として通知されるため）
+            For i As Integer = 0 To ctx.Tables.Count - 1
+                Dim eSchema As IntPtr, eName As IntPtr, ePartition As IntPtr, eParentPart As IntPtr
+                Dim eType As Integer, eRows As Long
+                If odv_get_table_entry(session, i, eSchema, eName, ePartition, eParentPart, eType, eRows) = ODV_OK Then
+                    ctx.Tables(i).EntryType = eType
+                    ctx.Tables(i).PartitionName = PtrToStringUTF8(ePartition)
+                    ctx.Tables(i).ParentPartition = PtrToStringUTF8(eParentPart)
+                End If
+            Next
+
             columnNamesMap = ctx.ColumnNames
             columnTypesMap = ctx.ColumnTypes
             columnNotNullsMap = ctx.ColumnNotNulls
@@ -751,7 +813,14 @@ Public Class OraDB_NativeParser
             Dim table = PtrToStringUTF8(tablePtr)
             Dim key = $"{schema}.{table}"
 
-            ctx.Tables.Add(Tuple.Create(schema, table, colCount, rowCount, dataOffset))
+            Dim entry As New TableEntry() With {
+                .Schema = schema,
+                .TableName = table,
+                .ColCount = colCount,
+                .RowCount = rowCount,
+                .DataOffset = dataOffset
+            }
+            ctx.Tables.Add(entry)
 
             ' カラム名を保持（0行テーブルでも列ヘッダーを表示するため）
             If colCount > 0 AndAlso colNamesPtr <> IntPtr.Zero Then

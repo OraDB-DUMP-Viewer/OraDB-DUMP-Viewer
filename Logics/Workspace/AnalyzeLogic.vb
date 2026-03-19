@@ -78,7 +78,7 @@ Public Class AnalyzeLogic
                                       Optional ByRef columnTypesMap As Dictionary(Of String, String()) = Nothing,
                                       Optional ByRef columnNotNullsMap As Dictionary(Of String, Boolean()) = Nothing,
                                       Optional ByRef columnDefaultsMap As Dictionary(Of String, String()) = Nothing,
-                                      Optional ByRef constraintsJsonMap As Dictionary(Of String, String) = Nothing) As List(Of Tuple(Of String, String, Integer, Long, Long))
+                                      Optional ByRef constraintsJsonMap As Dictionary(Of String, String) = Nothing) As List(Of OraDB_NativeParser.TableEntry)
         Try
             ValidateFilePath(filePath)
 
@@ -99,13 +99,13 @@ Public Class AnalyzeLogic
                            Loc.S("Title_DllError"), MessageBoxButtons.OK, MessageBoxIcon.Error)
             COMMON.ResetProgressBar()
             COMMON.ReSet_StatusLavel()
-            Return New List(Of Tuple(Of String, String, Integer, Long, Long))()
+            Return New List(Of OraDB_NativeParser.TableEntry)()
 
         Catch ex As Exception
             MessageBox.Show(Loc.SF("Analyze_TableListError", ex.Message), Loc.S("Title_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error)
             COMMON.ResetProgressBar()
             COMMON.ReSet_StatusLavel()
-            Return New List(Of Tuple(Of String, String, Integer, Long, Long))()
+            Return New List(Of OraDB_NativeParser.TableEntry)()
         End Try
     End Function
 

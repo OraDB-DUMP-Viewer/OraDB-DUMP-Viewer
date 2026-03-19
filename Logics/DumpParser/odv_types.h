@@ -234,25 +234,78 @@ typedef struct {
     int         max_columns;
 } ODV_RECORD;
 
+/*---------------------------------------------------------------------------
+    EXPDP record parsing state machine (ARK-style)
+
+    data_step values:
+      Positive (normal column reading):
+        DS_COL_LENGTH (0)  = Read column length marker byte
+        DS_COL_LEN_HI (1)  = First byte of 2-byte column length
+        DS_COL_LEN_LO (2)  = Second byte of 2-byte column length
+        DS_COL_DATA   (3)  = Reading column data bytes
+        DS_LOB_CHUNK  (4)  = Reading LOB chunk data (NEXT_CHUNK)
+
+      Negative (LOB state machine):
+        DS_LOB_LEN_LO  (-8)  = LOB 2-byte length: low byte
+        DS_LOB_LEN_HI  (-9)  = LOB 2-byte length: high byte
+        DS_LOB_FE_NEXT (-10) = After 0xFE in LOB context
+        DS_LOB_POST    (-11) = After LOB chunk end check
+        DS_LOB_MARKER  (-12) = LOB column marker byte
+        DS_LOB_PADDING (-14) = NULL column padding before LOB
+ ---------------------------------------------------------------------------*/
+
+/* data_step constants */
+#define DS_COL_LENGTH       0
+#define DS_COL_LEN_HI       1
+#define DS_COL_LEN_LO       2
+#define DS_COL_DATA         3
+#define DS_LOB_CHUNK        4
+#define DS_LOB_LEN_LO     (-8)
+#define DS_LOB_LEN_HI     (-9)
+#define DS_LOB_FE_NEXT   (-10)
+#define DS_LOB_POST      (-11)
+#define DS_LOB_MARKER    (-12)
+#define DS_LOB_PADDING   (-14)
+
+/* LOB preview max size */
+#define ODV_LOB_PREVIEW_LEN   4096
+
 /* EXPDP parse state */
 typedef struct {
-    int     step;                /* Main state: 1=HEADER, 2=DATA, 3=TABLE_DATA */
-    int     data_step;           /* Sub-state for column parsing */
-    int     col_idx;             /* Current column index */
-    int     lob_col_idx;         /* Current LOB column index */
-    int     record_len;          /* Bytes remaining in current record */
+    /* Main state */
+    int     step;                /* 1=expect header, 2=reading record data */
+    int     data_step;           /* Sub-state: DS_* constants */
+
+    /* Column tracking */
+    int     col_idx;             /* Current column index (among non-LOB columns) */
+    int     lob_col_idx;         /* Current LOB column index (0-based among LOBs) */
     int     col_len;             /* Current column data length */
-    int     is_between_record;   /* Between records flag */
-    int     is_end_record;       /* End of record flag */
-    int     is_over255;          /* >255 columns flag */
-    int     is_in_filler;        /* In filler region flag */
-    int     over255_count;       /* 255-column boundary counter */
+    int     col_remaining;       /* Bytes remaining in current column */
+
+    /* Record header */
+    int     record_header;       /* Last record header byte (0x01/0x04/0x08/0x09/0x0c) */
+    int     is_lob_record;       /* 1=current record is LOB (0x08/0x09/0x0c) */
+    int     is_between_record;   /* 1=at least one record header seen */
 
     /* LOB state */
+    int     is_last_chunk;       /* 1=current LOB chunk is the last */
+    int     is_end_lob;          /* 1=all LOB columns processed */
+    int     lob_length;          /* Cumulative LOB chunk bytes for current column */
+    int     lob_preview_len;     /* Bytes accumulated in LOB preview */
     unsigned char *lob_buf;
     int     lob_buf_len;
     int     lob_buf_alloc;
-    int     is_last_chunk;
+
+    /* >255 columns */
+    int     is_over255;          /* 1=record has >255 column format */
+    int     over255_count;       /* Count of 255-boundary crossings */
+    int     filler_length;       /* Filler bytes at 255 boundary (2 or 4) */
+
+    /* Segment (3c wrapper) tracking */
+    int     seg_remaining;       /* Bytes left in current 3c segment (-1=no limit) */
+
+    /* 2-byte length buffer (reused for column and LOB lengths) */
+    unsigned char len_buf[2];
 } ODV_PARSE_STATE;
 
 /* EXP parse state */

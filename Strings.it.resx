@@ -384,6 +384,11 @@ Continuare?</value>
   <data name="ExportOptions_CsvOptions" xml:space="preserve"><value>Opzioni CSV</value></data>
   <data name="ExportOptions_CsvWriteHeader" xml:space="preserve"><value>Includi intestazione nomi colonne</value></data>
   <data name="ExportOptions_CsvWriteTypes" xml:space="preserve"><value>Includi riga tipi colonne</value></data>
+  <data name="ExportOptions_CsvDelimiter" xml:space="preserve"><value>Delimitatore:</value></data>
+  <data name="ExportOptions_DelimiterComma" xml:space="preserve"><value>Virgola (,)</value></data>
+  <data name="ExportOptions_DelimiterTab" xml:space="preserve"><value>Tabulazione</value></data>
+  <data name="ExportOptions_DelimiterSemicolon" xml:space="preserve"><value>Punto e virgola (;)</value></data>
+  <data name="ExportOptions_DelimiterPipe" xml:space="preserve"><value>Barra verticale (|)</value></data>
   <data name="ExportOptions_SqlOptions" xml:space="preserve"><value>Opzioni script SQL</value></data>
   <data name="ExportOptions_SqlCreateTable" xml:space="preserve"><value>Includi DROP TABLE + CREATE TABLE</value></data>
   <data name="ExportOptions_SqlInferInteger" xml:space="preserve"><value>Dedurre i tipi interi dai dati effettivi per le colonne NUMBER</value></data>

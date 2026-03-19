@@ -160,6 +160,10 @@ ODV_API int __stdcall odv_get_table_entry(ODV_SESSION *s, int index,
 /* Parse all data (fires row_callback per row, progress_callback periodically) */
 ODV_API int __stdcall odv_parse_dump(ODV_SESSION *s);
 
+/* Set CSV field delimiter character (default: ',')
+   Common values: ',' (comma), '\t' (tab), ';' (semicolon), '|' (pipe) */
+ODV_API void __stdcall odv_set_csv_delimiter(ODV_SESSION *s, char delimiter);
+
 /* Export a specific table to CSV file */
 ODV_API int __stdcall odv_export_csv(ODV_SESSION *s, const char *table_name, const char *output_path);
 

@@ -358,6 +358,11 @@ Fortfahren?</value>
   <data name="ExportOptions_CsvOptions" xml:space="preserve"><value>CSV-Optionen</value></data>
   <data name="ExportOptions_CsvWriteHeader" xml:space="preserve"><value>Spaltenname-Header ausgeben</value></data>
   <data name="ExportOptions_CsvWriteTypes" xml:space="preserve"><value>Spaltentyp-Zeile ausgeben</value></data>
+  <data name="ExportOptions_CsvDelimiter" xml:space="preserve"><value>Trennzeichen:</value></data>
+  <data name="ExportOptions_DelimiterComma" xml:space="preserve"><value>Komma (,)</value></data>
+  <data name="ExportOptions_DelimiterTab" xml:space="preserve"><value>Tab</value></data>
+  <data name="ExportOptions_DelimiterSemicolon" xml:space="preserve"><value>Semikolon (;)</value></data>
+  <data name="ExportOptions_DelimiterPipe" xml:space="preserve"><value>Pipe (|)</value></data>
   <data name="ExportOptions_SqlOptions" xml:space="preserve"><value>SQL-Skript-Optionen</value></data>
   <data name="ExportOptions_SqlCreateTable" xml:space="preserve"><value>DROP TABLE + CREATE TABLE ausgeben</value></data>
   <data name="ExportOptions_SqlInferInteger" xml:space="preserve"><value>Ganzzahltypen aus Ist-Daten für NUMBER-Spalten ableiten</value></data>

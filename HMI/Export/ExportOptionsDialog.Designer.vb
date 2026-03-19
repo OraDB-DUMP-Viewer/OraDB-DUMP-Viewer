@@ -26,6 +26,8 @@ Partial Class ExportOptionsDialog
         grpCsvOptions = New GroupBox()
         chkCsvHeader = New CheckBox()
         chkCsvTypes = New CheckBox()
+        lblDelimiter = New Label()
+        cboDelimiter = New ComboBox()
         grpSqlOptions = New GroupBox()
         chkCreateTable = New CheckBox()
         chkInferInteger = New CheckBox()
@@ -101,9 +103,11 @@ Partial Class ExportOptionsDialog
         '
         grpCsvOptions.Controls.Add(chkCsvHeader)
         grpCsvOptions.Controls.Add(chkCsvTypes)
+        grpCsvOptions.Controls.Add(lblDelimiter)
+        grpCsvOptions.Controls.Add(cboDelimiter)
         grpCsvOptions.Location = New Point(15, 170)
         grpCsvOptions.Name = "grpCsvOptions"
-        grpCsvOptions.Size = New Size(380, 75)
+        grpCsvOptions.Size = New Size(380, 105)
         grpCsvOptions.TabIndex = 1
         grpCsvOptions.TabStop = False
         grpCsvOptions.Text = "CSV オプション"
@@ -128,11 +132,28 @@ Partial Class ExportOptionsDialog
         chkCsvTypes.TabIndex = 1
         chkCsvTypes.Text = "カラム型行を出力"
         '
+        ' lblDelimiter
+        '
+        lblDelimiter.AutoSize = True
+        lblDelimiter.Location = New Point(15, 75)
+        lblDelimiter.Name = "lblDelimiter"
+        lblDelimiter.Size = New Size(60, 15)
+        lblDelimiter.TabIndex = 2
+        lblDelimiter.Text = "デリミタ:"
+        '
+        ' cboDelimiter
+        '
+        cboDelimiter.DropDownStyle = ComboBoxStyle.DropDownList
+        cboDelimiter.Location = New Point(105, 72)
+        cboDelimiter.Name = "cboDelimiter"
+        cboDelimiter.Size = New Size(180, 23)
+        cboDelimiter.TabIndex = 3
+        '
         ' grpSqlOptions
         '
         grpSqlOptions.Controls.Add(chkCreateTable)
         grpSqlOptions.Controls.Add(chkInferInteger)
-        grpSqlOptions.Location = New Point(15, 255)
+        grpSqlOptions.Location = New Point(15, 285)
         grpSqlOptions.Name = "grpSqlOptions"
         grpSqlOptions.Size = New Size(380, 80)
         grpSqlOptions.TabIndex = 2
@@ -159,7 +180,7 @@ Partial Class ExportOptionsDialog
         '
         ' btnOK
         '
-        btnOK.Location = New Point(195, 350)
+        btnOK.Location = New Point(195, 380)
         btnOK.Name = "btnOK"
         btnOK.Size = New Size(90, 30)
         btnOK.TabIndex = 3
@@ -168,7 +189,7 @@ Partial Class ExportOptionsDialog
         '
         ' btnCancel
         '
-        btnCancel.Location = New Point(305, 350)
+        btnCancel.Location = New Point(305, 380)
         btnCancel.Name = "btnCancel"
         btnCancel.Size = New Size(90, 30)
         btnCancel.TabIndex = 4
@@ -181,7 +202,7 @@ Partial Class ExportOptionsDialog
         CancelButton = btnCancel
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(410, 395)
+        ClientSize = New Size(410, 425)
         Controls.Add(grpDateFormat)
         Controls.Add(grpCsvOptions)
         Controls.Add(grpSqlOptions)
@@ -211,6 +232,8 @@ Partial Class ExportOptionsDialog
     Friend WithEvents grpCsvOptions As GroupBox
     Friend WithEvents chkCsvHeader As CheckBox
     Friend WithEvents chkCsvTypes As CheckBox
+    Friend WithEvents lblDelimiter As Label
+    Friend WithEvents cboDelimiter As ComboBox
     Friend WithEvents grpSqlOptions As GroupBox
     Friend WithEvents chkCreateTable As CheckBox
     Friend WithEvents chkInferInteger As CheckBox

@@ -17,6 +17,9 @@ Public Module ExportOptions
     ''' <summary>CSV: カラム型行を出力するか</summary>
     Public Property CsvWriteTypes As Boolean = False
 
+    ''' <summary>CSV: フィールドデリミタ文字 (","=カンマ, vbTab=タブ, ";"=セミコロン, "|"=パイプ)</summary>
+    Public Property CsvDelimiter As String = ","
+
     ''' <summary>SQL: DROP TABLE + CREATE TABLE DDL を出力するか</summary>
     Public Property SqlCreateTable As Boolean = True
 
@@ -32,6 +35,7 @@ Public Module ExportOptions
             CustomDateFormat = My.Settings.ExportCustomDateFormat
             CsvWriteHeader = My.Settings.ExportCsvWriteHeader
             CsvWriteTypes = My.Settings.ExportCsvWriteTypes
+            CsvDelimiter = If(String.IsNullOrEmpty(My.Settings.ExportCsvDelimiter), ",", My.Settings.ExportCsvDelimiter)
             SqlCreateTable = My.Settings.ExportSqlCreateTable
             SqlInferInteger = My.Settings.ExportSqlInferInteger
         Catch
@@ -48,6 +52,7 @@ Public Module ExportOptions
             My.Settings.ExportCustomDateFormat = CustomDateFormat
             My.Settings.ExportCsvWriteHeader = CsvWriteHeader
             My.Settings.ExportCsvWriteTypes = CsvWriteTypes
+            My.Settings.ExportCsvDelimiter = CsvDelimiter
             My.Settings.ExportSqlCreateTable = SqlCreateTable
             My.Settings.ExportSqlInferInteger = SqlInferInteger
             My.Settings.Save()

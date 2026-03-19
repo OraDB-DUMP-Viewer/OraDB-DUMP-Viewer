@@ -390,6 +390,11 @@ https://www.odv.dev/
   <data name="ExportOptions_CsvOptions" xml:space="preserve"><value>Параметры CSV</value></data>
   <data name="ExportOptions_CsvWriteHeader" xml:space="preserve"><value>Выводить заголовок с именами столбцов</value></data>
   <data name="ExportOptions_CsvWriteTypes" xml:space="preserve"><value>Выводить строку типов столбцов</value></data>
+  <data name="ExportOptions_CsvDelimiter" xml:space="preserve"><value>Разделитель:</value></data>
+  <data name="ExportOptions_DelimiterComma" xml:space="preserve"><value>Запятая (,)</value></data>
+  <data name="ExportOptions_DelimiterTab" xml:space="preserve"><value>Табуляция</value></data>
+  <data name="ExportOptions_DelimiterSemicolon" xml:space="preserve"><value>Точка с запятой (;)</value></data>
+  <data name="ExportOptions_DelimiterPipe" xml:space="preserve"><value>Вертикальная черта (|)</value></data>
   <data name="ExportOptions_SqlOptions" xml:space="preserve"><value>Параметры SQL-скрипта</value></data>
   <data name="ExportOptions_SqlCreateTable" xml:space="preserve"><value>Включить DROP TABLE + CREATE TABLE</value></data>
   <data name="ExportOptions_SqlInferInteger" xml:space="preserve"><value>Определять целочисленные типы для NUMBER по данным</value></data>

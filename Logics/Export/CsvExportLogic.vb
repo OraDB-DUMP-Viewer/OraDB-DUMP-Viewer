@@ -49,7 +49,7 @@ Public Class CsvExportLogic
                 ' ヘッダ行
                 If ExportOptions.CsvWriteHeader Then
                     For i As Integer = 0 To columnNames.Count - 1
-                        If i > 0 Then sw.Write(",")
+                        If i > 0 Then sw.Write(ExportOptions.CsvDelimiter)
                         sw.Write(ExportHelper.EscapeCsvValue(columnNames(i)))
                     Next
                     sw.WriteLine()
@@ -57,7 +57,7 @@ Public Class CsvExportLogic
                     ' 型行 (ヘッダの後に出力)
                     If ExportOptions.CsvWriteTypes AndAlso columnTypes IsNot Nothing Then
                         For i As Integer = 0 To columnNames.Count - 1
-                            If i > 0 Then sw.Write(",")
+                            If i > 0 Then sw.Write(ExportOptions.CsvDelimiter)
                             If i < columnTypes.Length Then
                                 sw.Write(ExportHelper.EscapeCsvValue(columnTypes(i)))
                             End If
@@ -75,7 +75,7 @@ Public Class CsvExportLogic
 
                     Dim row = data(CInt(rowIdx))
                     For colIdx As Integer = 0 To columnNames.Count - 1
-                        If colIdx > 0 Then sw.Write(",")
+                        If colIdx > 0 Then sw.Write(ExportOptions.CsvDelimiter)
                         If colIdx < row.Length Then
                             sw.Write(ExportHelper.EscapeCsvValue(row(colIdx)))
                         End If

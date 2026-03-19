@@ -41,7 +41,8 @@ Public Module ExportHelper
     ''' </summary>
     Public Function EscapeCsvValue(value As String) As String
         If value Is Nothing Then Return ""
-        If value.Contains(","c) OrElse value.Contains(""""c) OrElse
+        Dim delim As String = ExportOptions.CsvDelimiter
+        If value.Contains(delim) OrElse value.Contains(""""c) OrElse
            value.Contains(vbCr) OrElse value.Contains(vbLf) Then
             Return """" & value.Replace("""", """""") & """"
         End If

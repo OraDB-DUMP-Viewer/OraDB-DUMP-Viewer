@@ -16,6 +16,9 @@
     <Setting Name="ExportCsvWriteTypes" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="ExportCsvDelimiter" Type="System.String" Scope="User">
+      <Value Profile="(Default)">,</Value>
+    </Setting>
     <Setting Name="ExportSqlCreateTable" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>

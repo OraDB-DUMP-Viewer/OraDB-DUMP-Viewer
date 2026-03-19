@@ -25,6 +25,20 @@ Public Class ExportOptionsDialog
 
         chkCsvHeader.Checked = ExportOptions.CsvWriteHeader
         chkCsvTypes.Checked = ExportOptions.CsvWriteTypes
+
+        ' デリミタ選択
+        cboDelimiter.Items.Clear()
+        cboDelimiter.Items.Add(Loc.S("ExportOptions_DelimiterComma"))
+        cboDelimiter.Items.Add(Loc.S("ExportOptions_DelimiterTab"))
+        cboDelimiter.Items.Add(Loc.S("ExportOptions_DelimiterSemicolon"))
+        cboDelimiter.Items.Add(Loc.S("ExportOptions_DelimiterPipe"))
+        Select Case ExportOptions.CsvDelimiter
+            Case vbTab : cboDelimiter.SelectedIndex = 1
+            Case ";" : cboDelimiter.SelectedIndex = 2
+            Case "|" : cboDelimiter.SelectedIndex = 3
+            Case Else : cboDelimiter.SelectedIndex = 0
+        End Select
+
         chkCreateTable.Checked = ExportOptions.SqlCreateTable
         chkInferInteger.Checked = ExportOptions.SqlInferInteger
     End Sub
@@ -48,6 +62,15 @@ Public Class ExportOptionsDialog
         ExportOptions.CustomDateFormat = txtCustomFormat.Text
         ExportOptions.CsvWriteHeader = chkCsvHeader.Checked
         ExportOptions.CsvWriteTypes = chkCsvTypes.Checked
+
+        ' デリミタ保存
+        Select Case cboDelimiter.SelectedIndex
+            Case 1 : ExportOptions.CsvDelimiter = vbTab
+            Case 2 : ExportOptions.CsvDelimiter = ";"
+            Case 3 : ExportOptions.CsvDelimiter = "|"
+            Case Else : ExportOptions.CsvDelimiter = ","
+        End Select
+
         ExportOptions.SqlCreateTable = chkCreateTable.Checked
         ExportOptions.SqlInferInteger = chkInferInteger.Checked
 
@@ -64,6 +87,7 @@ Public Class ExportOptionsDialog
         grpCsvOptions.Text = Loc.S("ExportOptions_CsvOptions")
         chkCsvHeader.Text = Loc.S("ExportOptions_CsvWriteHeader")
         chkCsvTypes.Text = Loc.S("ExportOptions_CsvWriteTypes")
+        lblDelimiter.Text = Loc.S("ExportOptions_CsvDelimiter")
         grpSqlOptions.Text = Loc.S("ExportOptions_SqlOptions")
         chkCreateTable.Text = Loc.S("ExportOptions_SqlCreateTable")
         chkInferInteger.Text = Loc.S("ExportOptions_SqlInferInteger")

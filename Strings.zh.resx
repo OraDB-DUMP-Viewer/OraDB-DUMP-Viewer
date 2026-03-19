@@ -390,6 +390,11 @@ https://www.odv.dev/
   <data name="ExportOptions_CsvOptions" xml:space="preserve"><value>CSV 选项</value></data>
   <data name="ExportOptions_CsvWriteHeader" xml:space="preserve"><value>输出列名标题行</value></data>
   <data name="ExportOptions_CsvWriteTypes" xml:space="preserve"><value>输出列类型行</value></data>
+  <data name="ExportOptions_CsvDelimiter" xml:space="preserve"><value>分隔符：</value></data>
+  <data name="ExportOptions_DelimiterComma" xml:space="preserve"><value>逗号 (,)</value></data>
+  <data name="ExportOptions_DelimiterTab" xml:space="preserve"><value>制表符</value></data>
+  <data name="ExportOptions_DelimiterSemicolon" xml:space="preserve"><value>分号 (;)</value></data>
+  <data name="ExportOptions_DelimiterPipe" xml:space="preserve"><value>竖线 (|)</value></data>
   <data name="ExportOptions_SqlOptions" xml:space="preserve"><value>SQL 脚本选项</value></data>
   <data name="ExportOptions_SqlCreateTable" xml:space="preserve"><value>输出 DROP TABLE + CREATE TABLE</value></data>
   <data name="ExportOptions_SqlInferInteger" xml:space="preserve"><value>根据实际数据推断 NUMBER 列的整数类型</value></data>

@@ -87,6 +87,18 @@ Namespace My
 
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute(",")>  _
+        Public Property ExportCsvDelimiter() As String
+            Get
+                Return CType(Me("ExportCsvDelimiter"),String)
+            End Get
+            Set
+                Me("ExportCsvDelimiter") = value
+            End Set
+        End Property
+
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
          Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
         Public Property ExportSqlCreateTable() As Boolean
             Get

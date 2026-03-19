@@ -390,6 +390,11 @@ OraDB_DumpParser.dll이 실행 파일과 같은 폴더에 있는지 확인하세
   <data name="ExportOptions_CsvOptions" xml:space="preserve"><value>CSV 옵션</value></data>
   <data name="ExportOptions_CsvWriteHeader" xml:space="preserve"><value>열 이름 헤더 출력</value></data>
   <data name="ExportOptions_CsvWriteTypes" xml:space="preserve"><value>열 유형 행 출력</value></data>
+  <data name="ExportOptions_CsvDelimiter" xml:space="preserve"><value>구분자:</value></data>
+  <data name="ExportOptions_DelimiterComma" xml:space="preserve"><value>쉼표 (,)</value></data>
+  <data name="ExportOptions_DelimiterTab" xml:space="preserve"><value>탭</value></data>
+  <data name="ExportOptions_DelimiterSemicolon" xml:space="preserve"><value>세미콜론 (;)</value></data>
+  <data name="ExportOptions_DelimiterPipe" xml:space="preserve"><value>파이프 (|)</value></data>
   <data name="ExportOptions_SqlOptions" xml:space="preserve"><value>SQL 스크립트 옵션</value></data>
   <data name="ExportOptions_SqlCreateTable" xml:space="preserve"><value>DROP TABLE + CREATE TABLE 출력</value></data>
   <data name="ExportOptions_SqlInferInteger" xml:space="preserve"><value>실제 데이터에서 NUMBER 열의 정수 유형 추론</value></data>

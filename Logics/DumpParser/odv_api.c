@@ -39,6 +39,7 @@ static void clear_session(ODV_SESSION *s)
     s->custom_date_format[0] = '\0';
     s->csv_write_header = 1;
     s->csv_write_types = 0;
+    s->csv_delimiter = ',';
     s->sql_create_table = 0;
 }
 
@@ -307,6 +308,11 @@ ODV_API int __stdcall odv_parse_dump(ODV_SESSION *s)
         set_error(s, "Unknown or unsupported dump format");
         return ODV_ERROR_FORMAT;
     }
+}
+
+ODV_API void __stdcall odv_set_csv_delimiter(ODV_SESSION *s, char delimiter)
+{
+    if (s) s->csv_delimiter = delimiter;
 }
 
 ODV_API int __stdcall odv_export_csv(ODV_SESSION *s, const char *table_name, const char *output_path)

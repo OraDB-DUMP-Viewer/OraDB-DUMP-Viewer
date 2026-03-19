@@ -20,10 +20,10 @@
 
     Returns 1 if the value contains characters requiring CSV escaping.
  ---------------------------------------------------------------------------*/
-static int csv_needs_escape(const char *val)
+static int csv_needs_escape(const char *val, char delimiter)
 {
     while (*val) {
-        if (*val == ',' || *val == '"' || *val == '\n' || *val == '\r')
+        if (*val == delimiter || *val == '"' || *val == '\n' || *val == '\r')
             return 1;
         val++;
     }
@@ -36,9 +36,9 @@ static int csv_needs_escape(const char *val)
     Writes a value to the file, wrapping in double-quotes and escaping
     embedded double-quotes (by doubling them) when necessary.
  ---------------------------------------------------------------------------*/
-static void csv_write_escaped(FILE *fp, const char *val)
+static void csv_write_escaped(FILE *fp, const char *val, char delimiter)
 {
-    if (!csv_needs_escape(val)) {
+    if (!csv_needs_escape(val, delimiter)) {
         fputs(val, fp);
         return;
     }
@@ -68,6 +68,7 @@ typedef struct {
     ODV_SESSION *session;       /* For accessing column type info */
     int write_header;           /* 1=output column name header row */
     int write_types;            /* 1=output column type row after header */
+    char delimiter;             /* Field delimiter character (default ',') */
 } CSV_CONTEXT;
 
 /*---------------------------------------------------------------------------
@@ -97,8 +98,8 @@ static void __stdcall csv_row_callback(
 
         if (ctx->write_header) {
             for (i = 0; i < col_count; i++) {
-                if (i > 0) fputc(',', ctx->fp);
-                csv_write_escaped(ctx->fp, col_names[i]);
+                if (i > 0) fputc(ctx->delimiter, ctx->fp);
+                csv_write_escaped(ctx->fp, col_names[i], ctx->delimiter);
             }
             fputc('\n', ctx->fp);
         }
@@ -106,10 +107,11 @@ static void __stdcall csv_row_callback(
         /* Write column type row if requested */
         if (ctx->write_types && ctx->session) {
             for (i = 0; i < col_count; i++) {
-                if (i > 0) fputc(',', ctx->fp);
+                if (i > 0) fputc(ctx->delimiter, ctx->fp);
                 if (i < ctx->session->table.col_count &&
                     ctx->session->table.columns[i].type_str[0]) {
-                    csv_write_escaped(ctx->fp, ctx->session->table.columns[i].type_str);
+                    csv_write_escaped(ctx->fp, ctx->session->table.columns[i].type_str,
+                                      ctx->delimiter);
                 }
             }
             fputc('\n', ctx->fp);
@@ -118,9 +120,9 @@ static void __stdcall csv_row_callback(
 
     /* Write data row */
     for (i = 0; i < col_count; i++) {
-        if (i > 0) fputc(',', ctx->fp);
+        if (i > 0) fputc(ctx->delimiter, ctx->fp);
         if (col_values[i] && col_values[i][0] != '\0') {
-            csv_write_escaped(ctx->fp, col_values[i]);
+            csv_write_escaped(ctx->fp, col_values[i], ctx->delimiter);
         }
     }
     fputc('\n', ctx->fp);
@@ -157,6 +159,7 @@ int write_csv_file(ODV_SESSION *s, const char *table_name, const char *output_pa
     ctx.session = s;
     ctx.write_header = s->csv_write_header;
     ctx.write_types = s->csv_write_types;
+    ctx.delimiter = s->csv_delimiter ? s->csv_delimiter : ',';
 
     /* Save and replace row callback */
     saved_cb = s->row_cb;

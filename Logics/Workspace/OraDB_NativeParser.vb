@@ -153,6 +153,10 @@ Public Class OraDB_NativeParser
     Private Shared Function odv_parse_dump(session As IntPtr) As Integer
     End Function
 
+    <DllImport(DLL_NAME, CallingConvention:=CallingConvention.StdCall)>
+    Private Shared Sub odv_set_csv_delimiter(session As IntPtr, delimiter As Byte)
+    End Sub
+
     ' テーブル名はUTF-8で渡す（DLL側でUTF-8→dump charsetに変換して比較するため）
     <DllImport(DLL_NAME, CallingConvention:=CallingConvention.StdCall, CharSet:=CharSet.Ansi)>
     Private Shared Function odv_export_csv(session As IntPtr,
@@ -224,6 +228,10 @@ Public Class OraDB_NativeParser
         odv_set_date_format(session, ExportOptions.DateFormat, ExportOptions.CustomDateFormat)
         odv_set_csv_options(session, If(ExportOptions.CsvWriteHeader, 1, 0), If(ExportOptions.CsvWriteTypes, 1, 0))
         odv_set_sql_options(session, If(ExportOptions.SqlCreateTable, 1, 0))
+
+        ' CSV デリミタ設定
+        Dim delimChar As Char = If(String.IsNullOrEmpty(ExportOptions.CsvDelimiter), ","c, ExportOptions.CsvDelimiter(0))
+        odv_set_csv_delimiter(session, CByte(Asc(delimChar)))
 
         ' アプリバージョンをDLLに渡す（エクスポートコメントに使用）
         Dim ver As String = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString()

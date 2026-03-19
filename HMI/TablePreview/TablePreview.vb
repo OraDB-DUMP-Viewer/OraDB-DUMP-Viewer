@@ -60,6 +60,12 @@ Public Class TablePreview
     ''' <summary>列名→インデックスの逆引きマップ（O(1) lookup）</summary>
     Private _columnIndexMap As Dictionary(Of String, Integer)
 
+    ''' <summary>LOB カラムのインデックスセット（BLOB/CLOB/NCLOB）</summary>
+    Private _lobColumnIndices As New HashSet(Of Integer)
+
+    ''' <summary>BLOB カラムのインデックスセット（画像プレビュー対象）</summary>
+    Private _blobColumnIndices As New HashSet(Of Integer)
+
     ''' <summary>現在表示中のページ番号（1ベース）</summary>
     Private _currentPage As Integer = 1
 
@@ -116,6 +122,19 @@ Public Class TablePreview
         For i As Integer = 0 To _columnNames.Count - 1
             _columnIndexMap(_columnNames(i)) = i
         Next
+
+        ' LOB カラムを検出
+        If _columnTypes IsNot Nothing Then
+            For i As Integer = 0 To _columnTypes.Length - 1
+                Dim t = _columnTypes(i).ToUpperInvariant()
+                If t.StartsWith("BLOB") OrElse t.StartsWith("LONG RAW") Then
+                    _blobColumnIndices.Add(i)
+                    _lobColumnIndices.Add(i)
+                ElseIf t.StartsWith("CLOB") OrElse t.StartsWith("NCLOB") Then
+                    _lobColumnIndices.Add(i)
+                End If
+            Next
+        End If
 
         ' フォームタイトルを設定
         Me.Text = Loc.SF("Preview_FormTitle", tableName)
@@ -510,12 +529,25 @@ Public Class TablePreview
         dataGridViewData.MultiSelect = True
 
         ' 列を追加（ソートはプログラム制御で行うため Programmatic に設定）
-        For Each colName In _columnNames
-            Dim col = New DataGridViewTextBoxColumn()
-            col.Name = colName
-            col.HeaderText = colName
-            col.SortMode = DataGridViewColumnSortMode.Programmatic
-            dataGridViewData.Columns.Add(col)
+        For i As Integer = 0 To _columnNames.Count - 1
+            Dim colName = _columnNames(i)
+            If _blobColumnIndices.Contains(i) Then
+                ' BLOB カラム: 画像列として追加
+                Dim imgCol = New DataGridViewImageColumn()
+                imgCol.Name = colName
+                imgCol.HeaderText = colName
+                imgCol.SortMode = DataGridViewColumnSortMode.Programmatic
+                imgCol.ImageLayout = DataGridViewImageCellLayout.Zoom
+                imgCol.DefaultCellStyle.NullValue = Nothing
+                dataGridViewData.Columns.Add(imgCol)
+            Else
+                ' 通常カラム: テキスト列
+                Dim col = New DataGridViewTextBoxColumn()
+                col.Name = colName
+                col.HeaderText = colName
+                col.SortMode = DataGridViewColumnSortMode.Programmatic
+                dataGridViewData.Columns.Add(col)
+            End If
         Next
 
         ' 列の幅を自動調整（最小100、最大200）
@@ -627,11 +659,175 @@ Public Class TablePreview
         If e.ColumnIndex < 0 OrElse e.ColumnIndex >= _columnNames.Count Then Return
 
         Dim row = _filteredData(dataIndex)
-        If e.ColumnIndex < row.Length Then
-            e.Value = If(row(e.ColumnIndex), String.Empty)
-        Else
+        If e.ColumnIndex >= row.Length Then
             e.Value = String.Empty
+            Return
         End If
+
+        Dim cellValue = row(e.ColumnIndex)
+
+        ' BLOB カラム: hex 文字列から画像サムネイルを生成
+        If _blobColumnIndices.Contains(e.ColumnIndex) AndAlso Not String.IsNullOrEmpty(cellValue) Then
+            Dim img = TryCreateThumbnailFromHex(cellValue)
+            If img IsNot Nothing Then
+                e.Value = img
+                Return
+            End If
+            ' 画像として認識できない場合はサイズ表示
+            e.Value = $"(BLOB: {cellValue.Length / 2} bytes)"
+            Return
+        End If
+
+        ' CLOB カラム: テキストプレビュー（長い場合は省略）
+        If _lobColumnIndices.Contains(e.ColumnIndex) AndAlso Not String.IsNullOrEmpty(cellValue) Then
+            If cellValue.Length > 200 Then
+                e.Value = cellValue.Substring(0, 200) & "..."
+            Else
+                e.Value = cellValue
+            End If
+            Return
+        End If
+
+        e.Value = If(cellValue, String.Empty)
+    End Sub
+
+    ''' <summary>
+    ''' hex 文字列からサムネイル画像を生成する。
+    ''' JPEG (FFD8FF) / PNG (89504E47) / GIF (474946) / BMP (424D) を検出。
+    ''' 画像でない場合は Nothing を返す。
+    ''' </summary>
+    Private Function TryCreateThumbnailFromHex(hex As String) As Image
+        Try
+            ' 最低限のマジックバイトチェック（高速判定、バイト変換前）
+            If hex.Length < 8 Then Return Nothing
+            If Not (hex.StartsWith("FFD8FF") OrElse    ' JPEG
+                    hex.StartsWith("89504E47") OrElse  ' PNG
+                    hex.StartsWith("47494638") OrElse  ' GIF
+                    hex.StartsWith("424D")) Then       ' BMP
+                Return Nothing
+            End If
+
+            ' hex → byte 変換（プレビュー分のみ、最大 4KB）
+            Dim byteLen = Math.Min(hex.Length \ 2, 4096)
+            Dim bytes(byteLen - 1) As Byte
+            For i As Integer = 0 To byteLen - 1
+                bytes(i) = Convert.ToByte(hex.Substring(i * 2, 2), 16)
+            Next
+
+            ' 画像を読み込んでサムネイルを生成
+            Using ms As New IO.MemoryStream(bytes)
+                Using original = Image.FromStream(ms, False, False)
+                    ' サムネイル: 高さ 48px に縮小
+                    Dim thumbHeight = 48
+                    Dim thumbWidth = CInt(original.Width * thumbHeight / Math.Max(original.Height, 1))
+                    If thumbWidth < 1 Then thumbWidth = 1
+                    Return original.GetThumbnailImage(thumbWidth, thumbHeight, Nothing, IntPtr.Zero)
+                End Using
+            End Using
+        Catch
+            Return Nothing
+        End Try
+    End Function
+
+    ''' <summary>
+    ''' セルダブルクリック: LOB データのポップアッププレビュー
+    ''' </summary>
+    Private Sub dataGridViewData_CellDoubleClick(sender As Object, e As DataGridViewCellEventArgs) Handles dataGridViewData.CellDoubleClick
+        If e.RowIndex < 0 OrElse e.ColumnIndex < 0 Then Return
+        If Not _lobColumnIndices.Contains(e.ColumnIndex) Then Return
+
+        Dim dataIndex = _displayStartRow + e.RowIndex
+        If dataIndex < 0 OrElse dataIndex >= _filteredData.Count Then Return
+
+        Dim row = _filteredData(dataIndex)
+        If e.ColumnIndex >= row.Length Then Return
+        Dim cellValue = row(e.ColumnIndex)
+        If String.IsNullOrEmpty(cellValue) Then Return
+
+        If _blobColumnIndices.Contains(e.ColumnIndex) Then
+            ShowBlobPreview(cellValue, _columnNames(e.ColumnIndex))
+        Else
+            ShowClobPreview(cellValue, _columnNames(e.ColumnIndex))
+        End If
+    End Sub
+
+    ''' <summary>BLOB データのポップアッププレビュー（画像またはヘックスダンプ）</summary>
+    Private Sub ShowBlobPreview(hexData As String, columnName As String)
+        Dim frm As New Form() With {
+            .Text = $"BLOB Preview - {columnName}",
+            .Size = New Size(640, 480),
+            .StartPosition = FormStartPosition.CenterParent,
+            .MinimizeBox = False,
+            .MaximizeBox = True
+        }
+
+        Try
+            ' hex → byte 変換
+            Dim byteLen = hexData.Length \ 2
+            Dim bytes(byteLen - 1) As Byte
+            For i As Integer = 0 To byteLen - 1
+                bytes(i) = Convert.ToByte(hexData.Substring(i * 2, 2), 16)
+            Next
+
+            ' 画像として表示を試みる
+            Try
+                Using ms As New IO.MemoryStream(bytes)
+                    Dim img = Image.FromStream(ms, True, True)
+                    Dim pb As New PictureBox() With {
+                        .Dock = DockStyle.Fill,
+                        .SizeMode = PictureBoxSizeMode.Zoom,
+                        .Image = img
+                    }
+                    frm.Controls.Add(pb)
+                    frm.ShowDialog(Me)
+                    Return
+                End Using
+            Catch
+                ' 画像ではない — hex ダンプ表示にフォールバック
+            End Try
+
+            ' hex ダンプ表示
+            Dim tb As New TextBox() With {
+                .Dock = DockStyle.Fill,
+                .Multiline = True,
+                .ScrollBars = ScrollBars.Both,
+                .Font = New Font("Consolas", 10),
+                .ReadOnly = True,
+                .WordWrap = False,
+                .Text = $"({byteLen} bytes)" & vbCrLf & vbCrLf & hexData
+            }
+            frm.Controls.Add(tb)
+            frm.ShowDialog(Me)
+
+        Catch ex As Exception
+            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Finally
+            frm.Dispose()
+        End Try
+    End Sub
+
+    ''' <summary>CLOB データのポップアッププレビュー（テキスト表示）</summary>
+    Private Sub ShowClobPreview(textData As String, columnName As String)
+        Dim frm As New Form() With {
+            .Text = $"CLOB Preview - {columnName}",
+            .Size = New Size(640, 480),
+            .StartPosition = FormStartPosition.CenterParent,
+            .MinimizeBox = False,
+            .MaximizeBox = True
+        }
+
+        Dim tb As New TextBox() With {
+            .Dock = DockStyle.Fill,
+            .Multiline = True,
+            .ScrollBars = ScrollBars.Both,
+            .Font = New Font("Consolas", 10),
+            .ReadOnly = True,
+            .WordWrap = True,
+            .Text = textData
+        }
+        frm.Controls.Add(tb)
+        frm.ShowDialog(Me)
+        frm.Dispose()
     End Sub
 
     ''' <summary>

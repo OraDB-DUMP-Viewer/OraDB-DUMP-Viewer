@@ -1054,32 +1054,35 @@ static int parse_expdp_records(ODV_SESSION *s, FILE *fp, int64_t *address,
             case DS_LOB_MARKER: /* -12: LOB column marker byte */
                 switch (b) {
                 case 0x00:
-                    /* End of current LOB column.
-                     * Advance to next LOB column. Continuation markers
-                     * (0x01-0x06) do NOT advance — they mean more chunks
-                     * follow for the same column. */
+                    /* LOB end-of-column marker.
+                     * Only advance lob_col_idx if we actually read chunk
+                     * data (lob_length > 0). If lob_length == 0, this is
+                     * a filler/padding byte before LOB data starts. */
                     st->is_last_chunk = 1;
-                    st->lob_col_idx++;
-                    st->lob_length = 0;
+                    if (st->lob_length > 0) {
+                        st->lob_col_idx++;
+                        st->lob_length = 0;
 
-                    if (st->lob_col_idx >= s->table.lob_col_count) {
-                        /* All LOB columns processed — deliver row */
-                        if (s->lob_extract_mode && s->lob_column_index >= 0) {
-                            rc = odv_lob_write_file(s);
-                            if (rc != ODV_OK) return rc;
+                        if (st->lob_col_idx >= s->table.lob_col_count) {
+                            /* All LOB columns processed — deliver row */
+                            if (s->lob_extract_mode &&
+                                s->lob_column_index >= 0) {
+                                rc = odv_lob_write_file(s);
+                                if (rc != ODV_OK) return rc;
+                            }
+                            if (!list_only) {
+                                rc = deliver_row(s);
+                                if (rc != ODV_OK) return rc;
+                                odv_report_progress(s, fp);
+                            }
+                            record_count++;
+                            s->table.record_count++;
+                            st->step = 1;
+                            st->data_step = DS_COL_LENGTH;
+                            break;
                         }
-                        if (!list_only) {
-                            rc = deliver_row(s);
-                            if (rc != ODV_OK) return rc;
-                            odv_report_progress(s, fp);
-                        }
-                        record_count++;
-                        s->table.record_count++;
-                        st->step = 1;
-                        st->data_step = DS_COL_LENGTH;
-                    } else {
-                        st->data_step++;   /* → DS_LOB_POST (-11) */
                     }
+                    st->data_step++;   /* → DS_LOB_POST (-11) */
                     break;
 
                 case 0x08: case 0x09: case 0x0c:
@@ -1162,7 +1165,32 @@ static int parse_expdp_records(ODV_SESSION *s, FILE *fp, int64_t *address,
 
                 case 0x01: case 0x02: case 0x03:
                 case 0x04: case 0x05: case 0x06:
-                    /* Continuation / filler markers */
+                    /* Filler / separator between LOB columns.
+                     * If we had data (lob_length > 0) and this was the
+                     * last chunk, advance to next LOB column. */
+                    if (st->lob_length > 0 && st->is_last_chunk) {
+                        st->lob_col_idx++;
+                        st->lob_length = 0;
+                        st->is_last_chunk = 0;
+
+                        if (st->lob_col_idx >= s->table.lob_col_count) {
+                            if (s->lob_extract_mode &&
+                                s->lob_column_index >= 0) {
+                                rc = odv_lob_write_file(s);
+                                if (rc != ODV_OK) return rc;
+                            }
+                            if (!list_only) {
+                                rc = deliver_row(s);
+                                if (rc != ODV_OK) return rc;
+                                odv_report_progress(s, fp);
+                            }
+                            record_count++;
+                            s->table.record_count++;
+                            st->step = 1;
+                            st->data_step = DS_COL_LENGTH;
+                            break;
+                        }
+                    }
                     st->data_step++;   /* → DS_LOB_POST (-11) */
                     break;
 

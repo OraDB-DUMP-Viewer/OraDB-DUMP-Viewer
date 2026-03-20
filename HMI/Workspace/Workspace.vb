@@ -165,23 +165,16 @@ Public Class Workspace
 
         Try
             Dim selectedItem = lstTableList.SelectedItems(0)
-            Dim tableName As String = selectedItem.Text
+            Dim entry = TryCast(selectedItem.Tag, OraDB_NativeParser.TableEntry)
 
-            If String.IsNullOrEmpty(_currentSchema) Then
+            If String.IsNullOrEmpty(_currentSchema) OrElse entry Is Nothing Then
                 MessageBox.Show(Loc.S("Workspace_SchemaNotSelected"), Loc.S("Title_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Return
             End If
 
-            ' テーブルのデータオフセットと期待行数を取得
-            Dim dataOffset As Long = 0
-            Dim expectedRowCount As Long = 0
-            If _tableList.ContainsKey(_currentSchema) Then
-                Dim entry = _tableList(_currentSchema).Find(Function(x) x.TableName = tableName)
-                If entry IsNot Nothing Then
-                    dataOffset = entry.DataOffset
-                    expectedRowCount = entry.RowCount
-                End If
-            End If
+            Dim tableName As String = entry.TableName
+            Dim dataOffset As Long = entry.DataOffset
+            Dim expectedRowCount As Long = entry.RowCount
 
             ' フェーズ2: 選択テーブルのみ非同期解析（UIスレッドをブロックしない）
             Dim tableData = Await AnalyzeLogic.AnalyzeTableAsync(DumpFilePath, _currentSchema, tableName, dataOffset, expectedRowCount)
@@ -237,21 +230,15 @@ Public Class Workspace
         End If
 
         Dim selectedItem = lstTableList.SelectedItems(0)
-        Dim tableName As String = selectedItem.Text
+        Dim entry = TryCast(selectedItem.Tag, OraDB_NativeParser.TableEntry)
 
-        If String.IsNullOrEmpty(_currentSchema) Then
+        If String.IsNullOrEmpty(_currentSchema) OrElse entry Is Nothing Then
             MessageBox.Show(Loc.S("Workspace_SchemaNotSelected"), Loc.S("Title_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return
         End If
 
-        ' 行数を取得
-        Dim rowCount As Long = 0
-        If _tableList.ContainsKey(_currentSchema) Then
-            Dim entry = _tableList(_currentSchema).Find(Function(x) x.TableName = tableName)
-            If entry IsNot Nothing Then
-                rowCount = entry.RowCount
-            End If
-        End If
+        Dim tableName As String = entry.TableName
+        Dim rowCount As Long = entry.RowCount
 
         ' カラム名・カラム型を取得
         Dim tableKey = $"{_currentSchema}.{tableName}"
@@ -286,8 +273,10 @@ Public Class Workspace
         _redoStack.Clear()
 
         For Each item As ListViewItem In lstTableList.SelectedItems
-            Dim tableKey = $"{_currentSchema}.{item.Text}"
-            _excludedTables.Add(tableKey)
+            Dim te = TryCast(item.Tag, OraDB_NativeParser.TableEntry)
+            If te IsNot Nothing Then
+                _excludedTables.Add(te.Key)
+            End If
         Next
         DisplayTablesForSchema(_currentSchema)
     End Sub
@@ -641,50 +630,76 @@ Public Class Workspace
                 ' テーブル検索フィルタ（大文字小文字区別しない部分一致）
                 Dim searchText = txtTableSearch.Text.Trim()
 
-                For Each entry In tables
-                    Dim tableName = entry.TableName
-                    Dim rowCount = entry.RowCount
+                ' パーティションテーブルをグループ化表示するため、
+                ' まず通常テーブルとパーティショングループに分類する
+                Dim normalTables As New List(Of OraDB_NativeParser.TableEntry)
+                Dim partGroups As New Dictionary(Of String, List(Of OraDB_NativeParser.TableEntry))
+                Dim partGroupOrder As New List(Of String)  ' 出現順を保持
 
+                For Each entry In tables
                     ' 除外テーブルをスキップ
-                    Dim tableKey = entry.Key
-                    If _excludedTables.Contains(tableKey) Then
-                        Continue For
-                    End If
+                    If _excludedTables.Contains(entry.Key) Then Continue For
 
                     ' フィルタ: 検索文字列が空でなければ部分一致でスキップ判定
+                    Dim tableName = entry.TableName
                     If searchText.Length > 0 AndAlso
-                       Not tableName.Contains(searchText, StringComparison.OrdinalIgnoreCase) Then
+                       Not tableName.Contains(searchText, StringComparison.OrdinalIgnoreCase) AndAlso
+                       Not entry.PartitionName.Contains(searchText, StringComparison.OrdinalIgnoreCase) Then
                         Continue For
                     End If
 
-                    ' 種類を判定
-                    Dim typeStr As String
-                    Dim displayName As String = tableName
-                    Select Case entry.EntryType
-                        Case OraDB_NativeParser.TABLE_TYPE_PARTITION_TABLE
-                            typeStr = "TABLE (PARTITIONED)"
-                        Case OraDB_NativeParser.TABLE_TYPE_PARTITION
-                            typeStr = "PARTITION"
-                            If entry.PartitionName.Length > 0 Then
-                                displayName = $"{tableName}:{entry.PartitionName}"
-                            End If
-                        Case OraDB_NativeParser.TABLE_TYPE_SUBPARTITION
-                            typeStr = "SUBPARTITION"
-                            If entry.PartitionName.Length > 0 Then
-                                displayName = $"{tableName}:{entry.PartitionName}"
-                            End If
-                        Case Else
-                            typeStr = "TABLE"
-                    End Select
+                    If entry.EntryType = OraDB_NativeParser.TABLE_TYPE_PARTITION_TABLE OrElse
+                       entry.EntryType = OraDB_NativeParser.TABLE_TYPE_PARTITION OrElse
+                       entry.EntryType = OraDB_NativeParser.TABLE_TYPE_SUBPARTITION Then
+                        If Not partGroups.ContainsKey(tableName) Then
+                            partGroups(tableName) = New List(Of OraDB_NativeParser.TableEntry)
+                            partGroupOrder.Add(tableName)
+                        End If
+                        partGroups(tableName).Add(entry)
+                    Else
+                        normalTables.Add(entry)
+                    End If
+                Next
 
-                    ' ListViewItemを作成
-                    Dim item As New ListViewItem(displayName)
-                    item.SubItems.Add(schemaName)       ' 所有者
-                    item.SubItems.Add(typeStr)           ' 種類
-                    item.SubItems.Add(rowCount.ToString("#,0"))  ' 行数
-                    item.Tag = entry                     ' TableEntry参照を保持
-
+                ' 通常テーブルを表示
+                For Each entry In normalTables
+                    Dim item As New ListViewItem(entry.TableName)
+                    item.SubItems.Add(schemaName)
+                    item.SubItems.Add("TABLE")
+                    item.SubItems.Add(entry.RowCount.ToString("#,0"))
+                    item.Tag = entry
                     lstTableList.Items.Add(item)
+                Next
+
+                ' パーティショングループを表示（親 → 子パーティションの順）
+                For Each groupName In partGroupOrder
+                    Dim group = partGroups(groupName)
+                    ' 合計行数を計算
+                    Dim totalRows As Long = group.Sum(Function(e) e.RowCount)
+
+                    ' 親テーブル行 (PARTITION_TABLE エントリがあればそれを使用、なければ最初のエントリ)
+                    Dim parentEntry = group.FirstOrDefault(Function(e) e.EntryType = OraDB_NativeParser.TABLE_TYPE_PARTITION_TABLE)
+                    If parentEntry Is Nothing Then parentEntry = group(0)
+
+                    Dim parentItem As New ListViewItem(groupName)
+                    parentItem.SubItems.Add(schemaName)
+                    parentItem.SubItems.Add($"TABLE (PARTITIONED, {group.Count})")
+                    parentItem.SubItems.Add(totalRows.ToString("#,0"))
+                    parentItem.Tag = parentEntry
+                    lstTableList.Items.Add(parentItem)
+
+                    ' 子パーティション行（インデント表示）
+                    For Each entry In group
+                        Dim partName = If(entry.PartitionName.Length > 0, entry.PartitionName, $"#{group.IndexOf(entry) + 1}")
+                        Dim typeStr = If(entry.EntryType = OraDB_NativeParser.TABLE_TYPE_SUBPARTITION, "SUBPARTITION", "PARTITION")
+
+                        Dim childItem As New ListViewItem($"  {Chrw(&H251C)} {partName}")
+                        childItem.SubItems.Add(schemaName)
+                        childItem.SubItems.Add(typeStr)
+                        childItem.SubItems.Add(entry.RowCount.ToString("#,0"))
+                        childItem.Tag = entry
+                        lstTableList.Items.Add(childItem)
+                    Next
                 Next
             Finally
                 lstTableList.EndUpdate()

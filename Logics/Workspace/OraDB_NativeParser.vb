@@ -278,6 +278,8 @@ Public Class OraDB_NativeParser
         ' List<T>の初期容量に使う期待行数 (ListTablesで取得済みの行数)
         Public ExpectedRowCount As Long = 0
 
+        ' List<T>の初期容量ヒントは ExpectedRowCount で設定済み
+
         ' テーブル切替検出用キャッシュ（毎行のマーシャリングを回避）
         Public LastSchema As String = ""
         Public LastTable As String = ""

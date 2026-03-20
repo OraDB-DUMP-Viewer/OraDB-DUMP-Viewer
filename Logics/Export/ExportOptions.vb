@@ -26,6 +26,9 @@ Public Module ExportOptions
     ''' <summary>SQL: 裸の NUMBER を実データから整数型に推定するか</summary>
     Public Property SqlInferInteger As Boolean = False
 
+    ''' <summary>Oracle Client: impdp.exe のパス (EXPDP メタデータ拡張用、空=無効)</summary>
+    Public Property ImpdpPath As String = ""
+
     ''' <summary>
     ''' My.Settings から設定を読み込み
     ''' </summary>
@@ -38,6 +41,7 @@ Public Module ExportOptions
             CsvDelimiter = If(String.IsNullOrEmpty(My.Settings.ExportCsvDelimiter), ",", My.Settings.ExportCsvDelimiter)
             SqlCreateTable = My.Settings.ExportSqlCreateTable
             SqlInferInteger = My.Settings.ExportSqlInferInteger
+            ImpdpPath = If(My.Settings.ImpdpPath, "")
         Catch
             ' 初回起動時や設定未登録時はデフォルト値を使用
         End Try
@@ -55,6 +59,7 @@ Public Module ExportOptions
             My.Settings.ExportCsvDelimiter = CsvDelimiter
             My.Settings.ExportSqlCreateTable = SqlCreateTable
             My.Settings.ExportSqlInferInteger = SqlInferInteger
+            My.Settings.ImpdpPath = ImpdpPath
             My.Settings.Save()
         Catch
             ' 設定保存失敗は無視

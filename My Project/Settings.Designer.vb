@@ -155,6 +155,17 @@ Namespace My
             End Set
         End Property
 
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
+        Public Property ImpdpPath() As String
+            Get
+                Return CType(Me("ImpdpPath"),String)
+            End Get
+            Set
+                Me("ImpdpPath") = value
+            End Set
+        End Property
+
         Public Shared ReadOnly Property [Default]() As MySettings
             Get
                 

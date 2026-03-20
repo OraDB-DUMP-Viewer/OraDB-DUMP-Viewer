@@ -39,6 +39,10 @@ typedef int (__stdcall *FN_PARSE_DUMP)(ODV_SESSION *s);
 typedef const char* (__stdcall *FN_GET_VERSION)(void);
 typedef const char* (__stdcall *FN_GET_ERROR)(ODV_SESSION *s);
 typedef int (__stdcall *FN_GET_PCT)(ODV_SESSION *s);
+typedef int (__stdcall *FN_GET_TABLE_COUNT)(ODV_SESSION *s);
+typedef int (__stdcall *FN_GET_TABLE_ENTRY)(ODV_SESSION *s, int index,
+    const char **schema, const char **name, const char **partition,
+    const char **parent_partition, int *type, __int64 *row_count);
 
 /* --- Globals --- */
 static FN_CREATE        fn_create;
@@ -55,6 +59,8 @@ static FN_PARSE_DUMP    fn_parse_dump;
 static FN_GET_VERSION   fn_get_version;
 static FN_GET_ERROR     fn_get_error;
 static FN_GET_PCT       fn_get_pct;
+static FN_GET_TABLE_COUNT fn_get_table_count;
+static FN_GET_TABLE_ENTRY fn_get_table_entry;
 
 /* --- Test state --- */
 typedef struct {
@@ -220,6 +226,24 @@ static int test_dump(const char *path, int expected_type) {
         pass = 0;
     }
 
+    /* Print partition info via odv_get_table_entry API */
+    if (fn_get_table_entry) {
+        int ti;
+        int tc = fn_get_table_count ? fn_get_table_count(s) : g_state.table_count;
+        for (ti = 0; ti < tc && ti < 200; ti++) {
+            const char *sch = NULL, *nm = NULL, *part = NULL, *ppart = NULL;
+            int ty = 0; __int64 rc2 = 0;
+            if (fn_get_table_entry(s, ti, &sch, &nm, &part, &ppart, &ty, &rc2) == 0) {
+                if (ty > 0 || (part && part[0])) {
+                    printf("  ENTRY[%d]: %s.%s type=%d", ti, sch ? sch : "", nm ? nm : "", ty);
+                    if (part && part[0]) printf(" partition=%s", part);
+                    if (ppart && ppart[0]) printf(" parent=%s", ppart);
+                    printf(" rows=%lld\n", rc2);
+                }
+            }
+        }
+    }
+
     /* Phase 3: Parse all data */
     fn_set_row_cb(s, on_row, &g_state);
     fn_set_progress_cb(s, on_progress, &g_state);
@@ -349,6 +373,8 @@ int main(int argc, char *argv[]) {
         fn_get_version  = (FN_GET_VERSION)GetProcAddress(dll, "odv_get_version");
         fn_get_error    = (FN_GET_ERROR)GetProcAddress(dll, "odv_get_last_error");
         fn_get_pct      = (FN_GET_PCT)GetProcAddress(dll, "odv_get_progress_pct");
+        fn_get_table_count = (FN_GET_TABLE_COUNT)GetProcAddress(dll, "odv_get_table_count");
+        fn_get_table_entry = (FN_GET_TABLE_ENTRY)GetProcAddress(dll, "odv_get_table_entry");
     }
 
     if (!fn_create || !fn_destroy || !fn_set_file || !fn_check_kind ||

@@ -1592,6 +1592,138 @@ int parse_expdp_dump(ODV_SESSION *s, int list_only)
     }
 
 expdp_done:
+    /* Post-parse: populate partition names from master table area.
+     * The master table binary records contain TABLE_DATA entries with
+     * the pattern: SCHEMA_EXPORT/TABLE/TABLE_DATA [ff]...[len]TABLE_NAME
+     * [len]SCHEMA [ff][02][c1][02][ff][ff][ff][len]PARTITION_NAME[ff]
+     * For non-partitioned tables, PARTITION_NAME is absent (just [ff]s). */
+    if (list_only && s->table_count > 0) {
+        /* Build per-table occurrence counters for partition matching.
+         * part_occ[i] = which occurrence (0-based) of this schema.table
+         * in the table_list (e.g., 4 partitions → occ 0,1,2,3). */
+        int part_occ[ODV_MAX_TABLES];
+        {
+            int ti;
+            for (ti = 0; ti < s->table_count; ti++) {
+                part_occ[ti] = 0;
+                int k;
+                for (k = 0; k < ti; k++) {
+                    if (strcmp(s->table_list[k].schema, s->table_list[ti].schema) == 0 &&
+                        strcmp(s->table_list[k].name, s->table_list[ti].name) == 0) {
+                        part_occ[ti]++;
+                    }
+                }
+            }
+        }
+
+        /* Scan file for SCHEMA_EXPORT/TABLE/TABLE_DATA entries.
+         * Simple approach: search byte-by-byte, then seek+read the structure. */
+        {
+            static const char path_marker[] = "SCHEMA_EXPORT/TABLE/TABLE_DATA";
+            static const int path_len = 30;
+            /* Track per-table occurrence in master table */
+            char scan_keys[ODV_MAX_TABLES][ODV_OBJNAME_LEN * 2 + 2];
+            int scan_count = 0;
+
+            /* Use the already-parsed file — re-open for scanning */
+            FILE *sfp = fopen(s->dump_path, "rb");
+            if (sfp) {
+                unsigned char blk[8192];
+                int64_t blk_offset = 0;
+                int blk_len = 0;
+
+                while (!s->cancelled) {
+                    blk_len = (int)fread(blk, 1, sizeof(blk), sfp);
+                    if (blk_len < path_len + 60) break;
+
+                    int si;
+                    for (si = 0; si <= blk_len - path_len - 50; si++) {
+                        if (memcmp(blk + si, path_marker, path_len) != 0) continue;
+
+                        /* Found path. Structure after:
+                         * [ff]...[len]TABLE[len]SCHEMA[ff][02]...[ff][len]PART[ff] */
+                        int p = si + path_len;
+
+                        /* Skip ff */
+                        while (p < blk_len && blk[p] == 0xff) p++;
+                        if (p + 3 >= blk_len) continue;
+
+                        /* [len]TABLE */
+                        int tl = blk[p++];
+                        if (tl <= 0 || tl > 60 || p + tl + 3 >= blk_len) continue;
+                        char tn[64] = {0};
+                        memcpy(tn, blk + p, tl); p += tl;
+
+                        /* [len]SCHEMA */
+                        int sl = blk[p++];
+                        if (sl <= 0 || sl > 60 || p + sl >= blk_len) continue;
+                        char sn[64] = {0};
+                        memcpy(sn, blk + p, sl); p += sl;
+
+                        /* After schema: skip binary pattern [ff][02][c1][02][ff][ff][ff]
+                         * and find partition name [len]NAME (printable ASCII).
+                         * Scan forward looking for a valid len+name pattern. */
+                        char pn[64] = {0};
+                        {
+                            int limit = ODV_MIN(p + 20, blk_len - 2);
+                            while (p < limit && !pn[0]) {
+                                int pl = blk[p];
+                                if (pl >= 4 && pl <= 60 && p + 1 + pl <= blk_len) {
+                                    /* Check if next pl bytes are all printable ASCII */
+                                    int ok = 1, q;
+                                    for (q = 0; q < pl; q++) {
+                                        if (blk[p+1+q] < 0x20 || blk[p+1+q] > 0x7e) { ok = 0; break; }
+                                    }
+                                    if (ok) {
+                                        memcpy(pn, blk + p + 1, pl);
+                                        pn[pl] = '\0';
+                                    }
+                                }
+                                p++;
+                            }
+                        }
+
+                        /* Convert charset for matching */
+                        char ct[260], cs2[260];
+                        convert_name(tn, s->dump_charset, s->out_charset, ct, sizeof(ct));
+                        convert_name(sn, s->dump_charset, s->out_charset, cs2, sizeof(cs2));
+
+                        /* Count occurrence */
+                        int occ = 0;
+                        {
+                            char key[260];
+                            snprintf(key, sizeof(key), "%s.%s", cs2, ct);
+                            int pi;
+                            for (pi = 0; pi < scan_count; pi++) {
+                                if (strcmp(scan_keys[pi], key) == 0) occ++;
+                            }
+                            if (scan_count < ODV_MAX_TABLES)
+                                odv_strcpy(scan_keys[scan_count++], key, 259);
+                        }
+
+                        /* Assign partition name to matching table_list entry */
+                        if (pn[0]) {
+                            int ti;
+                            for (ti = 0; ti < s->table_count; ti++) {
+                                if (strcmp(s->table_list[ti].schema, cs2) == 0 &&
+                                    strcmp(s->table_list[ti].name, ct) == 0 &&
+                                    part_occ[ti] == occ) {
+                                    odv_strcpy(s->table_list[ti].partition, pn,
+                                               ODV_OBJNAME_LEN);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    /* No seek-back: 8KB blocks are large enough that boundary
+                     * splits of ~80-byte structures are extremely rare. */
+                }
+                fclose(sfp);
+            }
+        }
+    }
+
     free(ddl_buf);
     fclose(fp);
 

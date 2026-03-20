@@ -129,6 +129,7 @@
 #define CONSTRAINT_UNIQUE      1   /* UNIQUE */
 #define CONSTRAINT_FK          2   /* FOREIGN KEY */
 #define CONSTRAINT_CHECK       3   /* CHECK */
+#define CONSTRAINT_INDEX       4   /* INDEX (non-unique, non-PK) */
 
 /* Date format options */
 #define DATE_FMT_SLASH         0     /* YYYY/MM/DD HH:MI:SS */
@@ -179,6 +180,8 @@ typedef struct {
     int    ref_col_count;
     /* CHECK only */
     char   condition[1024];                                             /* CHECK condition expression */
+    /* INDEX only */
+    char   index_expr[1024];                                            /* Function-based index expression (full column list text) */
 } ODV_CONSTRAINT;
 
 /* Table definition */

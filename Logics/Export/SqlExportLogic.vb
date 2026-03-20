@@ -300,6 +300,21 @@ Public Class SqlExportLogic
                         Else
                             sw.WriteLine($"ALTER TABLE {fullName} ADD CHECK {cond};")
                         End If
+
+                    Case 4 ' INDEX
+                        Dim idxName = If(c.name, "")
+                        Dim indexExpr = If(c.index_expr, "")
+                        Dim colExpr As String
+                        If Not String.IsNullOrEmpty(indexExpr) Then
+                            ' Use the full expression (handles function-based indexes)
+                            colExpr = indexExpr
+                        ElseIf c.columns IsNot Nothing AndAlso c.columns.Length > 0 Then
+                            colExpr = "(" & String.Join(", ", c.columns.Select(Function(col) ExportHelper.EscapeSqlIdentifier(col, dbmsType))) & ")"
+                        Else
+                            colExpr = "()"
+                        End If
+                        Dim nameClause = If(Not String.IsNullOrEmpty(idxName), " " & ExportHelper.EscapeSqlIdentifier(idxName, dbmsType), "")
+                        sw.WriteLine($"CREATE INDEX{nameClause} ON {fullName} {colExpr};")
                 End Select
             Next
         Catch
@@ -316,6 +331,7 @@ Public Class SqlExportLogic
         Public Property ref_table As String
         Public Property ref_columns As String()
         Public Property condition As String
+        Public Property index_expr As String
     End Class
 
 End Class

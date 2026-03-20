@@ -371,6 +371,25 @@ static char *serialize_constraints_json(ODV_SESSION *s)
             memcpy(buf + pos, tmp, n); pos += n;
         }
 
+        /* INDEX expression */
+        if (c->type == CONSTRAINT_INDEX && c->index_expr[0]) {
+            char esc[2048];
+            int ei = 0;
+            const char *cp = c->index_expr;
+            while (*cp && ei < (int)sizeof(esc) - 2) {
+                if (*cp == '"' || *cp == '\\') esc[ei++] = '\\';
+                esc[ei++] = *cp++;
+            }
+            esc[ei] = '\0';
+            n = snprintf(tmp, sizeof(tmp), ",\"index_expr\":\"%s\"", esc);
+            if (pos + n + 8 > buf_size) {
+                buf_size *= 2;
+                buf = (char *)realloc(buf, buf_size);
+                if (!buf) return NULL;
+            }
+            memcpy(buf + pos, tmp, n); pos += n;
+        }
+
         buf[pos++] = '}';
     }
     buf[pos++] = ']';
@@ -1449,8 +1468,12 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                             starts_with_ci(tok, "DISABLE") ||
                             starts_with_ci(tok, "NOVALIDATE") ||
                             starts_with_ci(tok, "VALIDATE") ||
-                            starts_with_ci(tok, "LOGGING")) {
-                            /* DDL complete — fall through to handle_ddl */
+                            starts_with_ci(tok, "LOGGING") ||
+                            starts_with_ci(tok, "DEFAULT") ||
+                            (last > word && *(last - 1) == ')')) {
+                            /* DDL complete — fall through to handle_ddl.
+                             * DEFAULT: 26ai preamble "ALTER TABLE MODIFY DEFAULT"
+                             * ')': statement like "MODIFY ("COL" DEFAULT val)" */
                         } else {
                             if (wlen < ODV_WORD_LEN - 1) word[wlen++] = ' ';
                             break;
@@ -1550,7 +1573,8 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                             /* notify_exp_table is deferred to after record counting */
                         }
                     } else if (pending_table) {
-                        /* CREATE [UNIQUE] INDEX "name" ON "table" ("col1", "col2") */
+                        /* CREATE [UNIQUE] INDEX "name" ON "table" ("col1", "col2")
+                           Also handles function-based: CREATE INDEX "name" ON "table" (UPPER("col1")) */
                         int is_unique_idx = 0;
                         const char *cp = after;
                         if (starts_with_ci(cp, "UNIQUE ")) {
@@ -1579,9 +1603,36 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                                 }
                                 cp = skip_ws(cp);
                                 if (is_unique_idx) {
+                                    /* UNIQUE INDEX → store as CONSTRAINT_UNIQUE (may be upgraded to PK later) */
                                     ODV_CONSTRAINT *c = add_constraint(s, CONSTRAINT_UNIQUE);
                                     if (c) {
                                         odv_strcpy(c->name, idx_name, ODV_OBJNAME_LEN);
+                                        parse_constraint_columns(cp, c, 0);
+                                    }
+                                } else {
+                                    /* Non-unique INDEX → store as CONSTRAINT_INDEX */
+                                    ODV_CONSTRAINT *c = add_constraint(s, CONSTRAINT_INDEX);
+                                    if (c) {
+                                        odv_strcpy(c->name, idx_name, ODV_OBJNAME_LEN);
+                                        /* Store full column expression (parenthesized) for function-based index support */
+                                        if (*cp == '(') {
+                                            int depth = 0, ei = 0;
+                                            int maxlen = (int)sizeof(c->index_expr) - 1;
+                                            const char *ep = cp;
+                                            while (*ep && ei < maxlen) {
+                                                if (*ep == '(') depth++;
+                                                else if (*ep == ')') {
+                                                    depth--;
+                                                    if (depth == 0) {
+                                                        c->index_expr[ei++] = ')';
+                                                        break;
+                                                    }
+                                                }
+                                                c->index_expr[ei++] = *ep++;
+                                            }
+                                            c->index_expr[ei] = '\0';
+                                        }
+                                        /* Also try to extract simple column names (works for non-function indexes) */
                                         parse_constraint_columns(cp, c, 0);
                                     }
                                 }

@@ -527,5 +527,12 @@ Veuillez installer le runtime Microsoft Edge WebView2.</value>
   <data name="ErrorReport_AttachDump" xml:space="preserve"><value>Joindre le fichier Dump ({0} Mo)</value></data>
   <data name="ErrorReport_AttachDumpTooLarge" xml:space="preserve"><value>Fichier Dump trop volumineux (plus de 50 Mo)</value></data>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve"><value>Aucun fichier Dump ouvert</value></data>
+  <data name="ExportOptions_OracleClient" xml:space="preserve"><value>Oracle Client (Optionnel)</value></data>
+  <data name="ExportOptions_ImpdpPath" xml:space="preserve"><value>Chemin vers impdp.exe :</value></data>
+  <data name="ExportOptions_ImpdpInfo" xml:space="preserve"><value>Requis pour extraire les colonnes de contraintes des dumps EXPDP. Installez Oracle Database Client ou Instant Client Tools et indiquez le chemin vers impdp.exe.</value></data>
+  <data name="ExportOptions_AutoSetupButton" xml:space="preserve"><value>Configurer Oracle Instant Client automatiquement...</value></data>
+  <data name="ExportOptions_AutoSetupConfirm" xml:space="preserve"><value>Télécharger et installer Oracle Instant Client (~200 Mo) ?&#xA;Requis pour extraire les détails complets des contraintes des dumps EXPDP.</value></data>
+  <data name="ExportOptions_AutoSetupProgress" xml:space="preserve"><value>Téléchargement en cours...</value></data>
+  <data name="ExportOptions_AutoSetupComplete" xml:space="preserve"><value>La configuration d'Oracle Instant Client est terminée.</value></data>
 
 </root>

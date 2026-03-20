@@ -33,9 +33,15 @@ Partial Class ExportOptionsDialog
         chkInferInteger = New CheckBox()
         btnOK = New Button()
         btnCancel = New Button()
+        grpOracleClient = New GroupBox()
+        txtImpdpPath = New TextBox()
+        btnBrowseImpdp = New Button()
+        btnAutoSetup = New Button()
+        lblImpdpInfo = New Label()
         grpDateFormat.SuspendLayout()
         grpCsvOptions.SuspendLayout()
         grpSqlOptions.SuspendLayout()
+        grpOracleClient.SuspendLayout()
         SuspendLayout()
         '
         ' grpDateFormat
@@ -178,21 +184,68 @@ Partial Class ExportOptionsDialog
         chkInferInteger.TabIndex = 1
         chkInferInteger.Text = "NUMBER を実データから整数型に推定"
         '
+        ' grpOracleClient
+        '
+        grpOracleClient.Controls.Add(txtImpdpPath)
+        grpOracleClient.Controls.Add(btnBrowseImpdp)
+        grpOracleClient.Controls.Add(btnAutoSetup)
+        grpOracleClient.Controls.Add(lblImpdpInfo)
+        grpOracleClient.Location = New Point(15, 375)
+        grpOracleClient.Name = "grpOracleClient"
+        grpOracleClient.Size = New Size(380, 130)
+        grpOracleClient.TabIndex = 5
+        grpOracleClient.TabStop = False
+        grpOracleClient.Text = "Oracle Client (オプション)"
+        '
+        ' txtImpdpPath
+        '
+        txtImpdpPath.Location = New Point(15, 25)
+        txtImpdpPath.Name = "txtImpdpPath"
+        txtImpdpPath.Size = New Size(290, 23)
+        txtImpdpPath.TabIndex = 0
+        txtImpdpPath.PlaceholderText = "impdp.exe のパス"
+        '
+        ' btnBrowseImpdp
+        '
+        btnBrowseImpdp.Location = New Point(315, 24)
+        btnBrowseImpdp.Name = "btnBrowseImpdp"
+        btnBrowseImpdp.Size = New Size(50, 25)
+        btnBrowseImpdp.TabIndex = 1
+        btnBrowseImpdp.Text = "..."
+        '
+        ' btnAutoSetup
+        '
+        btnAutoSetup.Location = New Point(15, 55)
+        btnAutoSetup.Name = "btnAutoSetup"
+        btnAutoSetup.Size = New Size(350, 28)
+        btnAutoSetup.TabIndex = 2
+        btnAutoSetup.Text = "Oracle Instant Client を自動セットアップ..."
+        '
+        ' lblImpdpInfo
+        '
+        lblImpdpInfo.AutoSize = False
+        lblImpdpInfo.Location = New Point(15, 88)
+        lblImpdpInfo.Name = "lblImpdpInfo"
+        lblImpdpInfo.Size = New Size(350, 36)
+        lblImpdpInfo.TabIndex = 2
+        lblImpdpInfo.ForeColor = Drawing.SystemColors.GrayText
+        lblImpdpInfo.Text = "EXPDP ダンプの制約カラム情報取得に必要です。Oracle Database Client または Instant Client Tools をインストールしてください。"
+        '
         ' btnOK
         '
-        btnOK.Location = New Point(195, 380)
+        btnOK.Location = New Point(195, 520)
         btnOK.Name = "btnOK"
         btnOK.Size = New Size(90, 30)
-        btnOK.TabIndex = 3
+        btnOK.TabIndex = 6
         btnOK.Text = "OK"
         btnOK.DialogResult = DialogResult.OK
         '
         ' btnCancel
         '
-        btnCancel.Location = New Point(305, 380)
+        btnCancel.Location = New Point(305, 520)
         btnCancel.Name = "btnCancel"
         btnCancel.Size = New Size(90, 30)
-        btnCancel.TabIndex = 4
+        btnCancel.TabIndex = 7
         btnCancel.Text = "キャンセル"
         btnCancel.DialogResult = DialogResult.Cancel
         '
@@ -202,10 +255,11 @@ Partial Class ExportOptionsDialog
         CancelButton = btnCancel
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(410, 425)
+        ClientSize = New Size(410, 565)
         Controls.Add(grpDateFormat)
         Controls.Add(grpCsvOptions)
         Controls.Add(grpSqlOptions)
+        Controls.Add(grpOracleClient)
         Controls.Add(btnOK)
         Controls.Add(btnCancel)
         FormBorderStyle = FormBorderStyle.FixedDialog
@@ -220,6 +274,8 @@ Partial Class ExportOptionsDialog
         grpCsvOptions.PerformLayout()
         grpSqlOptions.ResumeLayout(False)
         grpSqlOptions.PerformLayout()
+        grpOracleClient.ResumeLayout(False)
+        grpOracleClient.PerformLayout()
         ResumeLayout(False)
     End Sub
 
@@ -237,6 +293,11 @@ Partial Class ExportOptionsDialog
     Friend WithEvents grpSqlOptions As GroupBox
     Friend WithEvents chkCreateTable As CheckBox
     Friend WithEvents chkInferInteger As CheckBox
+    Friend WithEvents grpOracleClient As GroupBox
+    Friend WithEvents txtImpdpPath As TextBox
+    Friend WithEvents btnBrowseImpdp As Button
+    Friend WithEvents btnAutoSetup As Button
+    Friend WithEvents lblImpdpInfo As Label
     Friend WithEvents btnOK As Button
     Friend WithEvents btnCancel As Button
 

@@ -509,5 +509,12 @@ https://www.microsoft.com/en-us/download/details.aspx?id=54920</value></data>
   <data name="ErrorReport_AttachDump" xml:space="preserve"><value>Прикрепить файл дампа ({0} МБ)</value></data>
   <data name="ErrorReport_AttachDumpTooLarge" xml:space="preserve"><value>Файл дампа слишком большой (более 50 МБ)</value></data>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve"><value>Файл дампа не открыт</value></data>
+  <data name="ExportOptions_OracleClient" xml:space="preserve"><value>Oracle Client (Необязательно)</value></data>
+  <data name="ExportOptions_ImpdpPath" xml:space="preserve"><value>Путь к impdp.exe:</value></data>
+  <data name="ExportOptions_ImpdpInfo" xml:space="preserve"><value>Требуется для извлечения информации о столбцах ограничений из дампов EXPDP. Установите Oracle Database Client или Instant Client Tools и укажите путь к impdp.exe.</value></data>
+  <data name="ExportOptions_AutoSetupButton" xml:space="preserve"><value>Автоматическая установка Oracle Instant Client...</value></data>
+  <data name="ExportOptions_AutoSetupConfirm" xml:space="preserve"><value>Загрузить и установить Oracle Instant Client (~200 МБ)?&#xA;Требуется для извлечения полной информации об ограничениях из дампов EXPDP.</value></data>
+  <data name="ExportOptions_AutoSetupProgress" xml:space="preserve"><value>Загрузка...</value></data>
+  <data name="ExportOptions_AutoSetupComplete" xml:space="preserve"><value>Установка Oracle Instant Client завершена.</value></data>
 
 </root>

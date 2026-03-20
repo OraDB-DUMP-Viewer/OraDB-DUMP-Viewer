@@ -508,5 +508,12 @@ https://www.microsoft.com/en-us/download/details.aspx?id=54920</value></data>
   <data name="ErrorReport_AttachDump" xml:space="preserve"><value>附加转储文件 ({0} MB)</value></data>
   <data name="ErrorReport_AttachDumpTooLarge" xml:space="preserve"><value>转储文件过大 (超过 50 MB)</value></data>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve"><value>未打开转储文件</value></data>
+  <data name="ExportOptions_OracleClient" xml:space="preserve"><value>Oracle Client（可选）</value></data>
+  <data name="ExportOptions_ImpdpPath" xml:space="preserve"><value>impdp.exe 路径：</value></data>
+  <data name="ExportOptions_ImpdpInfo" xml:space="preserve"><value>从 EXPDP 转储中提取约束列详细信息时需要。请安装 Oracle Database Client 或 Instant Client Tools，并指定 impdp.exe 的路径。</value></data>
+  <data name="ExportOptions_AutoSetupButton" xml:space="preserve"><value>自动安装 Oracle Instant Client...</value></data>
+  <data name="ExportOptions_AutoSetupConfirm" xml:space="preserve"><value>是否下载并安装 Oracle Instant Client（约 200MB）？&#xA;从 EXPDP 转储中提取完整的约束信息时需要。</value></data>
+  <data name="ExportOptions_AutoSetupProgress" xml:space="preserve"><value>正在下载...</value></data>
+  <data name="ExportOptions_AutoSetupComplete" xml:space="preserve"><value>Oracle Instant Client 安装完成。</value></data>
 
 </root>

@@ -41,7 +41,112 @@ Public Class ExportOptionsDialog
 
         chkCreateTable.Checked = ExportOptions.SqlCreateTable
         chkInferInteger.Checked = ExportOptions.SqlInferInteger
+
+        ' Oracle Client
+        txtImpdpPath.Text = ExportOptions.ImpdpPath
     End Sub
+
+    Private Sub btnBrowseImpdp_Click(sender As Object, e As EventArgs) Handles btnBrowseImpdp.Click
+        Using dlg As New OpenFileDialog()
+            dlg.Title = "impdp.exe"
+            dlg.Filter = "impdp.exe|impdp.exe|All files|*.*"
+            If Not String.IsNullOrEmpty(txtImpdpPath.Text) Then
+                Try
+                    dlg.InitialDirectory = IO.Path.GetDirectoryName(txtImpdpPath.Text)
+                Catch
+                End Try
+            End If
+            If dlg.ShowDialog() = DialogResult.OK Then
+                txtImpdpPath.Text = dlg.FileName
+            End If
+        End Using
+    End Sub
+
+    Private Async Sub btnAutoSetup_Click(sender As Object, e As EventArgs) Handles btnAutoSetup.Click
+        ' Oracle Instant Client + Tools を自動ダウンロード・展開
+        Dim installDir = IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "OraDB_DUMP_Viewer", "oracle_client")
+
+        Dim result = MessageBox.Show(
+            Loc.S("ExportOptions_AutoSetupConfirm"),
+            Loc.S("ExportOptions_OracleClient"),
+            MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+        If result <> DialogResult.Yes Then Return
+
+        btnAutoSetup.Enabled = False
+        btnAutoSetup.Text = Loc.S("ExportOptions_AutoSetupProgress")
+
+        Try
+            Dim impdpPath = Await Task.Run(Function() InstallOracleClient(installDir))
+            If Not String.IsNullOrEmpty(impdpPath) Then
+                txtImpdpPath.Text = impdpPath
+                MessageBox.Show(Loc.S("ExportOptions_AutoSetupComplete"),
+                    Loc.S("ExportOptions_OracleClient"), MessageBoxButtons.OK, MessageBoxIcon.Information)
+            End If
+        Catch ex As Exception
+            MessageBox.Show(ex.Message, Loc.S("Title_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Finally
+            btnAutoSetup.Enabled = True
+            btnAutoSetup.Text = Loc.S("ExportOptions_AutoSetupButton")
+        End Try
+    End Sub
+
+    ''' <summary>
+    ''' Oracle Instant Client を自動ダウンロード・展開する。
+    ''' ダウンロード URL は odv.dev の JSON エンドポイントから取得し、
+    ''' Oracle のバージョン更新に自動追従する。
+    ''' </summary>
+    Private Shared Function InstallOracleClient(installDir As String) As String
+        IO.Directory.CreateDirectory(installDir)
+
+        ' ダウンロード URL を JSON エンドポイントから取得
+        ' （Oracle 公式 URL が変更されても、エンドポイントの更新だけで対応可能）
+        Dim basicUrl As String = Nothing
+        Dim toolsUrl As String = Nothing
+
+        Using client As New Net.Http.HttpClient()
+            client.Timeout = TimeSpan.FromMinutes(10)
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("OraDB-DUMP-Viewer")
+
+            Try
+                Dim json = client.GetStringAsync("https://oracle-dl.odv.dev/").Result
+                Dim doc = System.Text.Json.JsonDocument.Parse(json)
+                basicUrl = doc.RootElement.GetProperty("basic").GetString()
+                toolsUrl = doc.RootElement.GetProperty("tools").GetString()
+            Catch
+                ' エンドポイント不通時はフォールバック URL を使用
+                basicUrl = "https://download.oracle.com/otn_software/nt/instantclient/2326100/instantclient-basic-windows.x64-23.26.1.0.0.zip"
+                toolsUrl = "https://download.oracle.com/otn_software/nt/instantclient/2326100/instantclient-tools-windows.x64-23.26.1.0.0.zip"
+            End Try
+
+            ' Basic パッケージ
+            Dim basicZip = IO.Path.Combine(installDir, "basic.zip")
+            If Not IO.File.Exists(basicZip) Then
+                Dim data = client.GetByteArrayAsync(basicUrl).Result
+                IO.File.WriteAllBytes(basicZip, data)
+            End If
+
+            ' Tools パッケージ
+            Dim toolsZip = IO.Path.Combine(installDir, "tools.zip")
+            If Not IO.File.Exists(toolsZip) Then
+                Dim data = client.GetByteArrayAsync(toolsUrl).Result
+                IO.File.WriteAllBytes(toolsZip, data)
+            End If
+
+            ' 展開
+            IO.Compression.ZipFile.ExtractToDirectory(basicZip, installDir, True)
+            IO.Compression.ZipFile.ExtractToDirectory(toolsZip, installDir, True)
+        End Using
+
+        ' impdp.exe を探す
+        Dim impdpFiles = IO.Directory.GetFiles(installDir, "impdp.exe", IO.SearchOption.AllDirectories)
+        If impdpFiles.Length > 0 Then
+            Return impdpFiles(0)
+        End If
+
+        Throw New IO.FileNotFoundException("impdp.exe not found after extraction")
+    End Function
 
     Private Sub rdoCustom_CheckedChanged(sender As Object, e As EventArgs) Handles rdoCustom.CheckedChanged
         txtCustomFormat.Enabled = rdoCustom.Checked
@@ -73,6 +178,7 @@ Public Class ExportOptionsDialog
 
         ExportOptions.SqlCreateTable = chkCreateTable.Checked
         ExportOptions.SqlInferInteger = chkInferInteger.Checked
+        ExportOptions.ImpdpPath = txtImpdpPath.Text.Trim()
 
         ' 設定を永続化
         ExportOptions.Save()
@@ -91,6 +197,8 @@ Public Class ExportOptionsDialog
         grpSqlOptions.Text = Loc.S("ExportOptions_SqlOptions")
         chkCreateTable.Text = Loc.S("ExportOptions_SqlCreateTable")
         chkInferInteger.Text = Loc.S("ExportOptions_SqlInferInteger")
+        grpOracleClient.Text = Loc.S("ExportOptions_OracleClient")
+        lblImpdpInfo.Text = Loc.S("ExportOptions_ImpdpInfo")
         btnOK.Text = Loc.S("Button_OK")
         btnCancel.Text = Loc.S("Button_Cancel")
     End Sub

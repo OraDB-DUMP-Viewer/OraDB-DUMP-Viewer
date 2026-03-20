@@ -471,4 +471,11 @@ Por favor, instale el runtime Microsoft Edge WebView2.</value>
   <data name="ErrorReport_AttachDump" xml:space="preserve"><value>Adjuntar archivo Dump ({0} MB)</value></data>
   <data name="ErrorReport_AttachDumpTooLarge" xml:space="preserve"><value>Archivo Dump demasiado grande (más de 50 MB)</value></data>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve"><value>No hay archivo Dump abierto</value></data>
+  <data name="ExportOptions_OracleClient" xml:space="preserve"><value>Oracle Client (Opcional)</value></data>
+  <data name="ExportOptions_ImpdpPath" xml:space="preserve"><value>Ruta de impdp.exe:</value></data>
+  <data name="ExportOptions_ImpdpInfo" xml:space="preserve"><value>Necesario para extraer detalles de columnas de restricciones de volcados EXPDP. Instale Oracle Database Client o Instant Client Tools y especifique la ruta de impdp.exe.</value></data>
+  <data name="ExportOptions_AutoSetupButton" xml:space="preserve"><value>Configurar Oracle Instant Client automáticamente...</value></data>
+  <data name="ExportOptions_AutoSetupConfirm" xml:space="preserve"><value>¿Descargar e instalar Oracle Instant Client (~200MB)?&#xA;Necesario para extraer detalles completos de restricciones de volcados EXPDP.</value></data>
+  <data name="ExportOptions_AutoSetupProgress" xml:space="preserve"><value>Descargando...</value></data>
+  <data name="ExportOptions_AutoSetupComplete" xml:space="preserve"><value>La configuración de Oracle Instant Client se ha completado.</value></data>
 </root>

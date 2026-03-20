@@ -471,4 +471,11 @@ Bitte installieren Sie die Microsoft Edge WebView2-Laufzeit.</value>
   <data name="ErrorReport_AttachDump" xml:space="preserve"><value>Dump-Datei anhängen ({0} MB)</value></data>
   <data name="ErrorReport_AttachDumpTooLarge" xml:space="preserve"><value>Dump-Datei zu groß (über 50 MB)</value></data>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve"><value>Keine Dump-Datei geöffnet</value></data>
+  <data name="ExportOptions_OracleClient" xml:space="preserve"><value>Oracle Client (Optional)</value></data>
+  <data name="ExportOptions_ImpdpPath" xml:space="preserve"><value>Pfad zu impdp.exe:</value></data>
+  <data name="ExportOptions_ImpdpInfo" xml:space="preserve"><value>Erforderlich zum Extrahieren von Constraint-Spaltendetails aus EXPDP-Dumps. Installieren Sie Oracle Database Client oder Instant Client Tools und geben Sie den Pfad zu impdp.exe an.</value></data>
+  <data name="ExportOptions_AutoSetupButton" xml:space="preserve"><value>Oracle Instant Client automatisch einrichten...</value></data>
+  <data name="ExportOptions_AutoSetupConfirm" xml:space="preserve"><value>Oracle Instant Client (~200MB) herunterladen und installieren?&#xA;Erforderlich zum Extrahieren vollständiger Constraint-Details aus EXPDP-Dumps.</value></data>
+  <data name="ExportOptions_AutoSetupProgress" xml:space="preserve"><value>Wird heruntergeladen...</value></data>
+  <data name="ExportOptions_AutoSetupComplete" xml:space="preserve"><value>Oracle Instant Client wurde erfolgreich eingerichtet.</value></data>
 </root>

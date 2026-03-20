@@ -71,6 +71,30 @@ Public Class Workspace
         If defMap IsNot Nothing Then _columnDefaultsMap = defMap
         If cjMap IsNot Nothing Then _constraintsJsonMap = cjMap
 
+        ' EXPDP ダンプの場合: impdp SQLFILE 連携で制約カラム情報を補完（オプション）
+        If ImpdpHelper.IsAvailable() AndAlso tables.Count > 0 Then
+            Try
+                ' 最初のスキーマ名を取得
+                Dim firstSchema = tables(0).Schema
+                Dim impdpConstraints = ImpdpHelper.ExtractMetadata(DumpFilePath, firstSchema)
+                If impdpConstraints.Count > 0 Then
+                    ' impdp から取得した制約 JSON で既存の制約情報を上書き
+                    For Each kvp In impdpConstraints
+                        For Each entry In tables
+                            Dim tableKey = $"{entry.Schema}.{kvp.Key}"
+                            If entry.TableName = kvp.Key AndAlso Not _constraintsJsonMap.ContainsKey(tableKey) Then
+                                _constraintsJsonMap(tableKey) = kvp.Value
+                            ElseIf entry.TableName = kvp.Key AndAlso _constraintsJsonMap(tableKey) = "[]" Then
+                                _constraintsJsonMap(tableKey) = kvp.Value
+                            End If
+                        Next
+                    Next
+                End If
+            Catch
+                ' impdp 連携エラーは無視（オプション機能のため）
+            End Try
+        End If
+
         ' テーブル一覧をスキーマ別に整理（TableEntry 参照を直接保持、コピーなし）
         _tableList.Clear()
         For Each entry In tables

@@ -509,5 +509,12 @@ Microsoft Edge WebView2 Runtime을 설치해 주세요.</value></data>
   <data name="ErrorReport_AttachDump" xml:space="preserve"><value>덤프 파일 첨부 ({0} MB)</value></data>
   <data name="ErrorReport_AttachDumpTooLarge" xml:space="preserve"><value>덤프 파일이 너무 큽니다 (50 MB 초과)</value></data>
   <data name="ErrorReport_AttachDumpNoFile" xml:space="preserve"><value>열려 있는 덤프 파일이 없습니다</value></data>
+  <data name="ExportOptions_OracleClient" xml:space="preserve"><value>Oracle Client (선택 사항)</value></data>
+  <data name="ExportOptions_ImpdpPath" xml:space="preserve"><value>impdp.exe 경로:</value></data>
+  <data name="ExportOptions_ImpdpInfo" xml:space="preserve"><value>EXPDP 덤프에서 제약 조건 열 정보를 추출하는 데 필요합니다. Oracle Database Client 또는 Instant Client Tools를 설치하고 impdp.exe 경로를 지정하세요.</value></data>
+  <data name="ExportOptions_AutoSetupButton" xml:space="preserve"><value>Oracle Instant Client 자동 설정...</value></data>
+  <data name="ExportOptions_AutoSetupConfirm" xml:space="preserve"><value>Oracle Instant Client (~200MB)를 다운로드하고 설치하시겠습니까?&#xA;EXPDP 덤프에서 완전한 제약 조건 정보를 추출하는 데 필요합니다.</value></data>
+  <data name="ExportOptions_AutoSetupProgress" xml:space="preserve"><value>다운로드 중...</value></data>
+  <data name="ExportOptions_AutoSetupComplete" xml:space="preserve"><value>Oracle Instant Client 설정이 완료되었습니다.</value></data>
 
 </root>

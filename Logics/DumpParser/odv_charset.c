@@ -21,14 +21,17 @@
 static unsigned int charset_to_codepage(int cs)
 {
     switch (cs) {
-    case CHARSET_UTF8:    return 65001;  /* CP_UTF8 */
-    case CHARSET_SJIS:    return 932;    /* CP932 (Shift_JIS) */
-    case CHARSET_EUC:     return 20932;  /* EUC-JP */
-    case CHARSET_US7:     return 20127;  /* US-ASCII */
-    case CHARSET_US8:     return 28591;  /* ISO-8859-1 */
-    case CHARSET_UTF16LE: return 1200;   /* UTF-16LE (special) */
-    case CHARSET_UTF16BE: return 1201;   /* UTF-16BE (special) */
-    default:              return 65001;  /* Default to UTF-8 */
+    case CHARSET_UTF8:      return 65001;  /* CP_UTF8 */
+    case CHARSET_SJIS:      return 932;    /* CP932 (Shift_JIS) */
+    case CHARSET_EUC:       return 20932;  /* EUC-JP */
+    case CHARSET_US7:       return 20127;  /* US-ASCII */
+    case CHARSET_US8:       return 28591;  /* ISO-8859-1 (WE8ISO8859P1) */
+    case CHARSET_WIN1252:   return 1252;   /* Windows-1252 (WE8MSWIN1252) */
+    case CHARSET_ISO8859P15:return 28605;  /* ISO-8859-15 (WE8ISO8859P15) */
+    case CHARSET_GBK:       return 936;    /* GBK (ZHS16GBK) */
+    case CHARSET_UTF16LE:   return 1200;   /* UTF-16LE (special) */
+    case CHARSET_UTF16BE:   return 1201;   /* UTF-16BE (special) */
+    default:                return 65001;  /* Default to UTF-8 */
     }
 }
 

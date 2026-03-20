@@ -60,8 +60,17 @@ static int get_charset_from_name(const char *name)
         return CHARSET_UTF16LE;
     if (strstr(name, "US7ASCII"))
         return CHARSET_US7;
-    if (strstr(name, "WE8ISO") || strstr(name, "WE8MSWIN"))
-        return CHARSET_US8;
+    /* WE8MSWIN1252 must be checked before generic WE8 patterns */
+    if (strstr(name, "WE8MSWIN1252"))
+        return CHARSET_WIN1252;
+    if (strstr(name, "WE8ISO8859P15"))
+        return CHARSET_ISO8859P15;
+    if (strstr(name, "WE8ISO"))
+        return CHARSET_US8;  /* WE8ISO8859P1 = ISO-8859-1 */
+    if (strstr(name, "WE8MSWIN"))
+        return CHARSET_US8;  /* Other WE8MSWIN → fallback to ISO-8859-1 */
+    if (strstr(name, "ZHS16GBK") || strstr(name, "ZHS16CGB"))
+        return CHARSET_GBK;
 
     return CHARSET_UTF8; /* Default fallback */
 }

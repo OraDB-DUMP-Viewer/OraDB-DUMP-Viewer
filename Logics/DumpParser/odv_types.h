@@ -57,7 +57,10 @@
 #define CHARSET_UTF16LE        4
 #define CHARSET_UTF16BE        5
 #define CHARSET_US7           10
-#define CHARSET_US8           11
+#define CHARSET_US8           11  /* ISO-8859-1 (WE8ISO8859P1) */
+#define CHARSET_WIN1252       12  /* Windows-1252 (WE8MSWIN1252) */
+#define CHARSET_ISO8859P15    13  /* ISO-8859-15 (WE8ISO8859P15) */
+#define CHARSET_GBK           14  /* GBK (ZHS16GBK) */
 
 /* Column data types */
 #define COL_NULL               0

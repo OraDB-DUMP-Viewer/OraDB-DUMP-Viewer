@@ -37,9 +37,9 @@ int decode_oracle_number(const unsigned char *buf, int len, char *out, int out_s
     int is_negative;
     int digit;
     int i, pos;
-    char int_buf[64];   /* integer part digits */
+    char int_buf[256];  /* integer part digits (exponent can imply up to 63 pairs = 126 chars) */
     int int_len;
-    char frac_buf[64];  /* fractional part digits */
+    char frac_buf[256]; /* fractional part digits */
     int frac_len;
     int leading_frac_zeros; /* pairs of "00" before fractional digits */
 
@@ -100,24 +100,27 @@ int decode_oracle_number(const unsigned char *buf, int len, char *out, int out_s
             if (i <= num_int_pairs) {
                 /* Integer part */
                 if (int_len == 0 && digit == 0) {
-                    /* Skip leading zero pair in integer part,
-                       but still counts as a pair */
-                    /* Actually, first pair should not be skipped for "00" case */
-                    int_buf[int_len++] = '0';
-                    int_buf[int_len++] = '0';
+                    if (int_len + 2 <= (int)sizeof(int_buf)) {
+                        int_buf[int_len++] = '0';
+                        int_buf[int_len++] = '0';
+                    }
                 } else {
                     if (int_len == 0 && digit < 10) {
-                        /* First pair, single digit (no leading zero) */
-                        int_buf[int_len++] = '0' + digit;
+                        if (int_len + 1 <= (int)sizeof(int_buf))
+                            int_buf[int_len++] = '0' + digit;
                     } else {
-                        int_buf[int_len++] = '0' + (digit / 10);
-                        int_buf[int_len++] = '0' + (digit % 10);
+                        if (int_len + 2 <= (int)sizeof(int_buf)) {
+                            int_buf[int_len++] = '0' + (digit / 10);
+                            int_buf[int_len++] = '0' + (digit % 10);
+                        }
                     }
                 }
             } else {
                 /* Fractional part */
-                frac_buf[frac_len++] = '0' + (digit / 10);
-                frac_buf[frac_len++] = '0' + (digit % 10);
+                if (frac_len + 2 <= (int)sizeof(frac_buf)) {
+                    frac_buf[frac_len++] = '0' + (digit / 10);
+                    frac_buf[frac_len++] = '0' + (digit % 10);
+                }
             }
         }
 
@@ -128,7 +131,7 @@ int decode_oracle_number(const unsigned char *buf, int len, char *out, int out_s
         {
             int pairs_seen = (len - 1 < num_int_pairs) ? len - 1 : num_int_pairs;
             int missing_pairs = num_int_pairs - pairs_seen;
-            for (i = 0; i < missing_pairs; i++) {
+            for (i = 0; i < missing_pairs && int_len + 2 <= (int)sizeof(int_buf); i++) {
                 int_buf[int_len++] = '0';
                 int_buf[int_len++] = '0';
             }
@@ -145,8 +148,10 @@ int decode_oracle_number(const unsigned char *buf, int len, char *out, int out_s
                 digit = buf[i] - 1;
                 if (digit < 0) digit = 0;
                 if (digit > 99) digit = 99;
-                frac_buf[frac_len++] = '0' + (digit / 10);
-                frac_buf[frac_len++] = '0' + (digit % 10);
+                if (frac_len + 2 <= (int)sizeof(frac_buf)) {
+                    frac_buf[frac_len++] = '0' + (digit / 10);
+                    frac_buf[frac_len++] = '0' + (digit % 10);
+                }
             }
         }
 
@@ -155,19 +160,18 @@ int decode_oracle_number(const unsigned char *buf, int len, char *out, int out_s
         Integer part = "0", fractional part has leading zero pairs
      -----------------------------------------------------------------------*/
     } else if (exp_byte >= 0x80) {
-        /* This case should be caught by zero check above for 0x80.
-           For 0x81-0xBF: these are actually positive with exponent encoding.
-           Re-check: exp_byte in [0x81..0xBF] means positive with negative exponent */
         is_negative = 0;
         int_buf[0] = '0';
         int_len = 1;
-        leading_frac_zeros = 0xC0 - exp_byte;  /* number of "00" pairs before digits */
+        leading_frac_zeros = 0xC0 - exp_byte;
         for (i = 1; i < len; i++) {
             digit = buf[i] - 1;
             if (digit < 0) digit = 0;
             if (digit > 99) digit = 99;
-            frac_buf[frac_len++] = '0' + (digit / 10);
-            frac_buf[frac_len++] = '0' + (digit % 10);
+            if (frac_len + 2 <= (int)sizeof(frac_buf)) {
+                frac_buf[frac_len++] = '0' + (digit / 10);
+                frac_buf[frac_len++] = '0' + (digit % 10);
+            }
         }
 
     /*-----------------------------------------------------------------------
@@ -189,15 +193,20 @@ int decode_oracle_number(const unsigned char *buf, int len, char *out, int out_s
             if (i <= num_int_pairs) {
                 /* Integer part */
                 if (int_len == 0 && digit < 10) {
-                    int_buf[int_len++] = '0' + digit;
+                    if (int_len + 1 <= (int)sizeof(int_buf))
+                        int_buf[int_len++] = '0' + digit;
                 } else {
-                    int_buf[int_len++] = '0' + (digit / 10);
-                    int_buf[int_len++] = '0' + (digit % 10);
+                    if (int_len + 2 <= (int)sizeof(int_buf)) {
+                        int_buf[int_len++] = '0' + (digit / 10);
+                        int_buf[int_len++] = '0' + (digit % 10);
+                    }
                 }
             } else {
                 /* Fractional part */
-                frac_buf[frac_len++] = '0' + (digit / 10);
-                frac_buf[frac_len++] = '0' + (digit % 10);
+                if (frac_len + 2 <= (int)sizeof(frac_buf)) {
+                    frac_buf[frac_len++] = '0' + (digit / 10);
+                    frac_buf[frac_len++] = '0' + (digit % 10);
+                }
             }
         }
 
@@ -211,7 +220,7 @@ int decode_oracle_number(const unsigned char *buf, int len, char *out, int out_s
             {
                 int pairs_seen = (data_bytes < num_int_pairs) ? data_bytes : num_int_pairs;
                 int missing_pairs = num_int_pairs - pairs_seen;
-                for (i = 0; i < missing_pairs; i++) {
+                for (i = 0; i < missing_pairs && int_len + 2 <= (int)sizeof(int_buf); i++) {
                     int_buf[int_len++] = '0';
                     int_buf[int_len++] = '0';
                 }
@@ -232,14 +241,16 @@ int decode_oracle_number(const unsigned char *buf, int len, char *out, int out_s
         is_negative = 1;
         int_buf[0] = '0';
         int_len = 1;
-        leading_frac_zeros = exp_byte - 0x3F;  /* number of "00" pairs before digits */
+        leading_frac_zeros = exp_byte - 0x3F;
         for (i = 1; i < len; i++) {
             if (buf[i] == 0x66) break;  /* terminator */
             digit = 101 - buf[i];
             if (digit < 0) digit = 0;
             if (digit > 99) digit = 99;
-            frac_buf[frac_len++] = '0' + (digit / 10);
-            frac_buf[frac_len++] = '0' + (digit % 10);
+            if (frac_len + 2 <= (int)sizeof(frac_buf)) {
+                frac_buf[frac_len++] = '0' + (digit / 10);
+                frac_buf[frac_len++] = '0' + (digit % 10);
+            }
         }
     }
 

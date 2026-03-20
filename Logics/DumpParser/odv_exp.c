@@ -318,8 +318,9 @@ static char *serialize_constraints_json(ODV_SESSION *s)
         /* Ensure buffer space */
         if (pos + 2048 > buf_size) {
             buf_size *= 2;
-            buf = (char *)realloc(buf, buf_size);
-            if (!buf) return NULL;
+            { char *tmp_ptr = (char *)realloc(buf, buf_size);
+              if (!tmp_ptr) { free(buf); return NULL; }
+              buf = tmp_ptr; }
         }
 
         if (i > 0) buf[pos++] = ',';
@@ -365,8 +366,9 @@ static char *serialize_constraints_json(ODV_SESSION *s)
             n = snprintf(tmp, sizeof(tmp), ",\"condition\":\"%s\"", esc);
             if (pos + n + 8 > buf_size) {
                 buf_size *= 2;
-                buf = (char *)realloc(buf, buf_size);
-                if (!buf) return NULL;
+                { char *tmp_ptr = (char *)realloc(buf, buf_size);
+                  if (!tmp_ptr) { free(buf); return NULL; }
+                  buf = tmp_ptr; }
             }
             memcpy(buf + pos, tmp, n); pos += n;
         }
@@ -384,8 +386,9 @@ static char *serialize_constraints_json(ODV_SESSION *s)
             n = snprintf(tmp, sizeof(tmp), ",\"index_expr\":\"%s\"", esc);
             if (pos + n + 8 > buf_size) {
                 buf_size *= 2;
-                buf = (char *)realloc(buf, buf_size);
-                if (!buf) return NULL;
+                { char *tmp_ptr = (char *)realloc(buf, buf_size);
+                  if (!tmp_ptr) { free(buf); return NULL; }
+                  buf = tmp_ptr; }
             }
             memcpy(buf + pos, tmp, n); pos += n;
         }
@@ -406,8 +409,9 @@ static char *serialize_constraints_json(ODV_SESSION *s)
             int needed = (s->table.col_count + 1) * 600 + 128;
             if (pos + needed > buf_size) {
                 buf_size = pos + needed;
-                buf = (char *)realloc(buf, buf_size);
-                if (!buf) return NULL;
+                { char *tmp_ptr = (char *)realloc(buf, buf_size);
+                  if (!tmp_ptr) { free(buf); return NULL; }
+                  buf = tmp_ptr; }
             }
 
             if (s->table.constraint_count > 0 || pos > 1) buf[pos++] = ',';

@@ -302,7 +302,7 @@ ODV_API int __stdcall odv_get_table_entry(ODV_SESSION *s, int index,
  * Returns pointer to static buffer (overwritten on each call). */
 ODV_API const char * __stdcall odv_get_table_constraints_json(ODV_SESSION *s, int index)
 {
-    static char json_buf[4096];
+    static char json_buf[8192];
     int pos = 0, i;
 
     if (!s || index < 0 || index >= s->table_count) {
@@ -431,7 +431,9 @@ int odv_lob_accumulate(ODV_SESSION *s, int lob_col_idx, const unsigned char *dat
     if (!data || len <= 0)
         return ODV_OK;
 
-    /* Ensure buffer has space */
+    /* Ensure buffer has space (guard against integer overflow) */
+    if (s->state.lob_buf_len > INT_MAX - len - 0x1000)
+        return ODV_ERROR_MALLOC;
     if (s->state.lob_buf_len + len > s->state.lob_buf_alloc) {
         int new_alloc = s->state.lob_buf_len + len + 0x1000; /* +4KB headroom */
         unsigned char *new_buf = (unsigned char *)realloc(s->state.lob_buf, new_alloc);

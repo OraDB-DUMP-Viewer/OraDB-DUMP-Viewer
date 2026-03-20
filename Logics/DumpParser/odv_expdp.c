@@ -544,7 +544,7 @@ static void decode_column_value(ODV_SESSION *s, int col_idx)
                             conv_buf, sizeof(conv_buf),
                             CHARSET_UTF8, &conv_len) == ODV_OK) {
             set_value_string(v, conv_buf, conv_len);
-        } else if (v->data) {
+        } else if (v->data && v->data_len < v->buf_size) {
             v->data[v->data_len] = '\0';
         }
         v->type = col->type;
@@ -554,7 +554,7 @@ static void decode_column_value(ODV_SESSION *s, int col_idx)
     case COL_CHAR:
     case COL_VARCHAR:
     default:
-        if (v->data) v->data[v->data_len] = '\0';
+        if (v->data && v->data_len < v->buf_size) v->data[v->data_len] = '\0';
         if (s->dump_charset != s->out_charset &&
             s->dump_charset != CHARSET_UNKNOWN) {
             char conv_buf[ODV_VARCHAR_LEN];

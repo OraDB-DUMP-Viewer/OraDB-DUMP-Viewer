@@ -214,7 +214,7 @@ int deliver_row(ODV_SESSION *s)
     /* Ensure metadata is charset-converted for this table */
     update_meta_cache(s);
 
-    for (i = 0; i < s->table.col_count && i < ODV_MAX_COLUMNS; i++) {
+    for (i = 0; i < s->table.col_count && i < ODV_MAX_COLUMNS && i < s->record.max_columns; i++) {
         col_names[i] = meta_cache.col_names[i];
 
         if (s->record.values[i].is_null || !s->record.values[i].data) {

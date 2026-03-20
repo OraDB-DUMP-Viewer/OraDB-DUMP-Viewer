@@ -128,6 +128,7 @@
 #define CONSTRAINT_PK          0   /* PRIMARY KEY */
 #define CONSTRAINT_UNIQUE      1   /* UNIQUE */
 #define CONSTRAINT_FK          2   /* FOREIGN KEY */
+#define CONSTRAINT_CHECK       3   /* CHECK */
 
 /* Date format options */
 #define DATE_FMT_SLASH         0     /* YYYY/MM/DD HH:MI:SS */
@@ -176,6 +177,8 @@ typedef struct {
     char   ref_table[ODV_OBJNAME_LEN + 1];
     char   ref_columns[ODV_MAX_CONSTRAINT_COLS][ODV_OBJNAME_LEN + 1];
     int    ref_col_count;
+    /* CHECK only */
+    char   condition[1024];                                             /* CHECK condition expression */
 } ODV_CONSTRAINT;
 
 /* Table definition */

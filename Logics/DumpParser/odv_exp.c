@@ -351,6 +351,26 @@ static char *serialize_constraints_json(ODV_SESSION *s)
             buf[pos++] = ']';
         }
 
+        /* CHECK condition */
+        if (c->type == CONSTRAINT_CHECK && c->condition[0]) {
+            /* JSON-escape the condition (double-quotes and backslashes) */
+            char esc[2048];
+            int ei = 0;
+            const char *cp = c->condition;
+            while (*cp && ei < (int)sizeof(esc) - 2) {
+                if (*cp == '"' || *cp == '\\') esc[ei++] = '\\';
+                esc[ei++] = *cp++;
+            }
+            esc[ei] = '\0';
+            n = snprintf(tmp, sizeof(tmp), ",\"condition\":\"%s\"", esc);
+            if (pos + n + 8 > buf_size) {
+                buf_size *= 2;
+                buf = (char *)realloc(buf, buf_size);
+                if (!buf) return NULL;
+            }
+            memcpy(buf + pos, tmp, n); pos += n;
+        }
+
         buf[pos++] = '}';
     }
     buf[pos++] = ']';
@@ -1403,7 +1423,40 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
             break;
 
         case 2: /* DDL text parsing */
+            /* In 26ai+ EXP format, DDL fragments are separated by 0x00
+             * instead of being on a single 0x0a-terminated line.
+             * For ALTER TABLE statements, 0x00 should be treated as space
+             * to accumulate the entire DDL (CONSTRAINT ... CHECK etc.)
+             * into one word buffer. 0x0a remains a true line terminator. */
             if (c == 0x00 || c == 0x0a) {
+                /* In 26ai+ EXP format, ALTER TABLE DDL fragments are
+                 * separated by 0x00/0x0a instead of one 0x0a-terminated
+                 * line. Accumulate both as space for ALTER TABLE
+                 * statements so the entire DDL is in one word buffer. */
+                if (wlen > 0 && starts_with_ci(word, "ALTER ")) {
+                    /* Check if the accumulated DDL ends with a terminal
+                     * keyword (ENABLE, DISABLE, NOVALIDATE, RELY etc.)
+                     * which signals the end of the ALTER TABLE statement.
+                     * Without this, we'd accumulate into the next DDL. */
+                    word[wlen] = '\0';
+                    {
+                        /* Find last space-separated token */
+                        const char *last = word + wlen;
+                        while (last > word && *(last - 1) == ' ') last--;
+                        const char *tok = last;
+                        while (tok > word && *(tok - 1) != ' ') tok--;
+                        if (starts_with_ci(tok, "ENABLE") ||
+                            starts_with_ci(tok, "DISABLE") ||
+                            starts_with_ci(tok, "NOVALIDATE") ||
+                            starts_with_ci(tok, "VALIDATE") ||
+                            starts_with_ci(tok, "LOGGING")) {
+                            /* DDL complete — fall through to handle_ddl */
+                        } else {
+                            if (wlen < ODV_WORD_LEN - 1) word[wlen++] = ' ';
+                            break;
+                        }
+                    }
+                }
                 if (wlen == 0) break;
                 word[wlen] = '\0';
 
@@ -1572,7 +1625,30 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                                     if (c) parse_constraint_columns(ap, c, 0);
                                 }
                             }
-                            /* ALTER TABLE ... ADD CONSTRAINT "name" PRIMARY KEY/UNIQUE/FOREIGN KEY */
+                            /* ALTER TABLE ... ADD CHECK (...) — unnamed CHECK */
+                            else if (starts_with_ci(ap, "CHECK")) {
+                                ap += 5; ap = skip_ws(ap);
+                                ODV_CONSTRAINT *c = add_constraint(s, CONSTRAINT_CHECK);
+                                if (c) {
+                                    if (*ap == '(') {
+                                        int depth = 0, ci = 0;
+                                        int maxlen = (int)sizeof(c->condition) - 1;
+                                        while (*ap && ci < maxlen) {
+                                            if (*ap == '(') depth++;
+                                            else if (*ap == ')') {
+                                                depth--;
+                                                if (depth == 0) {
+                                                    c->condition[ci++] = ')';
+                                                    break;
+                                                }
+                                            }
+                                            c->condition[ci++] = *ap++;
+                                        }
+                                        c->condition[ci] = '\0';
+                                    }
+                                }
+                            }
+                            /* ALTER TABLE ... ADD CONSTRAINT "name" PRIMARY KEY/UNIQUE/FOREIGN KEY/CHECK */
                             else if (starts_with_ci(ap, "CONSTRAINT")) {
                                 char cname[ODV_OBJNAME_LEN + 1] = {0};
                                 ap += 10;
@@ -1653,6 +1729,29 @@ static int parse_exp_ddl_and_data(ODV_SESSION *s, FILE *fp, int list_only)
                                                 ap = skip_ws(ap);
                                                 parse_constraint_columns(ap, c, 1);
                                             }
+                                        }
+                                    }
+                                } else if (starts_with_ci(ap, "CHECK")) {
+                                    ap += 5; ap = skip_ws(ap);
+                                    ODV_CONSTRAINT *c = add_constraint(s, CONSTRAINT_CHECK);
+                                    if (c) {
+                                        odv_strcpy(c->name, cname, ODV_OBJNAME_LEN);
+                                        /* Extract CHECK condition (track parenthesis nesting) */
+                                        if (*ap == '(') {
+                                            int depth = 0, ci = 0;
+                                            int maxlen = (int)sizeof(c->condition) - 1;
+                                            while (*ap && ci < maxlen) {
+                                                if (*ap == '(') depth++;
+                                                else if (*ap == ')') {
+                                                    depth--;
+                                                    if (depth == 0) {
+                                                        c->condition[ci++] = ')';
+                                                        break;
+                                                    }
+                                                }
+                                                c->condition[ci++] = *ap++;
+                                            }
+                                            c->condition[ci] = '\0';
                                         }
                                     }
                                 }

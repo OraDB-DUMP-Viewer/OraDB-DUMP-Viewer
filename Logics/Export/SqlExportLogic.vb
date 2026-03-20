@@ -292,6 +292,14 @@ Public Class SqlExportLogic
                         Else
                             sw.WriteLine($"ALTER TABLE {fullName} ADD FOREIGN KEY ({colList}) REFERENCES {refName} ({refColList});")
                         End If
+
+                    Case 3 ' CHECK
+                        Dim cond = If(c.condition, "")
+                        If Not String.IsNullOrEmpty(c.name) Then
+                            sw.WriteLine($"ALTER TABLE {fullName} ADD CONSTRAINT {ExportHelper.EscapeSqlIdentifier(c.name, dbmsType)} CHECK {cond};")
+                        Else
+                            sw.WriteLine($"ALTER TABLE {fullName} ADD CHECK {cond};")
+                        End If
                 End Select
             Next
         Catch
@@ -307,6 +315,7 @@ Public Class SqlExportLogic
         Public Property ref_schema As String
         Public Property ref_table As String
         Public Property ref_columns As String()
+        Public Property condition As String
     End Class
 
 End Class

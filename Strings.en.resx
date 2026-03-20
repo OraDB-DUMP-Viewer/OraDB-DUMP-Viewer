@@ -514,5 +514,7 @@ Please install the Microsoft Edge WebView2 Runtime.</value></data>
   <data name="ExportOptions_AutoSetupProgress" xml:space="preserve"><value>Downloading...</value></data>
   <data name="ExportOptions_AutoSetupComplete" xml:space="preserve"><value>Oracle Instant Client setup completed.</value></data>
   <data name="AccessExport_OpenDownloadPage" xml:space="preserve"><value>Open the download page?</value></data>
-
+  <data name="UpdateCheck_Title" xml:space="preserve"><value>Update Available</value></data>
+  <data name="UpdateCheck_NewVersionAvailable" xml:space="preserve"><value>A new version v{0} is available (current: v{1}).</value></data>
+  <data name="UpdateCheck_OpenReleasePage" xml:space="preserve"><value>Open the release page?</value></data>
 </root>

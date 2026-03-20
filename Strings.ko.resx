@@ -514,5 +514,7 @@ Microsoft Edge WebView2 Runtime을 설치해 주세요.</value></data>
   <data name="ExportOptions_AutoSetupProgress" xml:space="preserve"><value>다운로드 중...</value></data>
   <data name="ExportOptions_AutoSetupComplete" xml:space="preserve"><value>Oracle Instant Client 설정이 완료되었습니다.</value></data>
   <data name="AccessExport_OpenDownloadPage" xml:space="preserve"><value>다운로드 페이지를 여시겠습니까?</value></data>
-
+  <data name="UpdateCheck_Title" xml:space="preserve"><value>업데이트 알림</value></data>
+  <data name="UpdateCheck_NewVersionAvailable" xml:space="preserve"><value>새 버전 v{0}을(를) 사용할 수 있습니다 (현재: v{1}).</value></data>
+  <data name="UpdateCheck_OpenReleasePage" xml:space="preserve"><value>릴리스 페이지를 여시겠습니까?</value></data>
 </root>

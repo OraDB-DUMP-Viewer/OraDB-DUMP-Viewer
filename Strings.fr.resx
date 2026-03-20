@@ -530,5 +530,7 @@ Veuillez installer le runtime Microsoft Edge WebView2.</value>
   <data name="ExportOptions_AutoSetupProgress" xml:space="preserve"><value>Téléchargement en cours...</value></data>
   <data name="ExportOptions_AutoSetupComplete" xml:space="preserve"><value>La configuration d'Oracle Instant Client est terminée.</value></data>
   <data name="AccessExport_OpenDownloadPage" xml:space="preserve"><value>Ouvrir la page de téléchargement ?</value></data>
-
+  <data name="UpdateCheck_Title" xml:space="preserve"><value>Mise à jour disponible</value></data>
+  <data name="UpdateCheck_NewVersionAvailable" xml:space="preserve"><value>Une nouvelle version v{0} est disponible (actuelle : v{1}).</value></data>
+  <data name="UpdateCheck_OpenReleasePage" xml:space="preserve"><value>Ouvrir la page de publication ?</value></data>
 </root>

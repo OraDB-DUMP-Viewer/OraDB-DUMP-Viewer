@@ -508,4 +508,7 @@ Installare il runtime Microsoft Edge WebView2.</value>
   <data name="ExportOptions_AutoSetupProgress" xml:space="preserve"><value>Download in corso...</value></data>
   <data name="ExportOptions_AutoSetupComplete" xml:space="preserve"><value>La configurazione di Oracle Instant Client è stata completata.</value></data>
   <data name="AccessExport_OpenDownloadPage" xml:space="preserve"><value>Aprire la pagina di download?</value></data>
+  <data name="UpdateCheck_Title" xml:space="preserve"><value>Aggiornamento disponibile</value></data>
+  <data name="UpdateCheck_NewVersionAvailable" xml:space="preserve"><value>È disponibile una nuova versione v{0} (attuale: v{1}).</value></data>
+  <data name="UpdateCheck_OpenReleasePage" xml:space="preserve"><value>Aprire la pagina di rilascio?</value></data>
 </root>

@@ -23,6 +23,9 @@ Public Class OraDB_DUMP_Viewer
         ' ライセンス使用状況をバックグラウンドで送信（1日1回、UIをブロックしない）
         HeartbeatLogic.SendIfNeeded()
 
+        ' アップデートチェック（バックグラウンド、通知のみ）
+        UpdateChecker.CheckOnStartupAsync()
+
         COMMON.ReSet_StatusLavel()
 
         ' MRU メニュー構築
@@ -260,14 +263,22 @@ Public Class OraDB_DUMP_Viewer
                 If res = DialogResult.Yes Then
                     MenuStripLogics.ライセンス認証ToolStripMenuItem()
 
-                    ' 認証成功したか再確認
+                    ' 認証成功したか再確認（ローカル + サーバー検証）
                     If File.Exists(statusPath) Then
                         Dim licenseKey As String = String.Empty
                         Dim expiryDate As DateTime
                         Dim holder As String = String.Empty
                         Dim errMsg As String = String.Empty
                         If LICENSE.VerifyLicenseFile(statusPath, licenseKey, expiryDate, holder, errMsg) Then
-                            Return True
+                            ' サーバー有効性チェック
+                            If Not LICENSE.VerifyOnline(licenseKey) Then
+                                MessageBox.Show(Loc.S("License_RevokedByServer"), Loc.S("License_Required"),
+                                                MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                                Try : File.Delete(statusPath) : Catch : End Try
+                                ' ループ継続（再認証）
+                            Else
+                                Return True
+                            End If
                         End If
                     End If
                     ' 認証失敗 → ループ継続

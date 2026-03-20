@@ -474,4 +474,7 @@ Bitte installieren Sie die Microsoft Edge WebView2-Laufzeit.</value>
   <data name="ExportOptions_AutoSetupProgress" xml:space="preserve"><value>Wird heruntergeladen...</value></data>
   <data name="ExportOptions_AutoSetupComplete" xml:space="preserve"><value>Oracle Instant Client wurde erfolgreich eingerichtet.</value></data>
   <data name="AccessExport_OpenDownloadPage" xml:space="preserve"><value>Download-Seite öffnen?</value></data>
+  <data name="UpdateCheck_Title" xml:space="preserve"><value>Update verfügbar</value></data>
+  <data name="UpdateCheck_NewVersionAvailable" xml:space="preserve"><value>Eine neue Version v{0} ist verfügbar (aktuell: v{1}).</value></data>
+  <data name="UpdateCheck_OpenReleasePage" xml:space="preserve"><value>Release-Seite öffnen?</value></data>
 </root>

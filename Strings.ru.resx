@@ -514,5 +514,7 @@ https://www.odv.dev/
   <data name="ExportOptions_AutoSetupProgress" xml:space="preserve"><value>Загрузка...</value></data>
   <data name="ExportOptions_AutoSetupComplete" xml:space="preserve"><value>Установка Oracle Instant Client завершена.</value></data>
   <data name="AccessExport_OpenDownloadPage" xml:space="preserve"><value>Открыть страницу загрузки?</value></data>
-
+  <data name="UpdateCheck_Title" xml:space="preserve"><value>Доступно обновление</value></data>
+  <data name="UpdateCheck_NewVersionAvailable" xml:space="preserve"><value>Доступна новая версия v{0} (текущая: v{1}).</value></data>
+  <data name="UpdateCheck_OpenReleasePage" xml:space="preserve"><value>Открыть страницу релиза?</value></data>
 </root>

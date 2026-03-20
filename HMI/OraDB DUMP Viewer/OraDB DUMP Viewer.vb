@@ -806,8 +806,8 @@ Public Class OraDB_DUMP_Viewer
                                     ctx.Schema, ctx.TableName, outputPath, dbmsType, worker,
                                     ctx.ColumnNotNulls, ctx.ColumnDefaults, dbName, ctx.ConstraintsJson)
                         Else
-                            ' Workspace: DLLから再パース
-                            ok = SqlExportLogic.ExportFromDump(ctx, outputPath, dbmsType)
+                            ' Workspace: DLLから再パース（進捗表示付き）
+                            ok = SqlExportLogic.ExportFromDump(ctx, outputPath, dbmsType, worker)
                         End If
                         If Not ok Then args.Cancel = True
                     End Sub)
@@ -861,7 +861,7 @@ Public Class OraDB_DUMP_Viewer
                                     preview.ExportColumnNames, outputPath, worker, ctx.TableName)
                         Else
                             ' Workspace: DLLから再パース
-                            ok = CsvExportLogic.ExportFromDump(ctx, outputPath)
+                            ok = CsvExportLogic.ExportFromDump(ctx, outputPath, worker)
                         End If
                         If Not ok Then args.Cancel = True
                     End Sub)

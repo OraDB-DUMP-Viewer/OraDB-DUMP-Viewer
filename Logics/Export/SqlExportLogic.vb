@@ -15,9 +15,18 @@ Public Class SqlExportLogic
     ''' <summary>
     ''' C DLL 経由で SQL エクスポート (全行・ストリーミング)
     ''' </summary>
-    Public Shared Function ExportFromDump(ctx As ExportHelper.TableExportContext, outputPath As String, dbmsType As Integer) As Boolean
+    Public Shared Function ExportFromDump(ctx As ExportHelper.TableExportContext, outputPath As String, dbmsType As Integer,
+                                          Optional worker As System.ComponentModel.BackgroundWorker = Nothing) As Boolean
+        Dim progressAction As Action(Of Long, String, Integer) = Nothing
+        If worker IsNot Nothing Then
+            progressAction = Sub(rows As Long, tbl As String, pct As Integer)
+                                 worker.ReportProgress(0,
+                                     New ExportProgressDialog.ProgressInfo(tbl, rows, ctx.RowCount))
+                             End Sub
+        End If
+
         Dim rc = OraDB_NativeParser.ExportSql(ctx.DumpFilePath, ctx.TableName, outputPath, dbmsType,
-                                               ctx.Schema, ctx.DataOffset)
+                                               ctx.Schema, ctx.DataOffset, progressAction)
         If rc <> OraDB_NativeParser.ODV_OK Then
             Throw New Exception(Loc.SF("SqlExport_ErrorRc", rc))
         End If

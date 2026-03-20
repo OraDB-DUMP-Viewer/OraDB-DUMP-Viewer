@@ -17,9 +17,18 @@ Public Class CsvExportLogic
     ''' <param name="ctx">テーブルエクスポートコンテキスト</param>
     ''' <param name="outputPath">出力先ファイルパス</param>
     ''' <returns>成功なら True</returns>
-    Public Shared Function ExportFromDump(ctx As ExportHelper.TableExportContext, outputPath As String) As Boolean
+    Public Shared Function ExportFromDump(ctx As ExportHelper.TableExportContext, outputPath As String,
+                                          Optional worker As System.ComponentModel.BackgroundWorker = Nothing) As Boolean
+        Dim progressAction As Action(Of Long, String, Integer) = Nothing
+        If worker IsNot Nothing Then
+            progressAction = Sub(rows As Long, tbl As String, pct As Integer)
+                                 worker.ReportProgress(0,
+                                     New ExportProgressDialog.ProgressInfo(tbl, rows, ctx.RowCount))
+                             End Sub
+        End If
+
         Dim rc = OraDB_NativeParser.ExportCsv(ctx.DumpFilePath, ctx.TableName, outputPath,
-                                               ctx.Schema, ctx.DataOffset)
+                                               ctx.Schema, ctx.DataOffset, progressAction)
         If rc <> OraDB_NativeParser.ODV_OK Then
             Throw New Exception(Loc.SF("CsvExport_ErrorRc", rc))
         End If

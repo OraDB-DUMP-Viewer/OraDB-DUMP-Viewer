@@ -21,8 +21,8 @@ Public Class BulkExportLogic
             Dim ctx = contexts(i)
             Dim outputPath = Path.Combine(outputFolder, $"{ctx.TableName}.csv")
 
-            ' C DLL ストリーミング (進捗はテーブル単位)
-            Dim ok = CsvExportLogic.ExportFromDump(ctx, outputPath)
+            ' C DLL ストリーミング (進捗表示付き)
+            Dim ok = CsvExportLogic.ExportFromDump(ctx, outputPath, worker)
             If Not ok Then Return False
 
             ReportTableProgress(worker, ctx.TableName, i + 1, contexts.Count)
@@ -54,8 +54,8 @@ Public Class BulkExportLogic
                         ctx.ColumnNotNulls, ctx.ColumnDefaults, databaseName, ctx.ConstraintsJson)
                 tableData = Nothing
             Else
-                ' C DLL ストリーミング
-                ok = SqlExportLogic.ExportFromDump(ctx, outputPath, dbmsType)
+                ' C DLL ストリーミング (進捗表示付き)
+                ok = SqlExportLogic.ExportFromDump(ctx, outputPath, dbmsType, worker)
             End If
             If Not ok Then Return False
 

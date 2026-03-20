@@ -563,8 +563,11 @@ Public Class OraDB_NativeParser
     ''' <param name="dataOffset">データオフセット (高速シーク用、0=先頭から)</param>
     Public Shared Function ExportCsv(filePath As String, tableName As String, outputPath As String,
                                       Optional schema As String = Nothing,
-                                      Optional dataOffset As Long = 0) As Integer
+                                      Optional dataOffset As Long = 0,
+                                      Optional progressAction As Action(Of Long, String, Integer) = Nothing) As Integer
         Dim session As IntPtr = IntPtr.Zero
+        Dim progCb As ProgressCallback = Nothing
+        Dim gcHandle As GCHandle = Nothing
         Try
             Dim rc = odv_create_session(session)
             If rc <> ODV_OK Then Return rc
@@ -574,6 +577,16 @@ Public Class OraDB_NativeParser
 
             ' エクスポートオプション適用
             ApplyExportOptions(session)
+
+            ' 進捗コールバック設定
+            If progressAction IsNot Nothing Then
+                progCb = New ProgressCallback(Sub(rows, tblPtr, ud)
+                    Dim tbl = If(tblPtr <> IntPtr.Zero, PtrToStringUTF8(tblPtr), "")
+                    progressAction(rows, tbl, 0)
+                End Sub)
+                gcHandle = GCHandle.Alloc(progCb)
+                odv_set_progress_callback(session, progCb, IntPtr.Zero)
+            End If
 
             ' 高速シーク: DDL位置にジャンプ + テーブルフィルタ設定
             If dataOffset > 0 Then
@@ -586,6 +599,7 @@ Public Class OraDB_NativeParser
             Return odv_export_csv(session, tableName, outputPath)
 
         Finally
+            If gcHandle.IsAllocated Then gcHandle.Free()
             If session <> IntPtr.Zero Then
                 odv_destroy_session(session)
             End If
@@ -603,8 +617,11 @@ Public Class OraDB_NativeParser
     ''' <param name="dataOffset">データオフセット (高速シーク用、0=先頭から)</param>
     Public Shared Function ExportSql(filePath As String, tableName As String, outputPath As String, dbmsType As Integer,
                                       Optional schema As String = Nothing,
-                                      Optional dataOffset As Long = 0) As Integer
+                                      Optional dataOffset As Long = 0,
+                                      Optional progressAction As Action(Of Long, String, Integer) = Nothing) As Integer
         Dim session As IntPtr = IntPtr.Zero
+        Dim progCb As ProgressCallback = Nothing
+        Dim gcHandle As GCHandle = Nothing
         Try
             Dim rc = odv_create_session(session)
             If rc <> ODV_OK Then Return rc
@@ -614,6 +631,16 @@ Public Class OraDB_NativeParser
 
             ' エクスポートオプション適用
             ApplyExportOptions(session)
+
+            ' 進捗コールバック設定
+            If progressAction IsNot Nothing Then
+                progCb = New ProgressCallback(Sub(rows, tblPtr, ud)
+                    Dim tbl = If(tblPtr <> IntPtr.Zero, PtrToStringUTF8(tblPtr), "")
+                    progressAction(rows, tbl, 0)
+                End Sub)
+                gcHandle = GCHandle.Alloc(progCb)
+                odv_set_progress_callback(session, progCb, IntPtr.Zero)
+            End If
 
             ' 高速シーク: DDL位置にジャンプ + テーブルフィルタ設定
             If dataOffset > 0 Then
@@ -626,6 +653,7 @@ Public Class OraDB_NativeParser
             Return odv_export_sql(session, tableName, outputPath, dbmsType)
 
         Finally
+            If gcHandle.IsAllocated Then gcHandle.Free()
             If session <> IntPtr.Zero Then
                 odv_destroy_session(session)
             End If

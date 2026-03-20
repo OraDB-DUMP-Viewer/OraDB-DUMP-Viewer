@@ -351,6 +351,11 @@ Public Module ExportHelper
         ' まず Workspace をチェック
         Dim workspace = TryCast(mainForm.ActiveMdiChild, Workspace)
         If workspace IsNot Nothing Then
+            ' 複数選択時は Nothing を返して一括エクスポートパスに入る
+            Dim selected = workspace.GetSelectedTableContexts()
+            If selected IsNot Nothing AndAlso selected.Count > 1 Then
+                Return Nothing  ' → GetBulkExportContexts() が呼ばれる
+            End If
             Return workspace.GetSelectedTableExportContext()
         End If
 

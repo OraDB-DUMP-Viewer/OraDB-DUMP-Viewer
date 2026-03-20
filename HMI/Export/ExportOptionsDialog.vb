@@ -109,16 +109,20 @@ Public Class ExportOptionsDialog
             client.Timeout = TimeSpan.FromMinutes(10)
             client.DefaultRequestHeaders.UserAgent.ParseAdd("OraDB-DUMP-Viewer")
 
-            Try
-                Dim json = client.GetStringAsync("https://oracle-dl.odv.dev/").Result
-                Dim doc = System.Text.Json.JsonDocument.Parse(json)
-                basicUrl = doc.RootElement.GetProperty("basic").GetString()
-                toolsUrl = doc.RootElement.GetProperty("tools").GetString()
-            Catch
-                ' エンドポイント不通時はフォールバック URL を使用
-                basicUrl = "https://download.oracle.com/otn_software/nt/instantclient/2326100/instantclient-basic-windows.x64-23.26.1.0.0.zip"
-                toolsUrl = "https://download.oracle.com/otn_software/nt/instantclient/2326100/instantclient-tools-windows.x64-23.26.1.0.0.zip"
-            End Try
+            Dim json = client.GetStringAsync("https://oracle-dl.odv.dev/").Result
+            Dim doc = System.Text.Json.JsonDocument.Parse(json)
+
+            If Not doc.RootElement.TryGetProperty("basic", Nothing) OrElse
+               Not doc.RootElement.TryGetProperty("tools", Nothing) Then
+                Throw New Exception("Oracle Client download URLs not found. Please try again later.")
+            End If
+
+            basicUrl = doc.RootElement.GetProperty("basic").GetString()
+            toolsUrl = doc.RootElement.GetProperty("tools").GetString()
+
+            If String.IsNullOrEmpty(basicUrl) OrElse String.IsNullOrEmpty(toolsUrl) Then
+                Throw New Exception("Oracle Client download URLs are empty. Please try again later.")
+            End If
 
             ' Basic パッケージ
             Dim basicZip = IO.Path.Combine(installDir, "basic.zip")

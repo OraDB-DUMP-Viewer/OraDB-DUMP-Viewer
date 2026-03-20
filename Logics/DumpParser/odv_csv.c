@@ -128,6 +128,11 @@ static void __stdcall csv_row_callback(
     fputc('\n', ctx->fp);
 
     ctx->row_count++;
+
+    /* Report progress periodically (every 100 rows) */
+    if (ctx->session && ctx->session->progress_cb && (ctx->row_count % 100) == 0) {
+        ctx->session->progress_cb(ctx->row_count, table, ctx->session->progress_ud);
+    }
 }
 
 /*---------------------------------------------------------------------------

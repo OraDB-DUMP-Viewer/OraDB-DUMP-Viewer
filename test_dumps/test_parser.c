@@ -44,6 +44,7 @@ typedef int (__stdcall *FN_GET_TABLE_ENTRY)(ODV_SESSION *s, int index,
     const char **schema, const char **name, const char **partition,
     const char **parent_partition, int *type, __int64 *row_count);
 typedef int (__stdcall *FN_SET_PARTITION_FILTER)(ODV_SESSION *s, const char *partition);
+typedef const char* (__stdcall *FN_GET_CONSTRAINTS_JSON)(ODV_SESSION *s, int index);
 
 /* --- Globals --- */
 static FN_CREATE        fn_create;
@@ -63,6 +64,7 @@ static FN_GET_PCT       fn_get_pct;
 static FN_GET_TABLE_COUNT fn_get_table_count;
 static FN_GET_TABLE_ENTRY fn_get_table_entry;
 static FN_SET_PARTITION_FILTER fn_set_part_filter;
+static FN_GET_CONSTRAINTS_JSON fn_get_constraints_json;
 
 /* --- Test state --- */
 typedef struct {
@@ -241,6 +243,14 @@ static int test_dump(const char *path, int expected_type) {
                     if (part && part[0]) printf(" partition=%s", part);
                     if (ppart && ppart[0]) printf(" parent=%s", ppart);
                     printf(" rows=%lld\n", rc2);
+                }
+                /* Show EXPDP metadata constraints if available */
+                if (fn_get_constraints_json && ty == 0) {
+                    const char *cj = fn_get_constraints_json(s, ti);
+                    if (cj && strcmp(cj, "[]") != 0) {
+                        printf("    meta_constraints: %.200s%s\n", cj,
+                               strlen(cj) > 200 ? "..." : "");
+                    }
                 }
             }
         }
@@ -424,6 +434,7 @@ int main(int argc, char *argv[]) {
         fn_get_table_count = (FN_GET_TABLE_COUNT)GetProcAddress(dll, "odv_get_table_count");
         fn_get_table_entry = (FN_GET_TABLE_ENTRY)GetProcAddress(dll, "odv_get_table_entry");
         fn_set_part_filter = (FN_SET_PARTITION_FILTER)GetProcAddress(dll, "odv_set_partition_filter");
+        fn_get_constraints_json = (FN_GET_CONSTRAINTS_JSON)GetProcAddress(dll, "odv_get_table_constraints_json");
     }
 
     if (!fn_create || !fn_destroy || !fn_set_file || !fn_check_kind ||

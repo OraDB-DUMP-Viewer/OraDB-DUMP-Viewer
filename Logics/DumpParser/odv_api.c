@@ -295,6 +295,46 @@ ODV_API int __stdcall odv_get_table_entry(ODV_SESSION *s, int index,
     return ODV_OK;
 }
 
+/* Build constraints JSON for a table_list entry (EXPDP metadata).
+ * Returns pointer to static buffer (overwritten on each call). */
+ODV_API const char * __stdcall odv_get_table_constraints_json(ODV_SESSION *s, int index)
+{
+    static char json_buf[4096];
+    int pos = 0, i;
+
+    if (!s || index < 0 || index >= s->table_count) {
+        json_buf[0] = '['; json_buf[1] = ']'; json_buf[2] = '\0';
+        return json_buf;
+    }
+
+    ODV_TABLE_ENTRY *e = &s->table_list[index];
+    if (e->meta_constraint_count == 0) {
+        json_buf[0] = '['; json_buf[1] = ']'; json_buf[2] = '\0';
+        return json_buf;
+    }
+
+    json_buf[pos++] = '[';
+    for (i = 0; i < e->meta_constraint_count; i++) {
+        ODV_CONSTRAINT_NAME *mc = &e->meta_constraints[i];
+        char esc_name[ODV_OBJNAME_LEN * 2 + 1];
+        int ei = 0;
+        const char *cp = mc->name;
+        while (*cp && ei < (int)sizeof(esc_name) - 2) {
+            if (*cp == '"' || *cp == '\\') esc_name[ei++] = '\\';
+            esc_name[ei++] = *cp++;
+        }
+        esc_name[ei] = '\0';
+
+        if (i > 0) json_buf[pos++] = ',';
+        int n = snprintf(json_buf + pos, sizeof(json_buf) - pos,
+            "{\"type\":%d,\"name\":\"%s\",\"columns\":[]}", mc->type, esc_name);
+        if (n > 0) pos += n;
+    }
+    json_buf[pos++] = ']';
+    json_buf[pos] = '\0';
+    return json_buf;
+}
+
 ODV_API int __stdcall odv_parse_dump(ODV_SESSION *s)
 {
     int rc;

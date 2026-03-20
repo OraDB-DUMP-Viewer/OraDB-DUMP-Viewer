@@ -418,6 +418,7 @@ static void notify_table(ODV_SESSION *s, int64_t row_count)
         e->type = TABLE_TYPE_TABLE;
         e->col_count = s->table.col_count;
         e->row_count = row_count;
+        e->meta_constraint_count = 0;
 
         /* Detect partitioned tables: if the same schema.table already appeared
            in the table list, this is another partition of that table.
@@ -1729,6 +1730,103 @@ expdp_done:
                 }
                 fclose(sfp);
             }
+        }
+    }
+
+    /* Post-parse: populate constraints/indexes from master table.
+     * Scan for SCHEMA_EXPORT/TABLE/CONSTRAINT/CONSTRAINT,
+     * SCHEMA_EXPORT/TABLE/CONSTRAINT/REF_CONSTRAINT, and
+     * SCHEMA_EXPORT/TABLE/INDEX/INDEX patterns.
+     * Structure after path: [ff]...[len]TABLE[len]SCHEMA[len]CONSTRAINT_NAME[len]SCHEMA */
+    if (list_only && s->table_count > 0) {
+        static const struct {
+            const char *path;
+            int path_len;
+            int constraint_type;  /* CONSTRAINT_PK or CONSTRAINT_FK or CONSTRAINT_INDEX */
+        } meta_paths[] = {
+            { "SCHEMA_EXPORT/TABLE/CONSTRAINT/CONSTRAINT",     41, CONSTRAINT_PK },     /* PK/UNIQUE/CHECK — type refined later */
+            { "SCHEMA_EXPORT/TABLE/CONSTRAINT/REF_CONSTRAINT", 45, CONSTRAINT_FK },
+            { "SCHEMA_EXPORT/TABLE/INDEX/INDEX\xff",           31, CONSTRAINT_INDEX },
+            { NULL, 0, 0 }
+        };
+
+        FILE *sfp2 = fopen(s->dump_path, "rb");
+        if (sfp2) {
+            unsigned char blk2[8192];
+            int mi;
+            for (mi = 0; meta_paths[mi].path; mi++) {
+                const char *mpath = meta_paths[mi].path;
+                int mlen = meta_paths[mi].path_len;
+                int mtype = meta_paths[mi].constraint_type;
+
+                odv_fseek(sfp2, 0, SEEK_SET);
+                while (!s->cancelled) {
+                    int nr = (int)fread(blk2, 1, sizeof(blk2), sfp2);
+                    if (nr < mlen + 50) break;
+
+                    int si;
+                    for (si = 0; si <= nr - mlen - 30; si++) {
+                        if (memcmp(blk2 + si, mpath, mlen) != 0) continue;
+
+                        int p = si + mlen;
+                        /* Skip [ff] */
+                        while (p < nr && blk2[p] == 0xff) p++;
+                        if (p + 4 >= nr) continue;
+
+                        /* [len]TABLE_NAME */
+                        int tl = blk2[p++];
+                        if (tl <= 0 || tl > 60 || p + tl + 3 >= nr) continue;
+                        char tn[64] = {0};
+                        memcpy(tn, blk2 + p, tl); p += tl;
+
+                        /* [len]SCHEMA */
+                        int sl = blk2[p++];
+                        if (sl <= 0 || sl > 60 || p + sl + 2 >= nr) continue;
+                        char sn[64] = {0};
+                        memcpy(sn, blk2 + p, sl); p += sl;
+
+                        /* [len]CONSTRAINT/INDEX_NAME */
+                        int cl = blk2[p++];
+                        if (cl <= 0 || cl > 60 || p + cl > nr) continue;
+                        char cn[64] = {0};
+                        memcpy(cn, blk2 + p, cl); p += cl;
+
+                        /* Validate: all printable */
+                        {
+                            int valid = 1, q;
+                            for (q = 0; q < tl; q++) if (tn[q] < 0x20) { valid = 0; break; }
+                            if (!valid) continue;
+                            for (q = 0; q < cl; q++) if (cn[q] < 0x20) { valid = 0; break; }
+                            if (!valid) continue;
+                        }
+
+                        /* Convert charset */
+                        char ct[260], cs2[260], cc[260];
+                        convert_name(tn, s->dump_charset, s->out_charset, ct, sizeof(ct));
+                        convert_name(sn, s->dump_charset, s->out_charset, cs2, sizeof(cs2));
+                        convert_name(cn, s->dump_charset, s->out_charset, cc, sizeof(cc));
+
+                        /* Find matching table in table_list (first occurrence for
+                         * partitioned tables) and add constraint name. */
+                        int ti;
+                        for (ti = 0; ti < s->table_count; ti++) {
+                            if (strcmp(s->table_list[ti].schema, cs2) == 0 &&
+                                strcmp(s->table_list[ti].name, ct) == 0) {
+                                ODV_TABLE_ENTRY *te = &s->table_list[ti];
+                                if (te->meta_constraint_count < ODV_MAX_META_CONSTRAINTS) {
+                                    ODV_CONSTRAINT_NAME *mc =
+                                        &te->meta_constraints[te->meta_constraint_count];
+                                    odv_strcpy(mc->name, cc, ODV_OBJNAME_LEN);
+                                    mc->type = mtype;
+                                    te->meta_constraint_count++;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            fclose(sfp2);
         }
     }
 

@@ -218,6 +218,14 @@ typedef struct {
     int64_t row_count;           /* COMPLETED_ROWS from dictionary */
 } ODV_PARTITION_ENTRY;
 
+/* Lightweight constraint entry for EXPDP metadata (name-only, no column info) */
+typedef struct {
+    char    name[ODV_OBJNAME_LEN + 1];
+    int     type;                /* CONSTRAINT_PK/UNIQUE/FK/INDEX etc. */
+} ODV_CONSTRAINT_NAME;
+
+#define ODV_MAX_META_CONSTRAINTS 20  /* Max constraints per table in table_list */
+
 /* Table list entry (for list_tables) */
 typedef struct {
     char    schema[ODV_OBJNAME_LEN + 1];
@@ -227,6 +235,9 @@ typedef struct {
     int     type;                /* TABLE_TYPE_* constant */
     int     col_count;
     int64_t row_count;
+    /* EXPDP metadata (populated by master table scan) */
+    ODV_CONSTRAINT_NAME meta_constraints[ODV_MAX_META_CONSTRAINTS];
+    int     meta_constraint_count;
 } ODV_TABLE_ENTRY;
 
 /* Column value (decoded, ready for output) */

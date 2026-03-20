@@ -10,8 +10,9 @@ Imports System.IO
 ''' </summary>
 Public Class AccessExportLogic
 
-    Private Const BATCH_SIZE As Integer = 1000
-    Private Const ACE_PROVIDER As String = "Microsoft.ACE.OLEDB.12.0"
+    Private Const BATCH_SIZE As Integer = 50000
+    Private Shared ReadOnly ACE_PROVIDERS As String() = {"Microsoft.ACE.OLEDB.16.0", "Microsoft.ACE.OLEDB.12.0"}
+    Private Shared _aceProvider As String
 
     ''' <summary>
     ''' テーブルデータを Access (.accdb) ファイルにエクスポート
@@ -21,7 +22,9 @@ Public Class AccessExportLogic
                                   columnTypes As String(),
                                   tableName As String,
                                   outputPath As String,
-                                  Optional worker As System.ComponentModel.BackgroundWorker = Nothing) As Boolean
+                                  Optional worker As System.ComponentModel.BackgroundWorker = Nothing,
+                                  Optional currentTableIndex As Integer = 0,
+                                  Optional totalTableCount As Integer = 0) As Boolean
         Try
             ' ACE ドライバチェック
             If Not IsAceDriverAvailable() Then
@@ -35,20 +38,28 @@ Public Class AccessExportLogic
                 Return False
             End If
 
-            ' 既存ファイルを削除 (新規作成のため)
-            If File.Exists(outputPath) Then
-                File.Delete(outputPath)
+            Dim connStr = $"Provider={_aceProvider};Data Source={outputPath};Jet OLEDB:Engine Type=6;"
+
+            ' ファイルが無い場合のみ新規作成
+            If Not File.Exists(outputPath) Then
+                CreateEmptyDatabase(connStr)
             End If
-
-            Dim connStr = $"Provider={ACE_PROVIDER};Data Source={outputPath};Jet OLEDB:Engine Type=6;"
-
-            ' 空の .accdb ファイルを作成
-            CreateEmptyDatabase(connStr)
 
             Dim totalRows As Long = data.Count
 
             Using conn As New OleDbConnection(connStr)
                 conn.Open()
+
+                ' Access のカラム数上限 (255) を超える場合はスキップ
+                If columnNames.Count > 255 Then
+                    If worker IsNot Nothing Then
+                        worker.ReportProgress(100,
+                            New ExportProgressDialog.ProgressInfo(
+                                tableName & $" (スキップ: カラム数 {columnNames.Count} > 255)", 0, 0,
+                                currentTableIndex, totalTableCount))
+                    End If
+                    Return True
+                End If
 
                 ' CREATE TABLE
                 Dim createSql = BuildCreateTableSql(tableName, columnNames, columnTypes)
@@ -56,44 +67,51 @@ Public Class AccessExportLogic
                     cmd.ExecuteNonQuery()
                 End Using
 
-                ' INSERT (バッチトランザクション)
+                ' INSERT (コマンド再利用 + バッチトランザクション)
                 Dim insertSql = BuildInsertSql(tableName, columnNames)
-                Dim rowIdx As Long = 0
+                Dim colCount = columnNames.Count
 
-                While rowIdx < totalRows
-                    If worker IsNot Nothing AndAlso worker.CancellationPending Then
-                        Return False
-                    End If
+                Using cmd As New OleDbCommand(insertSql, conn)
+                    ' パラメータを事前定義 (ループ中は Value のみ更新)
+                    For colIdx As Integer = 0 To colCount - 1
+                        cmd.Parameters.Add(New OleDbParameter($"@p{colIdx}", OleDbType.LongVarWChar))
+                    Next
 
-                    Using txn = conn.BeginTransaction()
-                        Dim batchEnd = Math.Min(rowIdx + BATCH_SIZE, totalRows)
+                    Dim rowIdx As Long = 0
+                    While rowIdx < totalRows
+                        If worker IsNot Nothing AndAlso worker.CancellationPending Then
+                            Return False
+                        End If
 
-                        For i As Long = rowIdx To batchEnd - 1
-                            Using cmd As New OleDbCommand(insertSql, conn, txn)
-                                For colIdx As Integer = 0 To columnNames.Count - 1
-                                    Dim value As Object = DBNull.Value
-                                    If colIdx < data(CInt(i)).Length AndAlso data(CInt(i))(colIdx) IsNot Nothing Then
-                                        value = data(CInt(i))(colIdx)
-                                    End If
-                                    cmd.Parameters.AddWithValue($"@p{colIdx}", value)
+                        Using txn = conn.BeginTransaction()
+                            cmd.Transaction = txn
+                            Dim batchEnd = Math.Min(rowIdx + BATCH_SIZE, totalRows)
+
+                            For i As Long = rowIdx To batchEnd - 1
+                                Dim row = data(CInt(i))
+                                For colIdx As Integer = 0 To colCount - 1
+                                    Dim raw As String = Nothing
+                                    If colIdx < row.Length Then raw = row(colIdx)
+                                    cmd.Parameters(colIdx).Value = If(String.IsNullOrEmpty(raw), DirectCast(DBNull.Value, Object), raw)
                                 Next
                                 cmd.ExecuteNonQuery()
-                            End Using
-                        Next
+                            Next
 
-                        txn.Commit()
-                    End Using
+                            txn.Commit()
+                        End Using
 
-                    rowIdx += BATCH_SIZE
+                        rowIdx += BATCH_SIZE
 
-                    ' 進捗報告
-                    If worker IsNot Nothing Then
-                        Dim processed = Math.Min(rowIdx, totalRows)
-                        Dim pct As Integer = CInt(If(totalRows > 0, processed * 100 \ totalRows, 100))
-                        worker.ReportProgress(pct,
-                            New ExportProgressDialog.ProgressInfo(tableName, processed, totalRows))
-                    End If
-                End While
+                        ' 進捗報告
+                        If worker IsNot Nothing Then
+                            Dim processed = Math.Min(rowIdx, totalRows)
+                            Dim pct As Integer = CInt(If(totalRows > 0, processed * 100 \ totalRows, 100))
+                            worker.ReportProgress(pct,
+                                New ExportProgressDialog.ProgressInfo(tableName, processed, totalRows,
+                                    currentTableIndex, totalTableCount))
+                        End If
+                    End While
+                End Using
             End Using
 
             Return True
@@ -104,20 +122,18 @@ Public Class AccessExportLogic
     End Function
 
     ''' <summary>
-    ''' ACE ドライバが利用可能か確認
+    ''' ACE ドライバが利用可能か確認 (16.0 → 12.0 の優先順でチェック)
     ''' </summary>
     Private Shared Function IsAceDriverAvailable() As Boolean
-        Try
-            Dim factory = System.Data.Common.DbProviderFactories.GetFactory("System.Data.OleDb")
-            Using conn = factory.CreateConnection()
-                conn.ConnectionString = $"Provider={ACE_PROVIDER};Data Source=:memory:;"
-                ' ACE ドライバの存在をレジストリから確認
-                Dim key = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey($"{ACE_PROVIDER}\\CLSID")
-                Return key IsNot Nothing
-            End Using
-        Catch
-            Return False
-        End Try
+        For Each provider In ACE_PROVIDERS
+            Dim key = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey($"{provider}\CLSID")
+            If key IsNot Nothing Then
+                key.Dispose()
+                _aceProvider = provider
+                Return True
+            End If
+        Next
+        Return False
     End Function
 
     ''' <summary>
@@ -132,6 +148,14 @@ Public Class AccessExportLogic
         Dim cat = Activator.CreateInstance(catType)
         Try
             catType.InvokeMember("Create", Reflection.BindingFlags.InvokeMethod, Nothing, cat, {connStr})
+            ' ADOX が開いた接続を閉じる
+            Dim adoConn = catType.InvokeMember("ActiveConnection",
+                Reflection.BindingFlags.GetProperty, Nothing, cat, Nothing)
+            If adoConn IsNot Nothing Then
+                adoConn.GetType().InvokeMember("Close",
+                    Reflection.BindingFlags.InvokeMethod, Nothing, adoConn, Nothing)
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(adoConn)
+            End If
         Finally
             System.Runtime.InteropServices.Marshal.ReleaseComObject(cat)
         End Try
@@ -158,26 +182,8 @@ Public Class AccessExportLogic
     ''' Oracle 型を Access 型にマッピング
     ''' </summary>
     Private Shared Function MapToAccessType(columnTypes As String(), colIdx As Integer) As String
-        If columnTypes Is Nothing OrElse colIdx >= columnTypes.Length Then Return "MEMO"
-
-        Dim oracleType = columnTypes(colIdx).Trim().ToUpperInvariant()
-        Dim baseName = oracleType.Split("("c)(0).Trim()
-
-        Select Case baseName
-            Case "NUMBER"
-                If oracleType.Contains(",") Then Return "DOUBLE"
-                Return "LONG"
-            Case "DATE", "TIMESTAMP"
-                Return "DATETIME"
-            Case "VARCHAR2", "NVARCHAR2", "CHAR", "NCHAR"
-                Return "MEMO"
-            Case "CLOB", "NCLOB", "LONG"
-                Return "MEMO"
-            Case "BINARY_FLOAT", "BINARY_DOUBLE"
-                Return "DOUBLE"
-            Case Else
-                Return "MEMO"
-        End Select
+        ' ダンプデータは全て文字列のため、全カラム MEMO で統一
+        Return "MEMO"
     End Function
 
     ''' <summary>
@@ -201,5 +207,6 @@ Public Class AccessExportLogic
 
         Return sb.ToString()
     End Function
+
 
 End Class

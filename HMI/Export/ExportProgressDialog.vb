@@ -87,6 +87,7 @@ Public Class ExportProgressDialog
                                    End Sub
 
         ' 進捗報告がない場合に備えてマーキースタイルで開始
+        prgOverall.Style = ProgressBarStyle.Marquee
         prgExport.Style = ProgressBarStyle.Marquee
         lblTable.Text = Loc.S("ExportProgress_Exporting")
         lblRows.Text = ""
@@ -137,25 +138,35 @@ Public Class ExportProgressDialog
         ' 初回の進捗報告でマーキーからブロックスタイルに切り替え
         If Not _hasReceivedProgress Then
             _hasReceivedProgress = True
+            prgOverall.Style = ProgressBarStyle.Blocks
+            prgOverall.Value = 0
             prgExport.Style = ProgressBarStyle.Blocks
             prgExport.Value = 0
-        End If
-
-        ' プログレスバー更新
-        If e.ProgressPercentage >= 0 AndAlso e.ProgressPercentage <= 100 Then
-            prgExport.Value = e.ProgressPercentage
         End If
 
         ' 詳細情報更新
         Dim info = TryCast(e.UserState, ProgressInfo)
         If info IsNot Nothing Then
+            ' 全体進捗 (テーブル単位) — テーブル番号情報がある場合のみ更新
             If info.TotalTableCount > 0 Then
                 lblTable.Text = Loc.SF("ExportProgress_Table", info.CurrentTableIndex, info.TotalTableCount, info.TableName)
-            Else
+                Dim overallPct = CInt(Math.Min(info.CurrentTableIndex * 100 \ info.TotalTableCount, 100))
+                prgOverall.Value = overallPct
+            ElseIf info.TotalTableCount = 0 AndAlso info.TotalRows = 0 Then
+                ' 単一テーブル (テーブル番号なし、行数なし)
                 lblTable.Text = Loc.SF("ExportProgress_TableName", info.TableName)
+                prgOverall.Value = e.ProgressPercentage
             End If
+            ' TotalTableCount=0 かつ TotalRows>0 の場合は行進捗のみ更新 (全体バーはそのまま)
+
+            ' テーブル内進捗 (行単位)
             If info.TotalRows > 0 Then
                 lblRows.Text = Loc.SF("ExportProgress_RowsProcessed", info.RowsProcessed.ToString("N0"), info.TotalRows.ToString("N0"))
+                Dim rowPct = CInt(Math.Min(info.RowsProcessed * 100 \ info.TotalRows, 100))
+                prgExport.Value = rowPct
+            ElseIf info.RowsProcessed = 0 Then
+                lblRows.Text = ""
+                prgExport.Value = 0
             Else
                 lblRows.Text = Loc.SF("ExportProgress_RowsProcessedOnly", info.RowsProcessed.ToString("N0"))
             End If

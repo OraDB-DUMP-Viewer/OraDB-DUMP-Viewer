@@ -517,4 +517,12 @@ Por favor, instale o runtime Microsoft Edge WebView2.</value></data>
   <data name="UpdateCheck_Title" xml:space="preserve"><value>Atualização disponível</value></data>
   <data name="UpdateCheck_NewVersionAvailable" xml:space="preserve"><value>Uma nova versão v{0} está disponível (atual: v{1}).</value></data>
   <data name="UpdateCheck_OpenReleasePage" xml:space="preserve"><value>Abrir a página de lançamento?</value></data>
+  <!-- Versão de avaliação -->
+  <data name="Trial_TitleSuffix" xml:space="preserve"><value>[Versão de avaliação]</value></data>
+  <data name="Trial_Title" xml:space="preserve"><value>Restrição da versão de avaliação</value></data>
+  <data name="Trial_FeatureRestricted" xml:space="preserve"><value>Este recurso está disponível após a ativação da licença.
+Você pode obter uma licença em https://www.odv.dev/ (grátis para uso pessoal).
+Também é possível registrar-se em Ajuda > Ativação de licença.</value></data>
+  <data name="Trial_RowLimitNotice" xml:space="preserve"><value>(Versão de avaliação: apenas as primeiras {0} linhas)</value></data>
+  <data name="Status_Trial" xml:space="preserve"><value>Versão de avaliação — Registre uma licença para desbloquear todos os recursos</value></data>
 </root>

@@ -517,4 +517,12 @@ Microsoft Edge WebView2 Runtime을 설치해 주세요.</value></data>
   <data name="UpdateCheck_Title" xml:space="preserve"><value>업데이트 알림</value></data>
   <data name="UpdateCheck_NewVersionAvailable" xml:space="preserve"><value>새 버전 v{0}을(를) 사용할 수 있습니다 (현재: v{1}).</value></data>
   <data name="UpdateCheck_OpenReleasePage" xml:space="preserve"><value>릴리스 페이지를 여시겠습니까?</value></data>
+  <!-- 체험판 -->
+  <data name="Trial_TitleSuffix" xml:space="preserve"><value>[체험판]</value></data>
+  <data name="Trial_Title" xml:space="preserve"><value>체험판 제한</value></data>
+  <data name="Trial_FeatureRestricted" xml:space="preserve"><value>이 기능은 라이선스 인증 후 사용할 수 있습니다.
+https://www.odv.dev/ 에서 라이선스를 취득할 수 있습니다 (개인 사용은 무료).
+도움말 > 라이선스 인증에서도 등록할 수 있습니다.</value></data>
+  <data name="Trial_RowLimitNotice" xml:space="preserve"><value>(체험판: 처음 {0}행만 표시)</value></data>
+  <data name="Status_Trial" xml:space="preserve"><value>체험판 — 라이선스를 등록하면 모든 기능을 사용할 수 있습니다</value></data>
 </root>

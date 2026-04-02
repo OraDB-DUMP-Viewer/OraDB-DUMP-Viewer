@@ -109,8 +109,11 @@ Public Class TablePreview
         ' パラメータを保存
         _tableData = tableData
         _columnNames = columnNames
-        _filteredData = New List(Of String())(_tableData)
         _totalRows = _tableData.Count
+        _filteredData = New List(Of String())(_tableData)
+
+        ' 試用版: 表示を先頭100行に制限
+        ApplyTrialLimit()
         _schema = If(schema, "")
         _tableName = tableName
         _columnTypes = columnTypes
@@ -573,11 +576,12 @@ Public Class TablePreview
     ''' - 大量データ（100万行）でも応答性を維持
     ''' </summary>
     Private Sub FilterData()
-        ' 高度な検索が有効な場合
+        ' 高度な検索が有効な場合（全データを対象に検索）
         If _currentSearchCondition IsNot Nothing Then
             _filteredData = _tableData.Where(Function(row)
                                                  Return _currentSearchCondition.Evaluate(row, _columnIndexMap)
                                              End Function).ToList()
+            ApplyTrialLimit()
             Return
         End If
 
@@ -587,10 +591,11 @@ Public Class TablePreview
 
         If String.IsNullOrEmpty(columnName) OrElse String.IsNullOrEmpty(searchValue) Then
             _filteredData = New List(Of String())(_tableData)
+            ApplyTrialLimit()
             Return
         End If
 
-        ' フィルタリング処理（大文字小文字区別しない部分一致）
+        ' フィルタリング処理（大文字小文字区別しない部分一致、全データ対象）
         Dim searchColIndex As Integer = -1
         If _columnIndexMap.ContainsKey(columnName) Then searchColIndex = _columnIndexMap(columnName)
 
@@ -603,6 +608,17 @@ Public Class TablePreview
                                              End If
                                              Return False
                                          End Function).ToList()
+        ApplyTrialLimit()
+    End Sub
+
+    ''' <summary>
+    ''' 試用版: 検索結果の表示を先頭100行に制限する。
+    ''' 検索自体は全データを対象に行い、表示のみ制限する。
+    ''' </summary>
+    Private Sub ApplyTrialLimit()
+        If COMMON.IsTrial AndAlso _filteredData.Count > 100 Then
+            _filteredData = _filteredData.Take(100).ToList()
+        End If
     End Sub
 
     ''' <summary>
@@ -642,7 +658,12 @@ Public Class TablePreview
 
         ' UI 要素を更新
         labelPageInfo.Text = Loc.SF("Preview_PageInfoLabel", _currentPage, totalPages)
-        labelRowCount.Text = Loc.SF("Preview_RowCountLabel", _tableData.Count, _filteredData.Count)
+        labelRowCount.Text = Loc.SF("Preview_RowCountLabel", _totalRows, _filteredData.Count)
+
+        ' 試用版: 表示件数が制限されている場合に通知を追加
+        If COMMON.IsTrial AndAlso _filteredData.Count >= 100 Then
+            labelRowCount.Text &= " " & Loc.SF("Trial_RowLimitNotice", 100)
+        End If
 
         ' ナビゲーションボタンの有効/無効を制御
         buttonPrev.Enabled = _currentPage > 1

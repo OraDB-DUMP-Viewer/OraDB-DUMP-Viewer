@@ -16,12 +16,13 @@ Public Class OraDB_DUMP_Viewer
         ExportOptions.Load()
 
         If Not CheckAndActivateLicense() Then
-            Application.Exit()
-            Return
+            ' ライセンス認証をスキップ → 試用版モードで起動
+            COMMON.IsTrial = True
+            Me.Text = "OraDB DUMP Viewer " & Loc.S("Trial_TitleSuffix")
         End If
 
         ' ライセンス使用状況をバックグラウンドで送信（1日1回、UIをブロックしない）
-        HeartbeatLogic.SendIfNeeded()
+        If Not COMMON.IsTrial Then HeartbeatLogic.SendIfNeeded()
 
         ' アップデートチェック（バックグラウンド、通知のみ）
         UpdateChecker.CheckOnStartupAsync()
@@ -361,6 +362,7 @@ Public Class OraDB_DUMP_Viewer
 
     ''' <summary>ワークスペースを上書き保存</summary>
     Private Sub ワークスペースの保存SToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ワークスペースの保存SToolStripMenuItem.Click
+        If Not COMMON.CheckTrialRestriction() Then Return
         Dim ws = TryCast(Me.ActiveMdiChild, Workspace)
         If ws Is Nothing Then Return
 
@@ -374,6 +376,7 @@ Public Class OraDB_DUMP_Viewer
 
     ''' <summary>名前を付けてワークスペースを保存</summary>
     Private Sub 名前を付けてワークスペースを保存AToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles 名前を付けてワークスペースを保存AToolStripMenuItem.Click
+        If Not COMMON.CheckTrialRestriction() Then Return
         Dim ws = TryCast(Me.ActiveMdiChild, Workspace)
         If ws Is Nothing Then Return
         SaveWorkspaceAs(ws)
@@ -543,6 +546,23 @@ Public Class OraDB_DUMP_Viewer
 
         ' ライセンス認証ロジックを呼び出し
         MenuStripLogics.ライセンス認証ToolStripMenuItem()
+
+        ' 試用版モードで認証成功した場合、試用版を解除
+        If COMMON.IsTrial Then
+            Dim appData = IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OraDBDUMPViewer")
+            Dim statusPath = IO.Path.Combine(appData, "license.status")
+            If IO.File.Exists(statusPath) Then
+                Dim licenseKey As String = String.Empty
+                Dim expiryDate As DateTime
+                Dim holder As String = String.Empty
+                Dim errMsg As String = String.Empty
+                If LICENSE.VerifyLicenseFile(statusPath, licenseKey, expiryDate, holder, errMsg) Then
+                    COMMON.IsTrial = False
+                    Me.Text = "OraDB DUMP Viewer"
+                    COMMON.ReSet_StatusLavel()
+                End If
+            End If
+        End If
 
     End Sub
 #End Region
@@ -777,6 +797,7 @@ Public Class OraDB_DUMP_Viewer
     End Function
 
     Private Sub btnExportSql_Click(sender As Object, e As EventArgs) Handles btnExportSql.Click
+        If Not COMMON.CheckTrialRestriction() Then Return
         Dim ctx = GetExportContext()
 
         ' DBMS 選択ダイアログ
@@ -853,6 +874,7 @@ Public Class OraDB_DUMP_Viewer
     End Sub
 
     Private Sub btnExportCsv_Click(sender As Object, e As EventArgs) Handles btnExportCsv.Click
+        If Not COMMON.CheckTrialRestriction() Then Return
         Dim ctx = GetExportContext()
 
         If ctx IsNot Nothing Then
@@ -907,6 +929,7 @@ Public Class OraDB_DUMP_Viewer
     End Sub
 
     Private Sub btnExportExcel_Click(sender As Object, e As EventArgs) Handles btnExportExcel.Click
+        If Not COMMON.CheckTrialRestriction() Then Return
         Dim ctx = GetExportContext()
 
         If ctx IsNot Nothing Then
@@ -973,6 +996,7 @@ Public Class OraDB_DUMP_Viewer
     End Sub
 
     Private Sub btnExportAccess_Click(sender As Object, e As EventArgs) Handles btnExportAccess.Click
+        If Not COMMON.CheckTrialRestriction() Then Return
         Dim ctx = GetExportContext()
 
         If ctx IsNot Nothing Then
@@ -1039,6 +1063,7 @@ Public Class OraDB_DUMP_Viewer
     End Sub
 
     Private Sub btnExportSqlServer_Click(sender As Object, e As EventArgs) Handles btnExportSqlServer.Click
+        If Not COMMON.CheckTrialRestriction() Then Return
         Dim ctx = GetExportContext()
 
         ' DB 接続ダイアログ (SQL Server タブ)
@@ -1108,6 +1133,7 @@ Public Class OraDB_DUMP_Viewer
     End Sub
 
     Private Sub btnExportOdbc_Click(sender As Object, e As EventArgs) Handles btnExportOdbc.Click
+        If Not COMMON.CheckTrialRestriction() Then Return
         Dim ctx = GetExportContext()
 
         ' DB 接続ダイアログ (ODBC タブを初期選択)
@@ -1179,6 +1205,7 @@ Public Class OraDB_DUMP_Viewer
 
 #Region "メニューイベント: ツール (LOBファイル抽出)"
     Private Sub ファイルの取り出しFToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ファイルの取り出しFToolStripMenuItem.Click
+        If Not COMMON.CheckTrialRestriction() Then Return
         Dim ws = TryCast(Me.ActiveMdiChild, Workspace)
         If ws Is Nothing Then
             MessageBox.Show(Loc.S("Msg_WorkspaceNotOpen"), Loc.S("Title_LobExtract"),

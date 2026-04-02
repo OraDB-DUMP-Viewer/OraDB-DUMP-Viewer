@@ -1,5 +1,26 @@
 ﻿Public Class COMMON
 
+#Region "試用版フラグ"
+    ''' <summary>
+    ''' 試用版モードかどうかを示すフラグ。
+    ''' ライセンス未認証の場合に True に設定される。
+    ''' </summary>
+    Public Shared Property IsTrial As Boolean = False
+
+    ''' <summary>
+    ''' 試用版で制限された機能を使おうとした時にダイアログを表示する。
+    ''' 試用版でない場合は True を返す（機能を続行してよい）。
+    ''' 試用版の場合はダイアログを表示して False を返す。
+    ''' </summary>
+    Public Shared Function CheckTrialRestriction() As Boolean
+        If Not IsTrial Then Return True
+        MessageBox.Show(Loc.S("Trial_FeatureRestricted"),
+                       Loc.S("Trial_Title"),
+                       MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Return False
+    End Function
+#End Region
+
 #Region "ステータスラベル関連"
 
     ''' <summary>
@@ -54,6 +75,11 @@
     ''' ToolStripStatusLabelのテキストをリセットする
     ''' </summary>
     Public Shared Sub ReSet_StatusLavel()
+        If IsTrial Then
+            OraDB_DUMP_Viewer.ToolStripStatusLabel.Text = Loc.S("Status_Trial")
+            Application.DoEvents()
+            Return
+        End If
         'ライセンス認証状態に応じてステータスラベルを更新
         Dim holder As String = LICENSE.GetLicenseHolder()
         If String.IsNullOrEmpty(holder) Then

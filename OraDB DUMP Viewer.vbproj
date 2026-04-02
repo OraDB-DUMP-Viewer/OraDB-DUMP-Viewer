@@ -7,7 +7,7 @@
     <StartupObject>Sub Main</StartupObject>
     <UseWindowsForms>true</UseWindowsForms>
     <MyType>WindowsForms</MyType>
-    <Version>3.0.1</Version>
+    <Version>3.1.0</Version>
     <Authors>YANAI Taketo</Authors>
     <Company>YANAI Taketo</Company>
     <ApplicationIcon>app.ico</ApplicationIcon>
@@ -27,6 +27,13 @@
     <None Include="Logics\DumpParser\OraDB_DumpParser.pdb" Condition="Exists('Logics\DumpParser\OraDB_DumpParser.pdb')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>OraDB_DumpParser.pdb</Link>
+    </None>
+  </ItemGroup>
+
+  <!-- readme.txt をビルド出力にコピー -->
+  <ItemGroup>
+    <None Include="readme.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

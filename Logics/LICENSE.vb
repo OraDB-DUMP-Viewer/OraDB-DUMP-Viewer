@@ -127,7 +127,7 @@ Public Class LICENSE
 #End Region
 
 #Region "オンラインライセンス検証"
-    Private Const CheckStatusEndpoint As String = "https://www.odv.dev/api/licenses/check/"
+    Private Const CheckStatusEndpoint As String = "https://api.odv.dev/licenses/check/"
 
     ''' <summary>
     ''' サーバーにライセンスキーの有効性を問い合わせる（起動時チェック）。

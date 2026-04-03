@@ -12,7 +12,7 @@ Imports System.Text.Json
 ''' </summary>
 Public Class HeartbeatLogic
 
-    Private Const HeartbeatEndpoint As String = "https://www.odv.dev/api/licenses/heartbeat"
+    Private Const HeartbeatEndpoint As String = "https://api.odv.dev/licenses/heartbeat"
     Private Const HeartbeatFileName As String = "heartbeat.last"
 
     ''' <summary>

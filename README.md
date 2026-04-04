@@ -22,8 +22,11 @@
 
 ---
 
-<!-- 🖼️ Screenshot: メイン画面（スキーマツリー + テーブルプレビュー）-->
-<!-- <p align="center"><img src="docs/screenshots/main-window.png" alt="OraDB DUMP Viewer — Main Window" width="800"></p> -->
+<p align="center">
+  <img src="docs/screenshots/main-window.png" alt="OraDB DUMP Viewer — Main Window" width="800">
+  <br>
+  <em>スキーマツリーとテーブル一覧 / Schema tree and table list</em>
+</p>
 
 ## Why OraDB DUMP Viewer?
 
@@ -41,6 +44,35 @@ Oracle の .dmp ファイルを開くには、従来は Oracle Database や Clie
 ---
 
 ## Features / 機能一覧
+
+<details>
+<summary><strong>📸 スクリーンショットを見る / View screenshots</strong></summary>
+<br>
+
+<table>
+<tr>
+<td align="center" width="50%">
+<strong>高度な検索 / Advanced Search</strong><br>
+<img src="docs/screenshots/search.png" alt="Advanced Search" width="400">
+</td>
+<td align="center" width="50%">
+<strong>SQL エクスポート / SQL Export</strong><br>
+<img src="docs/screenshots/export-dialog.png" alt="Export Dialog" width="400">
+</td>
+</tr>
+<tr>
+<td align="center">
+<strong>MDI マルチウィンドウ / MDI Multi-Window</strong><br>
+<img src="docs/screenshots/schema-tree.png" alt="Schema Tree & MDI" width="400">
+</td>
+<td align="center">
+<strong>バッチエクスポート / Batch Export</strong><br>
+<img src="docs/screenshots/batch-export.png" alt="Batch Export" width="400">
+</td>
+</tr>
+</table>
+
+</details>
 
 <table>
 <tr>

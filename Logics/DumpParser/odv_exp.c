@@ -996,11 +996,21 @@ static int decode_exp_column(ODV_SESSION *s, int col_idx,
         break;
     }
 
-    case COL_BLOB:
+    case COL_BLOB: {
+        /* The 'data' here is the BLOB locator (~100 byte structure) read in
+           the regular column phase. The actual BLOB content lives in the LOB
+           section that follows the row's regular columns and is consumed by
+           parse_exp_records()'s LOB section reader. Just set a placeholder;
+           do NOT accumulate the locator into the LOB extract buffer. */
+        const char *ph = "%BLOB%";
+        set_value_string(val, ph, (int)strlen(ph));
+        break;
+    }
+
     case COL_LONG_RAW: {
-        /* LOB extraction mode: accumulate binary data */
+        /* LONG RAW is inline length-prefixed (NOT a LOB section column).
+           Existing LOB-extract accumulation behavior is preserved. */
         if (s->lob_extract_mode && s->lob_column_index >= 0) {
-            /* Find which LOB column this is (LOB-only index) */
             int li, lob_idx = 0;
             for (li = 0; li < col_idx; li++) {
                 int ct = s->table.columns[li].type;
@@ -1010,7 +1020,6 @@ static int decode_exp_column(ODV_SESSION *s, int col_idx,
             if (lob_idx < s->table.lob_col_count)
                 odv_lob_accumulate(s, lob_idx, data, data_len);
         }
-        /* Always set placeholder for row callback display */
         {
             const char *ph = "%BLOB%";
             set_value_string(val, ph, (int)strlen(ph));
@@ -1018,9 +1027,15 @@ static int decode_exp_column(ODV_SESSION *s, int col_idx,
         break;
     }
 
-    case COL_CLOB:
+    case COL_CLOB: {
+        /* CLOB locator — actual content read from the LOB section. */
+        const char *ph = "%CLOB%";
+        set_value_string(val, ph, (int)strlen(ph));
+        break;
+    }
+
     case COL_LONG: {
-        /* LOB extraction mode: accumulate text data */
+        /* LONG is inline length-prefixed (NOT a LOB section column). */
         if (s->lob_extract_mode && s->lob_column_index >= 0) {
             int li, lob_idx = 0;
             for (li = 0; li < col_idx; li++) {
@@ -1031,7 +1046,6 @@ static int decode_exp_column(ODV_SESSION *s, int col_idx,
             if (lob_idx < s->table.lob_col_count)
                 odv_lob_accumulate(s, lob_idx, data, data_len);
         }
-        /* CLOB: store as string with charset conversion if needed */
         if (s->table.dump_charset != s->out_charset &&
             s->table.dump_charset != CHARSET_UNKNOWN) {
             int out_len = 0;
@@ -1046,7 +1060,6 @@ static int decode_exp_column(ODV_SESSION *s, int col_idx,
                     val->data_len = out_len;
                     val->is_null = 0;
                 } else {
-                    /* Fallback: copy raw */
                     set_value_string(val, (const char *)data, data_len);
                 }
             }
@@ -1057,20 +1070,9 @@ static int decode_exp_column(ODV_SESSION *s, int col_idx,
     }
 
     case COL_NCLOB: {
-        if (s->lob_extract_mode && s->lob_column_index >= 0) {
-            int li, lob_idx = 0;
-            for (li = 0; li < col_idx; li++) {
-                int ct = s->table.columns[li].type;
-                if (ct == COL_BLOB || ct == COL_CLOB || ct == COL_NCLOB)
-                    lob_idx++;
-            }
-            if (lob_idx < s->table.lob_col_count)
-                odv_lob_accumulate(s, lob_idx, data, data_len);
-        }
-        {
-            const char *ph = "%NCLOB%";
-            set_value_string(val, ph, (int)strlen(ph));
-        }
+        /* NCLOB locator — actual content read from the LOB section. */
+        const char *ph = "%NCLOB%";
+        set_value_string(val, ph, (int)strlen(ph));
         break;
     }
 
@@ -1144,6 +1146,108 @@ static int decode_exp_column(ODV_SESSION *s, int col_idx,
 }
 
 /*---------------------------------------------------------------------------
+    is_lob_type
+
+    True for column types that participate in the EXP LOB section
+    (i.e. their actual content is delivered after the regular columns,
+    not inline as a length-prefixed value).
+ ---------------------------------------------------------------------------*/
+static int is_lob_type(int t)
+{
+    return (t == COL_BLOB || t == COL_CLOB || t == COL_NCLOB || t == COL_BFILE);
+}
+
+/*---------------------------------------------------------------------------
+    read_one_lob_column
+
+    Reads a single LOB column from the EXP LOB section.
+
+    Wire format (verified empirically + against ARK e2c_expdmp.c reference):
+      - 2-byte length value:
+          > 0xFF00 (e.g. 0xFFFC) => extended:
+              [4-byte total length LE]
+              [4 reserved zero bytes]
+              Then a stream of [2-byte chunk_size LE][chunk_size bytes data]
+              chunks until total bytes accumulated.
+          else => single chunk of (length) bytes.
+      - In both single- and multi-chunk cases the chunk payload is the
+        raw LOB content (no per-chunk headers other than the size).
+
+    The (col_idx) parameter is the actual table column index for this LOB
+    (used to address the placeholder slot in s->record). The (lob_idx)
+    parameter is the LOB-only index used for odv_lob_accumulate addressing
+    in extract mode.
+ ---------------------------------------------------------------------------*/
+static int read_one_lob_column(ODV_SESSION *s, FILE *fp,
+                               int col_idx, int lob_idx,
+                               unsigned char **chunk_buf_ptr,
+                               int *chunk_buf_size_ptr)
+{
+    unsigned char hdr[2];
+    int first_val;
+    int total_len = 0;
+    int multi_chunk = 0;
+    int accumulated = 0;
+
+    if (fread(hdr, 1, 2, fp) != 2) return ODV_ERROR_FREAD;
+    first_val = (int)hdr[0] | ((int)hdr[1] << 8);
+
+    if (first_val > 0xFF00) {
+        /* Extended length: 4-byte total + 4 reserved zero bytes */
+        unsigned char ext[8];
+        if (fread(ext, 1, 8, fp) != 8) return ODV_ERROR_FREAD;
+        total_len = (int)ext[0] | ((int)ext[1] << 8)
+                  | ((int)ext[2] << 16) | ((int)ext[3] << 24);
+        if (total_len < 0 || total_len > ODV_EXP_RECORD_LEN) {
+            return ODV_ERROR_FORMAT;
+        }
+        multi_chunk = 1;
+    } else {
+        total_len = first_val;
+        multi_chunk = 0;
+    }
+
+    while (accumulated < total_len) {
+        int chunk_size;
+        if (multi_chunk) {
+            unsigned char ch[2];
+            if (fread(ch, 1, 2, fp) != 2) return ODV_ERROR_FREAD;
+            chunk_size = (int)ch[0] | ((int)ch[1] << 8);
+        } else {
+            chunk_size = total_len - accumulated;
+        }
+
+        if (chunk_size <= 0 || chunk_size > ODV_EXP_RECORD_LEN
+            || chunk_size > total_len - accumulated) {
+            return ODV_ERROR_FORMAT;
+        }
+
+        if (chunk_size > *chunk_buf_size_ptr) {
+            unsigned char *nb = (unsigned char *)realloc(
+                *chunk_buf_ptr, (size_t)chunk_size + 1);
+            if (!nb) return ODV_ERROR_MALLOC;
+            *chunk_buf_ptr = nb;
+            *chunk_buf_size_ptr = chunk_size + 1;
+        }
+
+        if ((int)fread(*chunk_buf_ptr, 1, (size_t)chunk_size, fp) != chunk_size) {
+            return ODV_ERROR_FREAD;
+        }
+
+        if (s->lob_extract_mode && s->lob_column_index >= 0) {
+            odv_lob_accumulate(s, lob_idx, *chunk_buf_ptr, chunk_size);
+        }
+
+        accumulated += chunk_size;
+    }
+
+    /* Display placeholder is already set when the locator was decoded
+       in the regular column phase; nothing more to do here for display. */
+    (void)col_idx;
+    return ODV_OK;
+}
+
+/*---------------------------------------------------------------------------
     parse_exp_records
 
     Reads binary records from EXP dump.
@@ -1151,6 +1255,13 @@ static int decode_exp_column(ODV_SESSION *s, int col_idx,
     Record end: 0x0000
     Table end: 0xFFFF
     NULL: 0xFFFE
+
+    For tables with LOB columns:
+      After all regular columns of a row are read, a LOB section follows:
+        - 2-byte rec_lob_num (count of NON-NULL LOB columns in this row)
+          (or 0x0000 row terminator if all LOB columns in this row are NULL)
+        - For each non-NULL LOB column (in declaration order):
+            chunk stream — see read_one_lob_column().
  ---------------------------------------------------------------------------*/
 static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start,
                              int list_only)
@@ -1158,6 +1269,10 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start,
     unsigned char len_buf[2];
     unsigned char *col_buf = NULL;
     int col_buf_size = 0;
+    unsigned char *lob_chunk_buf = NULL;
+    int lob_chunk_buf_size = 0;
+    int *non_null_lob_cols = NULL;
+    int non_null_lob_count = 0;
     int col_idx = 0;
     int col_len;
     int rc = ODV_OK;
@@ -1191,8 +1306,17 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start,
     col_buf = (unsigned char *)malloc(col_buf_size);
     if (!col_buf) return ODV_ERROR_MALLOC;
 
+    /* Allocate per-row tracking of non-NULL LOB column indices.
+       Used to map rec_lob_num entries (LOB section) back to table columns. */
+    if (s->table.lob_col_count > 0) {
+        non_null_lob_cols = (int *)malloc(
+            (size_t)s->table.lob_col_count * sizeof(int));
+        if (!non_null_lob_cols) { rc = ODV_ERROR_MALLOC; goto rec_done; }
+    }
+
     reset_record(&s->record);
     col_idx = 0;
+    non_null_lob_count = 0;
 
 
     while (!s->cancelled) {
@@ -1205,8 +1329,13 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start,
 
 
         /* Special markers */
+        if (col_len == 0xFFFF) {
+            /* Table data end */
+            break;
+        }
+
         if (col_len == 0x0000) {
-            /* Record end */
+            /* Record end (no LOB section follows). */
             if (col_idx > 0) {
                 s->record.col_count = col_idx;
                 if (!list_only) {
@@ -1219,17 +1348,68 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start,
                 /* LOB extraction: write accumulated data */
                 if (s->lob_extract_mode && s->lob_column_index >= 0) {
                     int lrc = odv_lob_write_file(s);
-                    if (lrc != ODV_OK) return lrc;
+                    if (lrc != ODV_OK) { rc = lrc; goto rec_done; }
                 }
             }
             reset_record(&s->record);
             col_idx = 0;
+            non_null_lob_count = 0;
             continue;
         }
 
-        if (col_len == 0xFFFF) {
-            /* Table data end */
-            break;
+        /* ----------------------------------------------------------------
+           LOB section header.
+           After all regular columns are read, the next 2-byte value is
+           rec_lob_num — the count of NON-NULL LOB columns whose chunk
+           streams follow (in declaration order). When all LOB columns
+           in this row are NULL the prior 0x0000 row terminator already
+           triggered delivery above and we never reach this point.
+           ---------------------------------------------------------------- */
+        if (col_idx == s->table.col_count
+            && s->table.lob_col_count > 0
+            && col_len > 0 && col_len <= s->table.lob_col_count) {
+            int rec_lob_num = col_len;
+            int li;
+            int lob_rc = ODV_OK;
+
+            for (li = 0; li < rec_lob_num; li++) {
+                int target_col = -1;
+                int lob_only_idx = li;
+                if (li < non_null_lob_count) {
+                    target_col = non_null_lob_cols[li];
+                }
+                lob_rc = read_one_lob_column(s, fp, target_col, lob_only_idx,
+                                             &lob_chunk_buf, &lob_chunk_buf_size);
+                if (lob_rc != ODV_OK) break;
+            }
+
+            if (lob_rc != ODV_OK) {
+                /* Corrupt LOB section — try to recover to next 0xFFFF */
+                while (!s->cancelled) {
+                    unsigned char scan[2];
+                    if (fread(scan, 1, 2, fp) != 2) goto rec_done;
+                    if (scan[0] == 0xFF && scan[1] == 0xFF) break;
+                    odv_fseek(fp, -1, SEEK_CUR);
+                }
+                break;
+            }
+
+            /* Row complete */
+            s->record.col_count = col_idx;
+            if (!list_only) {
+                deliver_row(s);
+                odv_report_progress(s, fp);
+            }
+            row_count++;
+            s->table.record_count++;
+            if (s->lob_extract_mode && s->lob_column_index >= 0) {
+                int lrc = odv_lob_write_file(s);
+                if (lrc != ODV_OK) { rc = lrc; goto rec_done; }
+            }
+            reset_record(&s->record);
+            col_idx = 0;
+            non_null_lob_count = 0;
+            continue;
         }
 
         if (col_len == 0xFFFE) {
@@ -1253,6 +1433,7 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start,
                 }
                 reset_record(&s->record);
                 col_idx = 0;
+                non_null_lob_count = 0;
             }
             continue;
         }
@@ -1334,6 +1515,16 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start,
             }
         }
 
+        /* Track non-NULL LOB locators so the LOB section reader can match
+           them up with the chunk streams. The locator data is consumed
+           here but the actual LOB content is delivered later. */
+        if (col_idx < s->table.col_count
+            && non_null_lob_cols
+            && is_lob_type(s->table.columns[col_idx].type)
+            && non_null_lob_count < s->table.lob_col_count) {
+            non_null_lob_cols[non_null_lob_count++] = col_idx;
+        }
+
         /* Decode and store */
         if (col_idx < s->table.col_count) {
             decode_exp_column(s, col_idx, col_buf, col_len);
@@ -1342,7 +1533,8 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start,
 
         /* DIRECT=Y: rows are concatenated without 00 00 end-of-row separator.
            Deliver the row as soon as all columns have been read. */
-        if (s->dump_type == DUMP_EXP_DIRECT && col_idx == s->table.col_count) {
+        if (s->dump_type == DUMP_EXP_DIRECT && col_idx == s->table.col_count
+            && s->table.lob_col_count == 0) {
             s->record.col_count = col_idx;
             if (!list_only) {
                 deliver_row(s);
@@ -1356,12 +1548,12 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start,
             }
             reset_record(&s->record);
             col_idx = 0;
+            non_null_lob_count = 0;
             continue;
         }
 
-        /* Safety check — too many columns means record structure is corrupt.
-           Allow extra for LOB columns beyond regular col_count */
-        if (col_idx > s->table.col_count + s->table.lob_col_count + 1) {
+        /* Safety check — too many columns means record structure is corrupt. */
+        if (col_idx > s->table.col_count) {
             /* Scan forward to find 0xFFFF table end marker */
             while (!s->cancelled) {
                 unsigned char scan[2];
@@ -1375,6 +1567,8 @@ static int parse_exp_records(ODV_SESSION *s, FILE *fp, int64_t data_start,
 
 rec_done:
     free(col_buf);
+    free(lob_chunk_buf);
+    free(non_null_lob_cols);
 
     if (s->cancelled) return ODV_ERROR_CANCELLED;
     return rc;

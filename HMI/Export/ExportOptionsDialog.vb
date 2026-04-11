@@ -40,6 +40,8 @@ Public Class ExportOptionsDialog
         End Select
 
         chkCreateTable.Checked = ExportOptions.SqlCreateTable
+        chkCreateIndex.Checked = ExportOptions.SqlCreateIndex
+        chkWriteComments.Checked = ExportOptions.SqlWriteComments
         chkInferInteger.Checked = ExportOptions.SqlInferInteger
 
         ' Oracle Client
@@ -181,6 +183,8 @@ Public Class ExportOptionsDialog
         End Select
 
         ExportOptions.SqlCreateTable = chkCreateTable.Checked
+        ExportOptions.SqlCreateIndex = chkCreateIndex.Checked
+        ExportOptions.SqlWriteComments = chkWriteComments.Checked
         ExportOptions.SqlInferInteger = chkInferInteger.Checked
         ExportOptions.ImpdpPath = txtImpdpPath.Text.Trim()
 
@@ -200,6 +204,8 @@ Public Class ExportOptionsDialog
         lblDelimiter.Text = Loc.S("ExportOptions_CsvDelimiter")
         grpSqlOptions.Text = Loc.S("ExportOptions_SqlOptions")
         chkCreateTable.Text = Loc.S("ExportOptions_SqlCreateTable")
+        chkCreateIndex.Text = Loc.S("ExportOptions_SqlCreateIndex")
+        chkWriteComments.Text = Loc.S("ExportOptions_SqlWriteComments")
         chkInferInteger.Text = Loc.S("ExportOptions_SqlInferInteger")
         grpOracleClient.Text = Loc.S("ExportOptions_OracleClient")
         lblImpdpInfo.Text = Loc.S("ExportOptions_ImpdpInfo")

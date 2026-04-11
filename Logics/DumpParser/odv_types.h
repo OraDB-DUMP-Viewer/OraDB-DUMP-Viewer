@@ -455,6 +455,8 @@ struct _odv_session {
     int             csv_write_types;       /* 1=write column type row (default:0) */
     char            csv_delimiter;         /* CSV field delimiter (default ',') */
     int             sql_create_table;      /* 1=output DROP+CREATE TABLE DDL (default:1) */
+    int             sql_create_index;      /* 1=output CREATE INDEX DDL (default:1) */
+    int             sql_write_comments;    /* 1=output COMMENT ON DDL (default:1) */
 
     /* LOB extraction options */
     int             lob_extract_mode;      /* 1=extracting LOB files */

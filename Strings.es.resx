@@ -365,6 +365,8 @@ La aplicación se cerrará automáticamente.
   <data name="ExportOptions_DelimiterPipe" xml:space="preserve"><value>Barra vertical (|)</value></data>
   <data name="ExportOptions_SqlOptions" xml:space="preserve"><value>Opciones de script SQL</value></data>
   <data name="ExportOptions_SqlCreateTable" xml:space="preserve"><value>Incluir DROP TABLE + CREATE TABLE</value></data>
+  <data name="ExportOptions_SqlCreateIndex" xml:space="preserve"><value>Incluir CREATE INDEX</value></data>
+  <data name="ExportOptions_SqlWriteComments" xml:space="preserve"><value>Incluir COMMENT ON</value></data>
   <data name="ExportOptions_SqlInferInteger" xml:space="preserve"><value>Inferir tipos enteros a partir de los datos para columnas NUMBER</value></data>
   <data name="SqlExport_FormTitle" xml:space="preserve"><value>Exportación de script SQL</value></data>
   <data name="SqlExport_DatabaseLabel" xml:space="preserve"><value>BD destino:</value></data>

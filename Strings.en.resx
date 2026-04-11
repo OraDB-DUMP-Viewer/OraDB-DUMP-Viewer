@@ -397,6 +397,8 @@ Continue?</value></data>
   <data name="ExportOptions_DelimiterPipe" xml:space="preserve"><value>Pipe (|)</value></data>
   <data name="ExportOptions_SqlOptions" xml:space="preserve"><value>SQL Script Options</value></data>
   <data name="ExportOptions_SqlCreateTable" xml:space="preserve"><value>Output DROP TABLE + CREATE TABLE</value></data>
+  <data name="ExportOptions_SqlCreateIndex" xml:space="preserve"><value>Output CREATE INDEX</value></data>
+  <data name="ExportOptions_SqlWriteComments" xml:space="preserve"><value>Output COMMENT ON</value></data>
   <data name="ExportOptions_SqlInferInteger" xml:space="preserve"><value>Infer integer types from actual data for bare NUMBER columns</value></data>
 
   <!-- ========== SQL Export Dialog ========== -->

@@ -30,6 +30,8 @@ Partial Class ExportOptionsDialog
         cboDelimiter = New ComboBox()
         grpSqlOptions = New GroupBox()
         chkCreateTable = New CheckBox()
+        chkCreateIndex = New CheckBox()
+        chkWriteComments = New CheckBox()
         chkInferInteger = New CheckBox()
         btnOK = New Button()
         btnCancel = New Button()
@@ -158,10 +160,12 @@ Partial Class ExportOptionsDialog
         ' grpSqlOptions
         '
         grpSqlOptions.Controls.Add(chkCreateTable)
+        grpSqlOptions.Controls.Add(chkCreateIndex)
+        grpSqlOptions.Controls.Add(chkWriteComments)
         grpSqlOptions.Controls.Add(chkInferInteger)
         grpSqlOptions.Location = New Point(15, 285)
         grpSqlOptions.Name = "grpSqlOptions"
-        grpSqlOptions.Size = New Size(380, 80)
+        grpSqlOptions.Size = New Size(380, 130)
         grpSqlOptions.TabIndex = 2
         grpSqlOptions.TabStop = False
         grpSqlOptions.Text = "SQL スクリプトオプション"
@@ -175,13 +179,31 @@ Partial Class ExportOptionsDialog
         chkCreateTable.TabIndex = 0
         chkCreateTable.Text = "CREATE TABLE を出力"
         '
+        ' chkCreateIndex
+        '
+        chkCreateIndex.AutoSize = True
+        chkCreateIndex.Location = New Point(15, 50)
+        chkCreateIndex.Name = "chkCreateIndex"
+        chkCreateIndex.Size = New Size(180, 19)
+        chkCreateIndex.TabIndex = 1
+        chkCreateIndex.Text = "CREATE INDEX を出力"
+        '
+        ' chkWriteComments
+        '
+        chkWriteComments.AutoSize = True
+        chkWriteComments.Location = New Point(15, 75)
+        chkWriteComments.Name = "chkWriteComments"
+        chkWriteComments.Size = New Size(180, 19)
+        chkWriteComments.TabIndex = 2
+        chkWriteComments.Text = "COMMENT ON を出力"
+        '
         ' chkInferInteger
         '
         chkInferInteger.AutoSize = True
-        chkInferInteger.Location = New Point(15, 50)
+        chkInferInteger.Location = New Point(15, 100)
         chkInferInteger.Name = "chkInferInteger"
         chkInferInteger.Size = New Size(330, 19)
-        chkInferInteger.TabIndex = 1
+        chkInferInteger.TabIndex = 3
         chkInferInteger.Text = "NUMBER を実データから整数型に推定"
         '
         ' grpOracleClient
@@ -190,7 +212,7 @@ Partial Class ExportOptionsDialog
         grpOracleClient.Controls.Add(btnBrowseImpdp)
         grpOracleClient.Controls.Add(btnAutoSetup)
         grpOracleClient.Controls.Add(lblImpdpInfo)
-        grpOracleClient.Location = New Point(15, 375)
+        grpOracleClient.Location = New Point(15, 425)
         grpOracleClient.Name = "grpOracleClient"
         grpOracleClient.Size = New Size(380, 130)
         grpOracleClient.TabIndex = 5
@@ -233,7 +255,7 @@ Partial Class ExportOptionsDialog
         '
         ' btnOK
         '
-        btnOK.Location = New Point(195, 520)
+        btnOK.Location = New Point(195, 570)
         btnOK.Name = "btnOK"
         btnOK.Size = New Size(90, 30)
         btnOK.TabIndex = 6
@@ -242,7 +264,7 @@ Partial Class ExportOptionsDialog
         '
         ' btnCancel
         '
-        btnCancel.Location = New Point(305, 520)
+        btnCancel.Location = New Point(305, 570)
         btnCancel.Name = "btnCancel"
         btnCancel.Size = New Size(90, 30)
         btnCancel.TabIndex = 7
@@ -255,7 +277,7 @@ Partial Class ExportOptionsDialog
         CancelButton = btnCancel
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(410, 565)
+        ClientSize = New Size(410, 615)
         Controls.Add(grpDateFormat)
         Controls.Add(grpCsvOptions)
         Controls.Add(grpSqlOptions)
@@ -292,6 +314,8 @@ Partial Class ExportOptionsDialog
     Friend WithEvents cboDelimiter As ComboBox
     Friend WithEvents grpSqlOptions As GroupBox
     Friend WithEvents chkCreateTable As CheckBox
+    Friend WithEvents chkCreateIndex As CheckBox
+    Friend WithEvents chkWriteComments As CheckBox
     Friend WithEvents chkInferInteger As CheckBox
     Friend WithEvents grpOracleClient As GroupBox
     Friend WithEvents txtImpdpPath As TextBox

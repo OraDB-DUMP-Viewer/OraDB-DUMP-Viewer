@@ -111,6 +111,30 @@ Namespace My
 
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
+        Public Property ExportSqlCreateIndex() As Boolean
+            Get
+                Return CType(Me("ExportSqlCreateIndex"),Boolean)
+            End Get
+            Set
+                Me("ExportSqlCreateIndex") = value
+            End Set
+        End Property
+
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
+        Public Property ExportSqlWriteComments() As Boolean
+            Get
+                Return CType(Me("ExportSqlWriteComments"),Boolean)
+            End Get
+            Set
+                Me("ExportSqlWriteComments") = value
+            End Set
+        End Property
+
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
          Global.System.Configuration.DefaultSettingValueAttribute("False")>  _
         Public Property ExportSqlInferInteger() As Boolean
             Get

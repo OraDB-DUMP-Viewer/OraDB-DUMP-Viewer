@@ -41,6 +41,8 @@ static void clear_session(ODV_SESSION *s)
     s->csv_write_types = 0;
     s->csv_delimiter = ',';
     s->sql_create_table = 0;
+    s->sql_create_index = 0;
+    s->sql_write_comments = 0;
 }
 
 /*---------------------------------------------------------------------------
@@ -204,10 +206,13 @@ ODV_API int ODV_CALL odv_set_csv_options(ODV_SESSION *s, int write_header, int w
     return ODV_OK;
 }
 
-ODV_API int ODV_CALL odv_set_sql_options(ODV_SESSION *s, int create_table)
+ODV_API int ODV_CALL odv_set_sql_options(ODV_SESSION *s, int create_table,
+                                          int create_index, int write_comments)
 {
     if (!s) return ODV_ERROR_INVALID_ARG;
     s->sql_create_table = create_table;
+    s->sql_create_index = create_index;
+    s->sql_write_comments = write_comments;
     return ODV_OK;
 }
 

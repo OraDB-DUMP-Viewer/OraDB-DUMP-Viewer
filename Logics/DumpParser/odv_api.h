@@ -141,8 +141,11 @@ ODV_API int ODV_CALL odv_set_date_format(ODV_SESSION *s, int fmt, const char *cu
 ODV_API int ODV_CALL odv_set_csv_options(ODV_SESSION *s, int write_header, int write_types);
 
 /* Set SQL export options.
-   create_table: 1=output CREATE TABLE DDL before INSERTs, 0=skip (default) */
-ODV_API int ODV_CALL odv_set_sql_options(ODV_SESSION *s, int create_table);
+   create_table:  1=output DROP TABLE + CREATE TABLE DDL, 0=skip
+   create_index:  1=output CREATE INDEX DDL, 0=skip
+   write_comments: 1=output COMMENT ON DDL, 0=skip */
+ODV_API int ODV_CALL odv_set_sql_options(ODV_SESSION *s, int create_table,
+                                          int create_index, int write_comments);
 
 /* Set application version string (displayed in export comments).
    ver: UTF-8 version string e.g. "1.1.0". Pass NULL to clear. */

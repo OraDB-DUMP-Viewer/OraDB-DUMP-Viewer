@@ -23,6 +23,12 @@ Public Module ExportOptions
     ''' <summary>SQL: DROP TABLE + CREATE TABLE DDL を出力するか</summary>
     Public Property SqlCreateTable As Boolean = True
 
+    ''' <summary>SQL: CREATE INDEX DDL を出力するか</summary>
+    Public Property SqlCreateIndex As Boolean = True
+
+    ''' <summary>SQL: COMMENT ON DDL を出力するか</summary>
+    Public Property SqlWriteComments As Boolean = True
+
     ''' <summary>SQL: 裸の NUMBER を実データから整数型に推定するか</summary>
     Public Property SqlInferInteger As Boolean = False
 
@@ -40,6 +46,8 @@ Public Module ExportOptions
             CsvWriteTypes = My.Settings.ExportCsvWriteTypes
             CsvDelimiter = If(String.IsNullOrEmpty(My.Settings.ExportCsvDelimiter), ",", My.Settings.ExportCsvDelimiter)
             SqlCreateTable = My.Settings.ExportSqlCreateTable
+            SqlCreateIndex = My.Settings.ExportSqlCreateIndex
+            SqlWriteComments = My.Settings.ExportSqlWriteComments
             SqlInferInteger = My.Settings.ExportSqlInferInteger
             ImpdpPath = If(My.Settings.ImpdpPath, "")
         Catch
@@ -58,6 +66,8 @@ Public Module ExportOptions
             My.Settings.ExportCsvWriteTypes = CsvWriteTypes
             My.Settings.ExportCsvDelimiter = CsvDelimiter
             My.Settings.ExportSqlCreateTable = SqlCreateTable
+            My.Settings.ExportSqlCreateIndex = SqlCreateIndex
+            My.Settings.ExportSqlWriteComments = SqlWriteComments
             My.Settings.ExportSqlInferInteger = SqlInferInteger
             My.Settings.ImpdpPath = ImpdpPath
             My.Settings.Save()

@@ -397,6 +397,8 @@ OraDB_DumpParser.dll이 실행 파일과 같은 폴더에 있는지 확인하세
   <data name="ExportOptions_DelimiterPipe" xml:space="preserve"><value>파이프 (|)</value></data>
   <data name="ExportOptions_SqlOptions" xml:space="preserve"><value>SQL 스크립트 옵션</value></data>
   <data name="ExportOptions_SqlCreateTable" xml:space="preserve"><value>DROP TABLE + CREATE TABLE 출력</value></data>
+  <data name="ExportOptions_SqlCreateIndex" xml:space="preserve"><value>CREATE INDEX 출력</value></data>
+  <data name="ExportOptions_SqlWriteComments" xml:space="preserve"><value>COMMENT ON 출력</value></data>
   <data name="ExportOptions_SqlInferInteger" xml:space="preserve"><value>실제 데이터에서 NUMBER 열의 정수 유형 추론</value></data>
 
   <!-- ========== SQL 내보내기 ========== -->

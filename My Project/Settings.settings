@@ -22,6 +22,12 @@
     <Setting Name="ExportSqlCreateTable" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="ExportSqlCreateIndex" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ExportSqlWriteComments" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
     <Setting Name="ExportSqlInferInteger" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>

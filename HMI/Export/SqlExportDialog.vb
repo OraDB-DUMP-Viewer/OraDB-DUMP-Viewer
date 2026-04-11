@@ -28,6 +28,8 @@ Public Class SqlExportDialog
 
         ' ExportOptions の現在値を反映
         chkCreateTable.Checked = ExportOptions.SqlCreateTable
+        chkCreateIndex.Checked = ExportOptions.SqlCreateIndex
+        chkWriteComments.Checked = ExportOptions.SqlWriteComments
         chkInferInteger.Checked = ExportOptions.SqlInferInteger
     End Sub
 
@@ -41,6 +43,8 @@ Public Class SqlExportDialog
 
         ' オプションを反映・保存
         ExportOptions.SqlCreateTable = chkCreateTable.Checked
+        ExportOptions.SqlCreateIndex = chkCreateIndex.Checked
+        ExportOptions.SqlWriteComments = chkWriteComments.Checked
         ExportOptions.SqlInferInteger = chkInferInteger.Checked
         DatabaseName = txtDatabaseName.Text.Trim()
         ExportOptions.Save()
@@ -51,6 +55,8 @@ Public Class SqlExportDialog
         Me.Text = Loc.S("SqlExport_FormTitle")
         lblDbms.Text = Loc.S("SqlExport_DatabaseLabel")
         chkCreateTable.Text = Loc.S("ExportOptions_SqlCreateTable")
+        chkCreateIndex.Text = Loc.S("ExportOptions_SqlCreateIndex")
+        chkWriteComments.Text = Loc.S("ExportOptions_SqlWriteComments")
         chkInferInteger.Text = Loc.S("ExportOptions_SqlInferInteger")
         lblDatabaseName.Text = Loc.S("SqlExport_DatabaseName")
         btnOK.Text = Loc.S("Button_OK")

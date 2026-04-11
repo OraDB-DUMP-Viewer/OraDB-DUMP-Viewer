@@ -137,7 +137,7 @@ Public Class OraDB_NativeParser
     End Function
 
     <DllImport(DLL_NAME, CallingConvention:=CallingConvention.StdCall)>
-    Private Shared Function odv_set_sql_options(session As IntPtr, createTable As Integer) As Integer
+    Private Shared Function odv_set_sql_options(session As IntPtr, createTable As Integer, createIndex As Integer, writeComments As Integer) As Integer
     End Function
 
     <DllImport(DLL_NAME, CallingConvention:=CallingConvention.StdCall)>
@@ -232,7 +232,9 @@ Public Class OraDB_NativeParser
     Private Shared Sub ApplyExportOptions(session As IntPtr)
         odv_set_date_format(session, ExportOptions.DateFormat, ExportOptions.CustomDateFormat)
         odv_set_csv_options(session, If(ExportOptions.CsvWriteHeader, 1, 0), If(ExportOptions.CsvWriteTypes, 1, 0))
-        odv_set_sql_options(session, If(ExportOptions.SqlCreateTable, 1, 0))
+        odv_set_sql_options(session, If(ExportOptions.SqlCreateTable, 1, 0),
+                            If(ExportOptions.SqlCreateIndex, 1, 0),
+                            If(ExportOptions.SqlWriteComments, 1, 0))
 
         ' CSV デリミタ設定
         Dim delimChar As Char = If(String.IsNullOrEmpty(ExportOptions.CsvDelimiter), ","c, ExportOptions.CsvDelimiter(0))

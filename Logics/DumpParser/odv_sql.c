@@ -28,7 +28,9 @@ typedef struct {
     int         header_written;
     char        insert_prefix[4096];  /* Cached INSERT INTO ... VALUES ( */
     ODV_SESSION *session;             /* For accessing column type info */
-    int         create_table;         /* 1=output CREATE TABLE DDL */
+    int         create_table;         /* 1=output DROP TABLE + CREATE TABLE DDL */
+    int         create_index;         /* 1=output CREATE INDEX DDL */
+    int         write_comments;       /* 1=output COMMENT ON DDL */
     char        last_schema[129];     /* Schema name from last row (for post-parse index output) */
     char        last_table[129];      /* Table name from last row */
 } SQL_CONTEXT;
@@ -795,6 +797,8 @@ int write_sql_file(ODV_SESSION *s, const char *table_name,
     ctx.insert_prefix[0] = '\0';
     ctx.session = s;
     ctx.create_table = s->sql_create_table;
+    ctx.create_index = s->sql_create_index;
+    ctx.write_comments = s->sql_write_comments;
     ctx.last_schema[0] = '\0';
     ctx.last_table[0] = '\0';
 
@@ -838,9 +842,11 @@ int write_sql_file(ODV_SESSION *s, const char *table_name,
 
     /* Write CREATE INDEX and COMMENT ON after parse completes
        (EXP has INDEX/COMMENT DDL after data records) */
-    if (ctx.create_table && ctx.header_written && ctx.last_table[0]) {
-        write_indexes(&ctx, ctx.last_schema, ctx.last_table, ctx.dbms_type);
-        write_comments(&ctx, ctx.last_schema, ctx.last_table, ctx.dbms_type);
+    if (ctx.header_written && ctx.last_table[0]) {
+        if (ctx.create_index)
+            write_indexes(&ctx, ctx.last_schema, ctx.last_table, ctx.dbms_type);
+        if (ctx.write_comments)
+            write_comments(&ctx, ctx.last_schema, ctx.last_table, ctx.dbms_type);
     }
 
     fclose(ctx.fp);

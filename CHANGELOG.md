@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.2.0] - 2026-04-11
+
+### 新機能
+- **SQL エクスポートの DDL 選択出力** ([#25](https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/issues/25))
+  - CREATE TABLE / CREATE INDEX / COMMENT ON を個別に ON/OFF 可能に
+  - SQL エクスポートダイアログとエクスポートオプションダイアログの両方に対応
+  - デフォルトは全て ON（完全な SQL スクリプトを出力）
+- **C パーサーライブラリのクロスプラットフォーム対応** ([#27](https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/issues/27))
+  - Linux (.so) / macOS (.dylib) でのビルドをサポート
+  - Makefile を追加（`make` で共有ライブラリをビルド可能）
+  - Windows 固有 API (`__stdcall`, `_stricmp` 等) をポータブルマクロに抽象化
+
+### ドキュメント
+- README に [odv-testdump](https://github.com/OraDB-DUMP-Viewer/odv-testdump) リポジトリへのリンクを追加 ([#26](https://github.com/OraDB-DUMP-Viewer/OraDB-DUMP-Viewer/issues/26))
+
 ## [3.1.2] - 2026-04-09
 
 ### 修正

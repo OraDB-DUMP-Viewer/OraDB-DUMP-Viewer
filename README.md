@@ -244,6 +244,22 @@ cd ../..
 dotnet build "OraDB DUMP Viewer.vbproj"
 ```
 
+### Testing
+
+テスト用ダンプファイル (.dmp) は別リポジトリで管理しています:
+
+👉 **[OraDB-DUMP-Viewer/odv-testdump](https://github.com/OraDB-DUMP-Viewer/odv-testdump)** — Docker + Oracle Database Free で全データ型・全エクスポート形式のダンプを自動生成
+
+```bash
+# テストダンプの生成と実行
+git clone https://github.com/OraDB-DUMP-Viewer/odv-testdump.git
+cd odv-testdump
+./run.sh                          # Docker で .dmp ファイルを生成
+cp output/*.dmp ../OraDB-DUMP-Viewer/test_dumps/11g/
+cd ../OraDB-DUMP-Viewer/test_dumps
+./test_parser.exe .               # テスト実行
+```
+
 ---
 
 ## License & Terms / ライセンス・利用条件

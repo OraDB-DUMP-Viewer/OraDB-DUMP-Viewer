@@ -425,5 +425,12 @@ Logics/DumpParser/*.exp
 # Claude Code local settings
 .claude/settings.local.json
 
-# Test dump files
-test_dumps/
+# Test dump files (keep README and source files, ignore binaries and .dmp)
+test_dumps/*.dmp
+test_dumps/*.dll
+test_dumps/*.exe
+test_dumps/*.obj
+test_dumps/*.exp
+test_dumps/*.lib
+test_dumps/11g/
+test_dumps/23ai/
